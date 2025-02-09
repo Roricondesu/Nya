@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0">
+    <title>MajiangSoloByNyakawa</title>
+    <style>
+        button {
+    background-color: #39C5BB;
+    color: #fff;
+}
+button:hover {
+    background-color: #0056b3;
+}
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+button[onclick="startGame()"] {
+    background-color: #21a675;
+}
+button[onclick="checkWin()"] {
+    background-color: #f05654;
+}
+
+        :root {
+            --card-width: 60px;
+            --card-height: 80px;
+            --card-margin: 5px;
+            --button-padding: 10px 15px;
+            --input-width: 200px;
+            --input-padding: 10px;
+            --input-font-size: 18px;
+            --card-font-size: 16px;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+       .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+       .card {
+            display: inline-block;
+            width: var(--card-width);
+            height: var(--card-height);
+            border: none;
+            text-align: center;
+            line-height: var(--card-height);
+            margin: var(--card-margin);
+            cursor: pointer;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s;
+            font-size: var(--card-font-size);
+        }
+
+       .card:hover {
+            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        #hand {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            max-width: calc((var(--card-width) + 2 * var(--card-margin)) * 6);
+            margin-bottom: 15px;
+        }
+
+        #kong-area {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button,
+        input {
+            padding: var(--button-padding);
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: var(--input-font-size);
+        }
+
+        button {
+            background-color: #39C5BB;
+            color: #fff;
+        }
+
+        button:hover {
+            background-color: #39928c;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        input {
+            width: var(--input-width);
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: var(--input-padding);
+        }
+
+        #score-display {
+            margin-top: 15px;
+            font-size: var(--input-font-size);
+        }
+
+        #deck-display {
+            margin-top: 15px;
+            font-size: var(--input-font-size);
+        }
+
+       .help-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+       .help-popup-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+       .close-help {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --card-width: 40px;
+                --card-height: 65px;
+                --card-margin: 2px;
+                --button-padding: 8px 12px;
+                --input-width: 180px;
+                --input-padding: 8px;
+                --input-font-size: 18px;
+                --card-font-size: 58px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --card-width: 32px;
+                --card-height: 55px;
+                --card-margin: 2px;
+                --button-padding: 6px 10px;
+                --input-width: 150px;
+                --input-padding: 6px;
+                --input-font-size: 18px;
+                --card-font-size: 58px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <style>
+   .title-container {
+        position: fixed;
+        top: 10%;
+        left: 0;
+        padding: 10px;
+        z-index: 100;
+    }
+   .sub - title {
+        font-size: small;
+        color: #39C5BB;
+    }
+    .title-container h1:first-child {
+    text-shadow: 0 0 5px #39C5BB;
+}
+
+.title-container h1:last-child {
+    text-shadow: 0 0 5px #f05654;
+}
+</style>
+<div class="title-container">
+    <a href="https://gitee.com/nyakawa" style="color: inherit; text-decoration: none;">
+        <h1 style="display: inline; color: #39C5BB;">Majiang</h1>
+        <h1 style="display: inline; color: #f05654;">Solo</h1>
+    </a>
+    <div class="sub - title">       ★By Nyakawa</div>
+</div>
+
+    <div class="game-container">
+        <div id="deck-display">牌库: 108</div>
+        <div id="hand"></div>
+        <div id="kong-area"></div>
+        <button onclick="startGame()">开始/重置</button>
+        <button onclick="drawCard()">摸牌</button>
+        <button onclick="sortHand()">理牌</button>
+        <button onclick="checkForKongManual()">杠牌</button>
+        <button id="check-win-btn" onclick="checkWin()">胡牌</button>
+        <button onclick="showHelp()">帮助</button>
+        <div id="score-display">分数: 10000</div>
+        <div id="time-display">时间: 0 秒</div>
+        <div id="discard-display">出牌: 0</div>
+        <div class="help-popup" id="help-popup">
+            <div class="help-popup-content">
+                <span class="close-help" onclick="hideHelp()">&times;</span>
+                <h2>帮助</h2>
+                <p>从牌库摸牌出牌让手牌满足胡牌条件。牌库含万、筒、条，每种1 - 9各4张。</p>
+                <p>胡牌需4个刻子/顺子和1个对子。</p>
+                <p>对对胡加5000分，杠4张相同牌加3000分,清一色分数翻倍。</p>
+                <p>胡牌后按时间、出牌次数、杠次数、胡牌类型算分。</p>
+                <p>By Nyakawa gitee</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        let hand = [], suits = ['万', '筒', '条'], numbers = Array.from({ length: 9 }, (_, i) => i + 1), MAX_HAND_SIZE = 14,
+            emojiMap = { '万': ['🀇', '🀈', '🀉', '🀊', '🀋', '🀌', '🀍', '🀎', '🀏'],
+                '筒': ['🀙', '🀚', '🀛', '🀜', '🀝', '🀞', '🀟', '🀠', '🀡'],
+                '条': ['🀐', '🀑', '🀒', '🀓', '🀔', '🀕', '🀖', '🀗', '🀘'] },
+            startTime, discardCount = 0, score = 10000, scoreInterval, timeInterval, deck = [], kongCount = 0;
+
+        function generateDeck() {
+            return suits.flatMap(suit => numbers.flatMap(number => Array(4).fill(emojiMap[suit][number - 1])));
+        }
+
+        function startGame() {
+            startTime = new Date().getTime();
+            hand = [];
+            discardCount = 0;
+            score = 10000;
+            kongCount = 0;
+            clearInterval(scoreInterval);
+            clearInterval(timeInterval);
+            deck = generateDeck();
+            deck.sort(() => Math.random() - 0.5);
+            scoreInterval = setInterval(updateScore, 1000);
+            timeInterval = setInterval(renderTime, 500);
+            renderScore();
+            renderTime();
+            renderDiscardCount();
+            renderHand();
+            renderDeck();
+            document.getElementById('kong-area').innerHTML = '';
+            document.getElementById('check-win-btn').disabled = false;
+        }
+
+        function drawCard() {
+            if (hand.length >= MAX_HAND_SIZE - kongCount * 3) {
+                alert('手牌已达上限');
+                return;
+            }
+            if (deck.length === 0) {
+                alert('牌库已空，游戏失败');
+                score = Math.floor(score / 2);
+                renderScore();
+                return;
+            }
+            hand.push(deck.pop());
+            checkForKong(hand[hand.length - 1]);
+            renderHand();
+            renderDiscardCount();
+            renderDeck();
+        }
+
+        function checkForKong(newCard) {
+            const cardCounts = hand.reduce((acc, card) => {
+                acc[card] = (acc[card] || 0) + 1;
+                return acc;
+            }, {});
+            if (cardCounts[newCard] === 4) score += 100;
+            renderScore();
+        }
+
+        function discardCard(cardToDiscard) {
+            const index = hand.indexOf(cardToDiscard);
+            if (index!== -1) {
+                hand.splice(index, 1);
+                discardCount++;
+                score -= 8;
+                score = Math.max(1, score);
+                renderHand();
+                renderDiscardCount();
+                renderScore();
+            } else alert('手牌中没有这张牌');
+        }
+
+        function sortHand() {
+            hand.sort((a, b) => {
+                const aSuitIndex = suits.indexOf(suits.find(suit => emojiMap[suit].includes(a)));
+                const bSuitIndex = suits.indexOf(suits.find(suit => emojiMap[suit].includes(b)));
+                const aNumber = emojiMap[suits[aSuitIndex]].indexOf(a);
+                const bNumber = emojiMap[suits[bSuitIndex]].indexOf(b);
+                return aSuitIndex === bSuitIndex? aNumber - bNumber : aSuitIndex - bSuitIndex;
+            });
+            renderHand();
+        }
+
+        function isSequence(arr) {
+            return arr.length === 3 && suits.some(suit => {
+                const indices = arr.map(card => emojiMap[suit].indexOf(card));
+                return indices[0] + 1 === indices[1] && indices[1] + 1 === indices[2];
+            });
+        }
+
+        function isTriplet(arr) {
+            return arr.length === 3 && arr[0] === arr[1] && arr[1] === arr[2];
+        }
+
+        function isAllSameSuit() {
+            return hand.length > 0 && suits.some(suit => hand.every(card => emojiMap[suit].includes(card)));
+        }
+
+        function checkWin() {
+            if (hand.length!== MAX_HAND_SIZE - kongCount * 3) {
+                alert('手牌数量不正确，无法胡牌');
+                return;
+            }
+            let handCopy = [...hand], pairFound = false, count = 0, tripletCount = 0;
+            for (let i = 0; i < handCopy.length; i++) {
+                if (isTriplet(handCopy.slice(i, i + 3))) {
+                    handCopy.splice(i, 3);
+                    count++;
+                    tripletCount++;
+                    i -= 2;
+                } else if (isSequence(handCopy.slice(i, i + 3))) {
+                    handCopy.splice(i, 3);
+                    count++;
+                    i -= 2;
+                }
+            }
+            if (handCopy.length === 2 && handCopy[0] === handCopy[1]) pairFound = true;
+            const requiredSets = 4 - kongCount;
+            if (count >= requiredSets && pairFound) {
+                clearInterval(scoreInterval);
+                clearInterval(timeInterval);
+                const baseScore = score;
+                const timeDeduction = Math.floor((new Date().getTime() - startTime) / 1000) * 3;
+                const discardDeduction = discardCount * 8;
+                const sameSuitBonus = isAllSameSuit()? baseScore : 0;
+                let winTypeBonus = 0;
+                if (tripletCount === 4) winTypeBonus = 5000;
+                score = baseScore - timeDeduction - discardDeduction + sameSuitBonus + winTypeBonus;
+                score = Math.max(1, score);
+                const winMessage = `胡牌！\n时间扣分: ${timeDeduction}\n出牌扣分: ${discardDeduction}\n杠加分: ${kongCount * 3000}\n其他加分: ${winTypeBonus}\n最终分数: ${score}`;
+                alert(winMessage);
+                renderScore();
+                document.getElementById('check-win-btn').disabled = true;
+            } else alert('未胡牌');
+        }
+
+        function updateScore() {
+            score -= 3;
+            score = Math.max(1, score);
+            renderScore();
+        }
+
+        function renderScore() {
+            document.getElementById('score-display').textContent = `分数: ${score}`;
+        }
+
+        function renderTime() {
+            const elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+            document.getElementById('time-display').textContent = `时间: ${elapsedTime} 秒`;
+        }
+
+        function renderDiscardCount() {
+            document.getElementById('discard-display').textContent = `出牌次数: ${discardCount}`;
+        }
+
+        function renderHand() {
+            const handDiv = document.getElementById('hand');
+            handDiv.innerHTML = '';
+            hand.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.textContent = card;
+                cardElement.onclick = () => discardCard(card);
+                handDiv.appendChild(cardElement);
+            });
+        }
+
+        function renderDeck() {
+            document.getElementById('deck-display').textContent = `牌库剩余 ${deck.length}`;
+        }
+
+        function checkForKongManual() {
+            const cardCounts = hand.reduce((acc, card) => {
+                acc[card] = (acc[card] || 0) + 1;
+                return acc;
+            }, {});
+            for (const card in cardCounts) {
+                if (cardCounts[card] === 4) {
+                    hand = hand.filter(c => c!== card);
+                    const kongElement = document.createElement('div');
+                    kongElement.className = 'card';
+                    kongElement.textContent = card;
+                    document.getElementById('kong-area').appendChild(kongElement);
+                    kongCount++;
+                    score += 3000;
+                    renderScore();
+                    break;
+                }
+            }
+            renderHand();
+        }
+
+        function showHelp() {
+            document.getElementById('help-popup').style.display = 'block';
+        }
+
+        function hideHelp() {
+            document.getElementById('help-popup').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

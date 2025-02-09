@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh - CN">
+<head>
+    <meta charset="UTF - 8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字炸弹游戏</title>
+    <style>
+        body{font-family:Arial,sans - serif;text-align:center;background:#f4f4f4}#game{background:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,.2);padding:20px;width:300px;margin:100px auto}input{padding:10px;width:150px;margin-bottom:15px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box}button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius:5px;cursor:pointer;box-sizing:border-box}button:hover{background:#45a049}#result{margin-top:20px}#restartButton{display:none;margin:20px auto}
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>数字炸弹</h1>
+        <p>请输入 <span id="rangeMin">1</span> 到 <span id="rangeMax">100</span> 之间的数字:</p>
+        <input type="number" id="guessInput" min="1" max="100">
+        <button onclick="guess()">猜数字</button>
+        <button onclick="restart()" id="restartButton">重新开始</button>
+        <div id="result"></div>
+        <p id="count">猜测次数: <span id="guessCount">0</span></p>
+    </div>
+    <script>
+        let b,g=0,m=1,M=100;
+        const start=()=>{
+            b=Math.floor(Math.random()*100)+1;
+            m=1;M=100;g=0;
+            document.getElementById('result').innerHTML='';
+            document.getElementById('guessInput').disabled=0;
+            document.getElementById('guessInput').value='';
+            document.getElementById('restartButton').style.display='none';
+            document.getElementById('guessCount').textContent=g;
+            document.getElementById('rangeMin').textContent=m;
+            document.getElementById('rangeMax').textContent=M;
+        };
+        const guess=()=>{
+            const i=document.getElementById('guessInput').value;
+            if(!i||isNaN(i)||i<m||i>M){
+                document.getElementById('result').innerHTML=`请输入 ${m} 到 ${M} 之间的有效数字`;
+                return;
+            }
+            g++;
+            document.getElementById('guessCount').textContent=g;
+            const n=parseInt(i,10);
+            if(n===b){
+                document.getElementById('result').innerHTML=`游戏结束。炸弹数字是 ${b}。`;
+                document.getElementById('guessInput').disabled=1;
+                document.getElementById('restartButton').style.display='block';
+            }else if(n<b){
+                m=n+1;
+                document.getElementById('result').innerHTML=`猜小了，范围调整为 ${m} 到 ${M}`;
+            }else{
+                M=n - 1;
+                document.getElementById('result').innerHTML=`猜大了，范围调整为 ${m} 到 ${M}`;
+            }
+            document.getElementById('rangeMin').textContent=m;
+            document.getElementById('rangeMax').textContent=M;
+            document.getElementById('guessInput').setAttribute('min',m);
+            document.getElementById('guessInput').setAttribute('max',M);
+            document.getElementById('guessInput').value='';
+        };
+        const restart=()=>start();
+        start();
+    </script>
+</body>
+</html>
