@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>NyaCloud词云</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6B8DD6 0%, #8E37D7 100%);
+            --bg-color: #f8f9ff;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            color: #2c3e50;
+            touch-action: manipulation;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-color);
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            padding: 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #inputText {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #e0e4e9;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            transition: all 0.3s;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 6px rgba(107, 141, 214, 0.2);
+        }
+
+        #wordCloud {
+            flex: 1;
+            background: var(--glass-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+            touch-action: pan-x pan-y;
+        }
+
+        .color-management {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        #newColor {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e4e9;
+            border-radius: 8px;
+            height: 40px;
+        }
+
+        .color-option {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .color-option.selected::after {
+            content: "✓";
+            color: white;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .frequency-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 16px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .frequency-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .screenshot-tip {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 20px 0 12px;
+            font-size: 13px;
+            color: #2c3e50;
+            border: 1px solid #bbdefb;
+        }
+
+        .screenshot-tip::before {
+            content: "💡";
+            margin-right: 8px;
+            font-size: 16px;
+            vertical-align: middle;
+        }
+
+        .signature {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                padding: 24px;
+            }
+
+            .sidebar {
+                width: 360px;
+                padding: 24px;
+            }
+
+            #inputText {
+                min-height: 180px;
+                font-size: 15px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 15px;
+            }
+
+            .frequency-list {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2 style="margin:0 0 20px 0; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                🐱NyaCloud词云分析平台
+            </h2>
+            
+            <textarea 
+                id="inputText"
+                placeholder="在此粘贴或输入需要分析的文本内容...（建议不超过5万字）"
+                rows="6"></textarea>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="startAnalysis()">⚡开始分析</button>
+                <button class="btn" onclick="exportData()" style="background:#e3e8ef;">😻导出表格</button>
+            </div>
+
+            <div class="color-management">
+                <div class="color-input-group">
+                    <input type="color" id="newColor" value="#6B8DD6">
+                    <button class="btn" style="background:#e3e8ef;" onclick="addColor()">➕ 添加</button>
+                </div>
+                <div id="colorPalette" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+
+            <h3 style="margin:16px 0 8px 0;">📊 实时词频表</h3>
+            <div class="frequency-list" id="wordFrequency"></div>
+
+            <div class="screenshot-tip">
+                推荐使用浏览器截图保存词云<br>
+                Windows: <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd><br>
+                Mac:     <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>4</kbd><br>
+				如有建议请联系 <kbd>Rorisuki@foxmail.com</kbd>
+            </div>
+
+            <div class="signature">By Nyakawa@Github roricondesu</div>
+        </div>
+
+        <div class="main-content">
+            <div id="wordCloud"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
+    <script>
+        let currentWordData = [];
+        let colorTheme = ['#6B8DD6', '#8E37D7', '#FF6B6B', '#47C83E'];
+        let currentCloud = null;
+
+        // 初始化颜色面板
+        function initColorPalette() {
+            const palette = document.getElementById('colorPalette');
+            palette.innerHTML = colorTheme.map(color => `
+                <div class="color-option ${colorTheme.includes(color) ? 'selected' : ''}" 
+                     style="background:${color}" 
+                     onclick="toggleColor('${color}')"></div>
+            `).join('');
+        }
+
+        // 添加新颜色
+        function addColor() {
+            const newColor = document.getElementById('newColor').value;
+            if (!colorTheme.includes(newColor)) {
+                colorTheme.push(newColor);
+                initColorPalette();
+            }
+        }
+
+        // 切换颜色选择
+        function toggleColor(color) {
+            const element = event.target;
+            element.classList.toggle('selected');
+            colorTheme = Array.from(document.querySelectorAll('.color-option.selected'))
+                            .map(opt => opt.style.backgroundColor);
+            if (currentWordData.length) renderWordCloud(currentWordData);
+        }
+
+        function startAnalysis() {
+            const text = document.getElementById('inputText').value;
+            if (!text.trim()) return alert('请输入分析文本');
+            
+            const words = chineseSegment(text);
+            currentWordData = processWordFreq(words);
+            updateFrequencyList(currentWordData);
+            renderWordCloud(currentWordData);
+        }
+
+        function chineseSegment(text) {
+            const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+            return Array.from(segmenter.segment(text))
+                .filter(seg => seg.isWordLike && seg.segment.length > 1)
+                .map(seg => seg.segment);
+        }
+
+        function processWordFreq(words) {
+            const freqMap = words.reduce((acc, word) => {
+                acc[word] = (acc[word] || 0) + 1;
+                return acc;
+            }, {});
+
+            return Object.entries(freqMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 100);
+        }
+
+        function renderWordCloud(wordList) {
+            if (!wordList.length) return;
+
+            const maxFrequency = Math.max(...wordList.map(item => item[1]));
+            const minFrequency = Math.min(...wordList.map(item => item[1]));
+
+            if (currentCloud) {
+                WordCloud.stop();
+                document.getElementById('wordCloud').innerHTML = '';
+            }
+
+            currentCloud = WordCloud(document.getElementById('wordCloud'), {
+                list: wordList,
+                gridSize: 10,
+                weightFactor: function (size) {
+                    const scale = (size - minFrequency) / (maxFrequency - minFrequency || 1);
+                    return 20 + (60 * scale);
+                },
+                fontFamily: 'Inter, sans-serif',
+                color: () => colorTheme[Math.floor(Math.random() * colorTheme.length)],
+                backgroundColor: 'transparent',
+                minRotation: 0,
+                maxRotation: 0,
+                shuffle: false
+            });
+        }
+
+        function updateFrequencyList(data) {
+            const container = document.getElementById('wordFrequency');
+            container.innerHTML = data.map(([word, count]) => `
+                <div class="frequency-item">
+                    <span>${word}</span>
+                    <span>${count}</span>
+                </div>
+            `).join('');
+        }
+
+        function exportData() {
+            if (!currentWordData.length) return alert('请先分析文本');
+            
+            const csv = [
+                '关键词,出现次数',
+                ...currentWordData.map(([word, count]) => `${word},${count}`)
+            ].join('\n');
+
+            const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = '关键词统计.csv';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+
+        // 初始化
+        document.getElementById('inputText').value = `
+本工具基于浏览器原生API实现，无需担心数据泄露。
+用户可以通过自定义颜色主题，获得个性化的词云图。
+使用前请清空文本框中的文字。
+推荐使用电脑浏览器截图保存词云，手机显示效果有限。
+截图快捷键：
+Windows: Win + Shift + S
+Mac: Cmd + Shift + 4
+本页面由 Roricondesu@Github 创建
+如有建议请联系 Rorisuki@foxmail.com`;
+
+        initColorPalette();
+    </script>
+</body>
+</html>
