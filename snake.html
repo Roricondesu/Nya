@@ -132,7 +132,7 @@
         <div id="pause-btn">||</div>
         <div id="resume-tip">▶</div>
         <div id="game-over">★<span id="final-score"></span></div>
-        <button id="restart-btn">重新开始</button>
+        <button id="restart-btn">RESTART</button>
     </div>
     <script>
         const gameArea = document.getElementById('game-area');
@@ -181,7 +181,7 @@
                 snakeElement.style.top = `${segment.y}px`;
                 // 根据方向旋转蛇头
                 if (index === 0) {
-                    const angle = Math.atan2(direction.y, direction.x) * 180 + 90/ Math.PI;
+                    const angle = Math.atan2(direction.y, direction.x) * 180 - 90/ Math.PI;
                     snakeElement.style.transform = `rotate(${angle}deg)`;
                 }
                 gameArea.appendChild(snakeElement);
