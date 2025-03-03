@@ -96,6 +96,7 @@
             background-size: cover;
             background-position: center;
             transform-origin: center;
+            transform: rotate(-90deg)
         }
 
         .apple {
@@ -181,7 +182,7 @@
                 snakeElement.style.top = `${segment.y}px`;
                 // 根据方向旋转蛇头
                 if (index === 0) {
-                    const angle = Math.atan2(direction.y, direction.x) * 180 - 90/ Math.PI;
+                    const angle = Math.atan2(direction.y, direction.x) * 180/ Math.PI;
                     snakeElement.style.transform = `rotate(${angle}deg)`;
                 }
                 gameArea.appendChild(snakeElement);
