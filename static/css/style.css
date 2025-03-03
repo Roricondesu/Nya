@@ -318,7 +318,7 @@ body {
     aspect-ratio: 1/1;
     background-size: cover;
     border-radius: 50%;
-    border: 0.5px solid #ffffff;
+    border: none;
 }
 .description {
 
