@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
+    <title>BlockArena围城</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #ff7979;
+            --background: #f5f6fa;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .blockade-title {
+            font-size: 2.8em;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: repeating-linear-gradient(
+                45deg,
+                var(--accent-color),
+                var(--accent-color) 12px,
+                #ffffff 12px,
+                #ffffff 24px
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 
+                2px 2px 0 #2c3e50,
+                4px 4px 6px rgba(0, 0, 0, 0.3);
+            animation: stripe-scroll 0.35s linear infinite;
+            margin: 0 0 25px 0;
+            letter-spacing: 3px;
+            position: relative;
+            padding: 8px 15px;
+            border: 3px solid var(--accent-color);
+            border-radius: 15px;
+        }
+
+        @keyframes stripe-scroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 48px 0; }
+        }
+
+        @keyframes eliminate {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .main-menu {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-container {
+            display: none;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .board {
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cell:hover {
+            background: #f0f0f0;
+        }
+
+        .blocked {
+            background: repeating-linear-gradient(
+                45deg,
+                #bdc3c7,
+                #bdc3c7 10px,
+                #95a5a6 10px,
+                #95a5a6 20px
+            );
+        }
+
+        .status {
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: var(--primary-color);
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            margin: 5px;
+        }
+
+        .credits {
+            margin-top: 30px;
+            color: var(--primary-color);
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* 联机大厅样式 */
+        .online-lobby {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            min-width: 400px;
+            display: none;
+        }
+
+        .lobby-controls {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .room-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .room-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #playerList {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .player-item {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 主菜单 -->
+    <div class="main-menu">
+        <h1 class="blockade-title">Block Arena</h1>
+        <div>
+            <label>棋盘大小 (10-60): </label>
+            <input type="number" id="boardSize" min="10" max="60" value="15">
+        </div>
+        <div>
+            <label>玩家数量 (2-12): </label>
+            <input type="number" id="playerCount" min="2" max="12" value="3">
+        </div>
+        <button onclick="startGame()">开始新游戏</button>
+        <button onclick="showOnlineLobby()">联机对战</button>
+    </div>
+
+    <!-- 单机游戏容器 -->
+    <div class="game-container">
+        <div class="status" id="status"></div>
+        <div class="controls">
+            <button onclick="showGameRules()">游戏玩法</button>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+        <table class="board" id="board"></table>
+    </div>
+
+    <!-- 联机大厅 -->
+    <div class="online-lobby">
+        <h2>联机大厅</h2>
+        <div class="lobby-controls">
+            <input type="text" id="username" placeholder="输入用户名" required>
+            <div id="hostSettings" style="display: none;">
+                <input type="text" id="customCode" placeholder="自定义房间码(4-6位)" 
+                       pattern="[A-Za-z0-9]{4,6}" title="4-6位字母或数字">
+                <input type="number" id="maxPlayers" min="2" max="12" value="4">
+                <input type="number" id="onlineBoardSize" min="10" max="60" value="20">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="toggleHostSettings()">创建房间</button>
+                <div style="flex: 2; display: flex; gap: 5px;">
+                    <input type="text" id="roomCode" placeholder="输入房间代码" style="flex: 1">
+                    <button onclick="joinRoom()">加入</button>
+                </div>
+            </div>
+        </div>
+        <div id="roomPlayers" style="margin-top: 15px; display: none;">
+            <h3>玩家列表</h3>
+            <div id="playerList"></div>
+            <button id="readyButton" onclick="toggleReady()" style="margin-top: 10px;">准备</button>
+            <button onclick="leaveRoom()" style="background: var(--accent-color);">离开房间</button>
+        </div>
+    </div>
+
+    <div class="credits">
+        By Yufan@Nyakawa at Github
+    </div>
+
+    <script>
+        const symbols = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+        let gameState = {
+            phase: 'setup',
+            currentPlayer: 0,
+            players: [],
+            board: [],
+            blocked: new Set(),
+            size: 15,
+            cells: []
+        };
+
+        function startGame() {
+            const sizeInput = document.getElementById('boardSize');
+            const playerInput = document.getElementById('playerCount');
+            
+            // 验证棋盘大小
+            const size = parseInt(sizeInput.value);
+            if (isNaN(size)) {
+                alert("请输入有效的棋盘大小（10-60之间的数字）");
+                sizeInput.focus();
+                return;
+            }
+            if (size < 10 || size > 60) {
+                alert("棋盘大小必须在10到60之间");
+                sizeInput.focus();
+                return;
+            }
+
+            // 验证玩家数量
+            const playerCount = parseInt(playerInput.value);
+            if (isNaN(playerCount)) {
+                alert("请输入有效的玩家数量（2-12之间的数字）");
+                playerInput.focus();
+                return;
+            }
+            if (playerCount < 2 || playerCount > 12) {
+                alert("玩家数量必须在2到12之间");
+                playerInput.focus();
+                return;
+            }
+
+            gameState = {
+                phase: 'setup',
+                currentPlayer: 0,
+                players: Array.from({length: playerCount}, (_, i) => ({
+                    id: i,
+                    symbol: symbols[i],
+                    position: null,
+                    active: true
+                })),
+                board: Array(size).fill().map(() => Array(size).fill(null)),
+                blocked: new Set(),
+                size,
+                cells: []
+            };
+
+            document.querySelector('.main-menu').style.display = 'none';
+            document.querySelector('.game-container').style.display = 'block';
+            initBoard();
+            updateStatus();
+        }
+
+        function initBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            gameState.cells = [];
+
+            for (let i = 0; i < gameState.size; i++) {
+                const row = document.createElement('tr');
+                gameState.cells[i] = [];
+                for (let j = 0; j < gameState.size; j++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'cell';
+                    cell.dataset.x = i;
+                    cell.dataset.y = j;
+                    cell.onclick = handleCellClick;
+                    gameState.cells[i][j] = cell;
+                    row.appendChild(cell);
+                }
+                board.appendChild(row);
+            }
+        }
+
+        function handleCellClick(e) {
+            const x = parseInt(e.target.dataset.x);
+            const y = parseInt(e.target.dataset.y);
+
+            if (gameState.phase === 'setup') {
+                if (!gameState.board[x][y]) {
+                    gameState.players[gameState.currentPlayer].position = {x, y};
+                    gameState.board[x][y] = gameState.currentPlayer;
+                    e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+                    
+                    if (gameState.currentPlayer < gameState.players.length - 1) {
+                        gameState.currentPlayer++;
+                    } else {
+                        gameState.phase = 'block';
+                        gameState.currentPlayer = 0;
+                    }
+                    updateStatus();
+                }
+            } else if (gameState.phase === 'block') {
+                if (!gameState.blocked.has(`${x},${y}`) && !isPlayerAt(x, y)) {
+                    gameState.blocked.add(`${x},${y}`);
+                    e.target.classList.add('blocked');
+                    gameState.phase = 'move';
+                    updateStatus();
+                }
+            } else if (gameState.phase === 'move') {
+                if (checkImmediateElimination(gameState.players[gameState.currentPlayer])) {
+                    nextTurn();
+                    return;
+                }
+                
+                const current = gameState.players[gameState.currentPlayer].position;
+                if (canMoveTo(current.x, current.y, x, y)) {
+                    gameState.board[current.x][current.y] = null;
+                    gameState.board[x][y] = gameState.currentPlayer;
+                    gameState.players[gameState.currentPlayer].position = {x, y};
+                    gameState.cells[current.x][current.y].textContent = '';
+                    e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+                    
+                    nextTurn();
+                }
+            }
+        }
+
+        function canMoveTo(fromX, fromY, toX, toY) {
+            if (gameState.blocked.has(`${toX},${toY}`)) return false;
+            if (Math.abs(fromX - toX) > 1 || Math.abs(fromY - toY) > 1) return false;
+            return !isPlayerAt(toX, toY);
+        }
+
+        function isPlayerAt(x, y) {
+            return gameState.players.some(p => p.active && p.position?.x === x && p.position?.y === y);
+        }
+
+        function checkImmediateElimination(player) {
+            const pos = player.position;
+            let allBlocked = true;
+            
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const x = pos.x + dx;
+                    const y = pos.y + dy;
+                    
+                    if (x >= 0 && x < gameState.size && 
+                        y >= 0 && y < gameState.size &&
+                        !gameState.blocked.has(`${x},${y}`)) {
+                        if (!isPlayerAt(x, y)) {
+                            allBlocked = false;
+                            break;
+                        }
+                    }
+                }
+                if (!allBlocked) break;
+            }
+
+            if (allBlocked && player.active) {
+                const cell = gameState.cells[pos.x][pos.y];
+                cell.classList.add('eliminated');
+                setTimeout(() => {
+                    cell.textContent = '';
+                    cell.classList.remove('eliminated');
+                }, 500);
+                
+                gameState.board[pos.x][pos.y] = null;
+                player.active = false;
+                return true;
+            }
+            return false;
+        }
+
+        function nextTurn() {
+            let initialPlayer = gameState.currentPlayer;
+            let attempts = 0;
+            
+            do {
+                gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
+                attempts++;
+                
+                if (attempts > gameState.players.length * 2) break;
+            } while (!gameState.players[gameState.currentPlayer].active);
+
+            if (checkImmediateElimination(gameState.players[gameState.currentPlayer])) {
+                nextTurn();
+                return;
+            }
+
+            gameState.phase = 'block';
+            updateStatus();
+            
+            const activePlayers = gameState.players.filter(p => p.active);
+            if (activePlayers.length === 1) {
+                alert(`玩家 ${activePlayers[0].symbol} 获胜！`);
+                restartGame();
+            }
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            const player = gameState.players[gameState.currentPlayer];
+            const phaseMap = {
+                setup: `玩家 ${player.symbol} 选择出生点`,
+                block: `玩家 ${player.symbol} 选择要封锁的格子`,
+                move: `玩家 ${player.symbol} 移动棋子`
+            };
+            status.textContent = `${phaseMap[gameState.phase]}`;
+        }
+
+        function showGameRules() {
+            alert("游戏规则：\n1. 玩家轮流放置初始位置\n2. 每回合先封锁一个格子，再移动棋子一格（8个方向均可）\n3. 被完全包围的玩家立即淘汰\n4. 最后存活的玩家获胜！\nGameplay by jingpo,Hangen and Yufan");
+        }
+
+        function restartGame() {
+            document.querySelector('.main-menu').style.display = 'block';
+            document.querySelector('.game-container').style.display = 'none';
+        }
+    </script>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // 初始化Supabase
+    const supabase = createClient(
+        'https://lmndqwihyswkzurvkldc.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtbmRxd2loeXN3a3p1cnZrbGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MzEwMTYsImV4cCI6MjA1NjQwNzAxNn0.-ZRA7pbZWVRlalvGSXunHOOEhNTYSW-kmr54OZLnW18'
+    );
+
+    // 在gameState中添加联机相关状态
+    let gameState = {
+        phase: 'setup',
+        currentPlayer: 0,
+        players: [],
+        board: [],
+        blocked: new Set(),
+        size: 15,
+        cells: []
+    };
+
+    function startGame() {
+        const sizeInput = document.getElementById('boardSize');
+        const playerInput = document.getElementById('playerCount');
+        
+        // 验证棋盘大小
+        const size = parseInt(sizeInput.value);
+        if (isNaN(size)) {
+            alert("请输入有效的棋盘大小（10-60之间的数字）");
+            sizeInput.focus();
+            return;
+        }
+        if (size < 10 || size > 60) {
+            alert("棋盘大小必须在10到60之间");
+            sizeInput.focus();
+            return;
+        }
+
+        // 验证玩家数量
+        const playerCount = parseInt(playerInput.value);
+        if (isNaN(playerCount)) {
+            alert("请输入有效的玩家数量（2-12之间的数字）");
+            playerInput.focus();
+            return;
+        }
+        if (playerCount < 2 || playerCount > 12) {
+            alert("玩家数量必须在2到12之间");
+            playerInput.focus();
+            return;
+        }
+
+        gameState = {
+            phase: 'setup',
+            currentPlayer: 0,
+            players: Array.from({length: playerCount}, (_, i) => ({
+                id: i,
+                symbol: symbols[i],
+                position: null,
+                active: true
+            })),
+            board: Array(size).fill().map(() => Array(size).fill(null)),
+            blocked: new Set(),
+            size,
+            cells: []
+        };
+
+        document.querySelector('.main-menu').style.display = 'none';
+        document.querySelector('.game-container').style.display = 'block';
+        initBoard();
+        updateStatus();
+    }
+
+    function initBoard() {
+        const board = document.getElementById('board');
+        board.innerHTML = '';
+        gameState.cells = [];
+
+        for (let i = 0; i < gameState.size; i++) {
+            const row = document.createElement('tr');
+            gameState.cells[i] = [];
+            for (let j = 0; j < gameState.size; j++) {
+                const cell = document.createElement('td');
+                cell.className = 'cell';
+                cell.dataset.x = i;
+                cell.dataset.y = j;
+                cell.onclick = handleCellClick;
+                gameState.cells[i][j] = cell;
+                row.appendChild(cell);
+            }
+            board.appendChild(row);
+        }
+    }
+
+    // 修改handleCellClick函数
+    async function handleCellClick(e) {
+    // 联机模式下非当前玩家禁止操作
+    if (gameState.online.roomId) {
+        const isMyTurn = gameState.players[gameState.currentPlayer]?.symbol === 
+                        gameState.online.players.find(p => p.name === gameState.online.username)?.symbol;
+        if (!isMyTurn) return;
+    }
+
+    const x = parseInt(e.target.dataset.x);
+    const y = parseInt(e.target.dataset.y);
+
+    if (gameState.phase === 'setup') {
+        if (!gameState.board[x][y]) {
+            gameState.players[gameState.currentPlayer].position = {x, y};
+            gameState.board[x][y] = gameState.currentPlayer;
+            e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+            
+            if (gameState.currentPlayer < gameState.players.length - 1) {
+                gameState.currentPlayer++;
+            } else {
+                gameState.phase = 'block';
+                gameState.currentPlayer = 0;
+            }
+            updateStatus();
+        }
+    } else if (gameState.phase === 'block') {
+        if (!gameState.blocked.has(`${x},${y}`) && !isPlayerAt(x, y)) {
+            gameState.blocked.add(`${x},${y}`);
+            e.target.classList.add('blocked');
+            gameState.phase = 'move';
+            updateStatus();
+        }
+    } else if (gameState.phase === 'move') {
+        if (checkImmediateElimination(gameState.players[gameState.currentPlayer])) {
+            nextTurn();
+            return;
+        }
+        
+        const current = gameState.players[gameState.currentPlayer].position;
+        if (canMoveTo(current.x, current.y, x, y)) {
+            gameState.board[current.x][current.y] = null;
+            gameState.board[x][y] = gameState.currentPlayer;
+            gameState.players[gameState.currentPlayer].position = {x, y};
+            gameState.cells[current.x][current.y].textContent = '';
+            e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+            
+            nextTurn();
+        }
+    }
+
+    // 在handleCellClick的冲突检测部分添加版本号校验
+    if (gameState.online.roomId) {
+    // 添加版本号控制
+    const currentVersion = gameState.online.version || 0;
+    const { error } = await supabase
+    .from('rooms')
+    .update({ 
+    game_data: serializeGameState(),
+    last_action: new Date().toISOString(),
+    version: currentVersion + 1  // 新增版本号字段
+    })
+    .eq('id', gameState.online.roomId)
+    .eq('version', currentVersion); // 添加版本校验
+
+    if (error) {
+    // 冲突时获取最新版本
+    const { data } = await supabase
+    .from('rooms')
+    .select('game_data,version')
+    .eq('id', gameState.online.roomId);
+    gameState.online.version = data[0].version; // 保存版本号
+    updateGameState(data[0]);
+    }
+    }
+}
+
+    function canMoveTo(fromX, fromY, toX, toY) {
+        if (gameState.blocked.has(`${toX},${toY}`)) return false;
+        if (Math.abs(fromX - toX) > 1 || Math.abs(fromY - toY) > 1) return false;
+        return !isPlayerAt(toX, toY);
+    }
+
+    function isPlayerAt(x, y) {
+        return gameState.players.some(p => p.active && p.position?.x === x && p.position?.y === y);
+    }
+
+    function checkImmediateElimination(player) {
+        const pos = player.position;
+        let allBlocked = true;
+        
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                if (dx === 0 && dy === 0) continue;
+                const x = pos.x + dx;
+                const y = pos.y + dy;
+                
+                if (x >= 0 && x < gameState.size && 
+                    y >= 0 && y < gameState.size &&
+                    !gameState.blocked.has(`${x},${y}`)) {
+                    if (!isPlayerAt(x, y)) {
+                        allBlocked = false;
+                        break;
+                    }
+                }
+            }
+            if (!allBlocked) break;
+        }
+
+        if (allBlocked && player.active) {
+            const cell = gameState.cells[pos.x][pos.y];
+            cell.classList.add('eliminated');
+            setTimeout(() => {
+                cell.textContent = '';
+                cell.classList.remove('eliminated');
+            }, 500);
+            
+            gameState.board[pos.x][pos.y] = null;
+            player.active = false;
+            return true;
+        }
+        return false;
+    }
+
+    function nextTurn() {
+        let initialPlayer = gameState.currentPlayer;
+        let attempts = 0;
+        
+        do {
+            gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
+            attempts++;
+            
+            if (attempts > gameState.players.length * 2) break;
+        } while (!gameState.players[gameState.currentPlayer].active);
+
+        if (checkImmediateElimination(gameState.players[gameState.currentPlayer])) {
+            nextTurn();
+            return;
+        }
+
+        gameState.phase = 'block';
+        updateStatus();
+        
+        const activePlayers = gameState.players.filter(p => p.active);
+        if (activePlayers.length === 1) {
+            alert(`玩家 ${activePlayers[0].symbol} 获胜！`);
+            restartGame();
+        }
+    }
+
+    function updateStatus() {
+        const status = document.getElementById('status');
+        const player = gameState.players[gameState.currentPlayer];
+        const phaseMap = {
+            setup: `玩家 ${player.symbol} 选择出生点`,
+            block: `玩家 ${player.symbol} 选择要封锁的格子`,
+            move: `玩家 ${player.symbol} 移动棋子`
+        };
+        status.textContent = `${phaseMap[gameState.phase]}`;
+    }
+
+    function showGameRules() {
+        alert("游戏规则：\n1. 玩家轮流放置初始位置\n2. 每回合先封锁一个格子，再移动棋子一格（8个方向均可）\n3. 被完全包围的玩家立即淘汰\n4. 最后存活的玩家获胜！\nGameplay by jingpo,Hangen and Yufan");
+    }
+
+    function restartGame() {
+        document.querySelector('.main-menu').style.display = 'block';
+        document.querySelector('.game-container').style.display = 'none';
+    }
+    // 显示联机大厅
+    function showOnlineLobby() {
+        document.querySelector('.main-menu').style.display = 'none';
+        document.querySelector('.online-lobby').style.display = 'block';
+        loadRooms();
+    }
+
+    // 新增房主设置切换
+    function toggleHostSettings() {
+        const hostSettings = document.getElementById('hostSettings');
+        hostSettings.style.display = hostSettings.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 修改后的创建房间函数
+    async function createRoom() {
+        const username = document.getElementById('username').value;
+        const customCode = document.getElementById('customCode').value.toUpperCase();
+        const maxPlayers = parseInt(document.getElementById('maxPlayers').value);
+        const boardSize = parseInt(document.getElementById('onlineBoardSize').value);
+    
+        // 验证输入
+        if (!/^[A-Z0-9]{4,6}$/.test(customCode)) {
+            return alert('房间代码需4-6位字母/数字');
+        }
+        if (maxPlayers < 2 || maxPlayers > 12) {
+            return alert('玩家数量需2-12人');
+        }
+    
+        // 创建房间
+        const { data, error } = await supabase
+            .from('rooms')
+            .insert([{
+                code: customCode,
+                host: username,
+                players: [username],
+                max_players: maxPlayers,
+                board_size: boardSize,
+                game_data: serializeGameState()
+            }]);
+    
+        if (error) {
+            return alert(error.message);
+        }
+        
+        // 初始化联机游戏状态
+        gameState.online = {
+            isHost: true,
+            roomId: data[0].id,
+            players: [{ name: username, ready: true }],
+            boardSize,
+            currentPhase: 'setup'
+        };
+        
+        startOnlineGame();
+    }
+
+    // 新增游戏状态序列化方法
+    function serializeGameState() {
+        return {
+            players: gameState.players.map(p => ({
+                symbol: p.symbol,
+                position: p.position,
+                active: p.active
+            })),
+            blocked: Array.from(gameState.blocked),
+            phase: gameState.phase,
+            currentPlayer: gameState.currentPlayer,
+            size: gameState.size
+        };
+    }
+
+    // 修改handleCellClick添加同步逻辑
+    function handleCellClick(e) {
+        const x = parseInt(e.target.dataset.x);
+        const y = parseInt(e.target.dataset.y);
+
+        if (gameState.phase === 'setup') {
+            if (!gameState.board[x][y]) {
+                gameState.players[gameState.currentPlayer].position = {x, y};
+                gameState.board[x][y] = gameState.currentPlayer;
+                e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+                
+                if (gameState.currentPlayer < gameState.players.length - 1) {
+                    gameState.currentPlayer++;
+                } else {
+                    gameState.phase = 'block';
+                    gameState.currentPlayer = 0;
+                }
+                updateStatus();
+            }
+        } else if (gameState.phase === 'block') {
+            if (!gameState.blocked.has(`${x},${y}`) && !isPlayerAt(x, y)) {
+                gameState.blocked.add(`${x},${y}`);
+                e.target.classList.add('blocked');
+                gameState.phase = 'move';
+                updateStatus();
+            }
+        } else if (gameState.phase === 'move') {
+            if (checkImmediateElimination(gameState.players[gameState.currentPlayer])) {
+                nextTurn();
+                return;
+            }
+            
+            const current = gameState.players[gameState.currentPlayer].position;
+            if (canMoveTo(current.x, current.y, x, y)) {
+                gameState.board[current.x][current.y] = null;
+                gameState.board[x][y] = gameState.currentPlayer;
+                gameState.players[gameState.currentPlayer].position = {x, y};
+                gameState.cells[current.x][current.y].textContent = '';
+                e.target.textContent = gameState.players[gameState.currentPlayer].symbol;
+                
+                nextTurn();
+            }
+        }
+    }
+
+    // 在createClient后添加全局状态
+    let roomChannel = null;
+    const HEARTBEAT_INTERVAL = 5000;
+    
+    // 增强游戏状态对象
+    let gameState = {
+        online: {
+            isHost: false,
+            roomId: null,
+            players: [],
+            readyStates: {},
+            lastAction: Date.now()
+        }
+    };
+    
+    // 修改updateGameState函数
+    function updateGameState(roomData) {
+        // 当游戏开始时初始化棋盘
+        if (roomData.status === 'playing' && !gameState.cells.length) {
+            gameState.size = roomData.board_size;
+            gameState.players = roomData.players.map((p, i) => ({
+                id: i,
+                symbol: symbols[i],
+                position: null,
+                active: true
+            }));
+            initBoard();
+        }
+
+        // 同步游戏状态
+        if (roomData.game_data) {
+            const remoteState = roomData.game_data;
+            gameState.phase = remoteState.phase;
+            gameState.currentPlayer = remoteState.currentPlayer;
+            gameState.blocked = new Set(remoteState.blocked);
+            renderBoard();
+            updateStatus();
+        }
+    }
+
+    // 在toggleReady函数中添加开始游戏判断
+    async function toggleReady() {
+        const username = document.getElementById('username').value;
+        const newState = !gameState.online.readyStates[username];
+        
+        const { error } = await supabase
+            .from('rooms')
+            .update({
+                ready_states: { ...gameState.online.readyStates, [username]: newState }
+            })
+            .eq('id', gameState.online.roomId);
+    }
+
+    // 玩家离开处理
+    async function leaveRoom() {
+        if (confirm('确定要离开房间吗？')) {
+            // 更新房间数据
+            const { data } = await supabase
+                .from('rooms')
+                .select('players, host')
+                .eq('id', gameState.online.roomId);
+            
+            if (data?.length) {
+                const newPlayers = data[0].players.filter(p => p !== gameState.online.username);
+                
+                // 如果房主离开且还有玩家
+                if (data[0].host === gameState.online.username && newPlayers.length > 0) {
+                    await supabase
+                        .from('rooms')
+                        .update({ 
+                            players: newPlayers,
+                            host: newPlayers[0] 
+                        })
+                        .eq('id', gameState.online.roomId);
+                } else {
+                    await supabase
+                        .from('rooms')
+                        .update({ players: newPlayers })
+                        .eq('id', gameState.online.roomId);
+                }
+                
+                // 清理状态
+                if (roomChannel) roomChannel.unsubscribe();
+                gameState.online = {};
+                document.querySelector('.online-lobby').style.display = 'none';
+                document.querySelector('.main-menu').style.display = 'block';
+            }
+        }
+    }
+
+    // 添加心跳检测
+    function setupHeartbeat() {
+        setInterval(async () => {
+            if (gameState.online.roomId) {
+                await supabase
+                    .from('rooms')
+                    .update({ last_active: new Date() })
+                    .eq('id', gameState.online.roomId);
+            }
+        }, HEARTBEAT_INTERVAL);
+    }
+
+    // 修改setupRealtimeUpdates函数
+    function setupRealtimeUpdates() {
+        gameState.online.channel = supabase
+            .channel('room-updates')
+            .on('postgres_changes', { /* 原有参数 */ }, (payload) => {
+                gameState.online.lastAction = Date.now();
+                updateGameState(payload.new);
+            })
+            .on('system', { event: 'DISCONNECTED' }, () => {
+                setTimeout(attemptReconnect, 5000);
+            })
+            .subscribe();
+    }
+
+    // 添加重连逻辑
+    let reconnectAttempts = 0;
+    async function attemptReconnect() {
+        if (reconnectAttempts < 5) {
+            const { error } = await supabase
+                .from('rooms')
+                .update({ last_active: new Date() })
+                .eq('id', gameState.online.roomId);
+            
+            if (!error) {
+                setupRealtimeUpdates();
+                reconnectAttempts = 0;
+            } else {
+                reconnectAttempts++;
+                setTimeout(attemptReconnect, 3000);
+            }
+        } else {
+            alert('网络连接已丢失，正在返回大厅');
+            leaveRoom();
+        }
+    }
+</script>
+</body>
+</html>
