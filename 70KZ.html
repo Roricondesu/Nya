@@ -45,6 +45,45 @@
             line-height: 1.2;
         }
 
+        /* 修改logo样式 */
+        .logo-container {
+            position: fixed;
+            top: 20px;
+            left: 8%;
+            transform: translateX(-50%);
+            width: 300px;  /* 从100px增大到150px */
+            height: 300px; /* 从100px增大到150px */
+            z-index: 100;
+            animation: float 8s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto; /* 添加自动外边距确保居中 */
+        }
+
+        .logo-container img {
+            width: 100%; /* 确保图片填满容器 */
+            height: 100%;
+            object-fit: contain;
+            display: block; /* 防止图片底部间隙 */
+        }
+
+        /* 新增签名样式 */
+        .signature {
+            text-align: center;
+            font-family: 'FZKT', serif;
+            color: #666;
+            margin-top: 50px;
+            padding-bottom: 30px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .signature:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
         .hero-name, .timeline-date {
             font-family: 'FZKT', serif;
             font-size: 2rem;  /* 新增副标题字体大小 */
@@ -54,12 +93,31 @@
             background-color: #f5f5f5;
             color: #333;
             overflow-x: hidden;
+            /* 新增背景图片 */
+            background-image: url('static/images/bg.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            position: relative;
         }
-        
+
+        /* 新增背景遮罩 */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7); /* 30%透明度 */
+            z-index: -1;
+        }
+
         .container {
             width: 100%;
             min-height: 100vh;
             position: relative;
+            z-index: 1; /* 确保内容在遮罩上方 */
         }
         
         /* 导航栏样式 */
@@ -387,6 +445,11 @@
 </head>
 <body>
     <div class="container">
+        <!-- 更新logo占位 -->
+        <div class="logo-container">
+            <img src="static/images/logo.png" alt="抗战胜利80周年" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+
         <!-- 铭记历史页面 -->
         <div id="history" class="page active">
             <h1 class="top-title">铭记历史</h1>
@@ -548,6 +611,9 @@
                         <div>创新</div>
                     </div>
                 </div>
+                <div class="signature">
+                    ChenYufan - Post design - github@roricondesu
+                </div>
             </div>
         </div>
         
@@ -636,6 +702,20 @@
         
         // 添加滚动动画监听
         setupScrollAnimations();
+
+        // 新增：点击logo返回首页
+        document.querySelector('.logo-container').addEventListener('click', function() {
+            showPage('history');
+        });
+
+        // 新增：logo悬停效果
+        const logo = document.querySelector('.logo-container');
+        logo.addEventListener('mouseenter', function() {
+            this.style.animation = 'float 1s ease-in-out infinite';
+        });
+        logo.addEventListener('mouseleave', function() {
+            this.style.animation = 'float 3s ease-in-out infinite';
+        });
     };
     
     // 滚动动画设置
