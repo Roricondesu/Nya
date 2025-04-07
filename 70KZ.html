@@ -26,16 +26,17 @@
 
         .page-title {
             text-align: center;
-            font-size: 7vw;  /* 增大标题字号 */
-            margin-bottom: 90px;
+            font-size: 6rem;  /* 从5rem增大到6rem */
+            margin-bottom: 30px;
             color: #d32f2f;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            font-family: 'ShuFa', serif;  /* 标题使用书法字体 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-family: 'ShuFa', serif;
             font-weight: bold;
         }
 
         .hero-name, .timeline-date {
-            font-family: 'FZKT', serif;  /* 副标题也使用书法字体 */
+            font-family: 'FZKT', serif;
+            font-size: 2rem;  /* 新增副标题字体大小 */
         }
         
         body {
@@ -61,27 +62,38 @@
             z-index: 100;
         }
         
+        /* 导航栏样式 */
         .nav-btn {
             width: 60px;
-            height: 60px;
+            height: 80px;
             margin: 0 10px;
-            border-radius: 50%;
-            background-color: rgba(200, 50, 50, 0.8);
-            color: white;
+            background-color: transparent;
+            color: #d32f2f;
+            font-size: 16px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            font-family: 'FZKT', sans-serif;  /* 添加FZKT字体 */
+            justify-content: flex-start;  /* 文字靠上 */
+            padding-top: 5px;  /* 文字上边距 */
+            font-family: 'ShuFa', serif;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            width: 40px;
+            height: 40px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="gold" fill-opacity="0.7" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-top: 5px;  /* 五角星下边距 */
         }
         
         .nav-btn:hover {
             transform: translateY(-5px);
-            background-color: rgba(180, 40, 40, 0.9);
         }
+        
         
         /* 页面样式 */
         .page {
