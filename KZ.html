@@ -502,7 +502,7 @@
             <path d="M921.600512 0H256.000512l-43.008 728.576A153.6 153.6 0 1 0 307.200512 870.4l33.28-563.2h563.2l-24.576 421.376A153.6 153.6 0 1 0 972.800512 870.4l51.2-870.4z" fill="#d32f2f"></path>
         </svg>
     </div>
-    <audio id="bgMusic" src="https://s1.aigei.com/src/aud/mp3/80/808c73142f164762a4ff965ff9ce5cb4.mp3?e=1744105560&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:aY-OnWTiTCJe2v3l8F_l3ao-aF8=" loop></audio>
+    <audio id="bgMusic" src="static/img/bg_music.mp3" loop></audio>
     
     <div class="container">
         <!-- 原有内容保持不变 -->
@@ -785,7 +785,7 @@
         const bgMusic = document.getElementById('bgMusic');
         
         // 更新为有效的音频URL
-        bgMusic.src = 'static/audio/bg_music.mp3';
+        bgMusic.src = 'static/img/bg_music.mp3';
         
         audioBtn.addEventListener('click', function() {
             try {
