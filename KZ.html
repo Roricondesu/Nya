@@ -37,7 +37,6 @@
         .top-title {
             text-align: center;
             font-size: 5rem;  /* 使用视口宽度单位 */
-            top：15%;
             margin-bottom: 60px;
             color: #d32f2f;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -49,17 +48,16 @@
         /* 修改logo样式 */
         .logo-container {
             position: fixed;
-            top: 3%;
-            left: 5%;
-            transform: translateX(-50%);
-            width: 100px;  /* 调整为200px */
-            height: 100px; /* 调整为200px */
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 100px;
+            height: 100px;
+            bottom: 14%;
             z-index: 100;
             animation: float 8s ease-in-out infinite;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto; /* 添加自动外边距确保居中 */
         }
 
         .logo-container img {
@@ -69,31 +67,6 @@
             display: block;
         }
 
-        /* 音频按钮样式 */
-        .audio-btn {
-            position: fixed;
-            top: 3%;
-            right: 10%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s;
-        }
-        
-
-        .audio-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .audio-btn.playing {
-            animation: rotate 2s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
         /* 新增签名样式 */
         .signature {
             text-align: center;
@@ -496,14 +469,6 @@
     <div class="bg-image"></div>
     <div class="bg-overlay"></div>
     
-    <!-- 新增音频按钮和音频元素 -->
-    <div class="audio-btn">
-        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
-            <path d="M921.600512 0H256.000512l-43.008 728.576A153.6 153.6 0 1 0 307.200512 870.4l33.28-563.2h563.2l-24.576 421.376A153.6 153.6 0 1 0 972.800512 870.4l51.2-870.4z" fill="#d32f2f"></path>
-        </svg>
-    </div>
-    <audio id="bgMusic" src="static/img/bg_music.mp3" loop></audio>
-    
     <div class="container">
         <!-- 原有内容保持不变 -->
         <div class="logo-container">
@@ -697,118 +662,6 @@
             });
         });
         
-        // 滚动到顶部
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-        
-        // 显示选中的页面
-        const activePage = document.getElementById(pageId);
-        activePage.classList.add('active');
-        
-        // 触发页面特定动画
-        triggerPageAnimations(pageId);
-    }
-    
-    // 添加触摸事件支持
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('touchstart', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.backgroundColor = 'rgba(180, 40, 40, 0.9)';
-        });
-        
-        btn.addEventListener('touchend', function() {
-            this.style.transform = '';
-            this.style.backgroundColor = '';
-        });
-    });
-
-    // 优化动画性能
-    function animateElements(elements, delay, callback) {
-        elements.forEach((el, index) => {
-            setTimeout(() => {
-                if (callback) callback(el);
-                el.classList.add('show');
-            }, index * delay);
-        });
-    }
-    
-    // 修改后的页面特定动画
-    function triggerPageAnimations(pageId) {
-        switch(pageId) {
-            case 'history':
-                animateElements(document.querySelectorAll('.timeline-item'), 300);
-                break;
-            case 'martyrs':
-                animateElements(document.querySelectorAll('.hero-card'), 200, (card) => {
-                    card.style.willChange = 'transform, opacity';
-                });
-                break;
-            case 'peace':
-                animateElements(document.querySelectorAll('.peace-item'), 150);
-                break;
-            case 'future':
-                document.querySelector('.future-message').classList.add('show');
-                animateElements(document.querySelectorAll('.vision-item'), 200);
-                break;
-        }
-    }
-
-    // 页面加载时初始化
-    window.onload = function() {
-        // 默认显示第一个页面
-        showPage('history');
-        
-        // 添加滚动动画监听
-        setupScrollAnimations();
-
-        // 新增：点击logo返回首页
-        document.querySelector('.logo-container').addEventListener('click', function() {
-            showPage('history');
-        });
-
-        // 新增：logo悬停效果
-        const logo = document.querySelector('.logo-container');
-        logo.addEventListener('mouseenter', function() {
-            this.style.animation = 'float 1s ease-in-out infinite';
-        });
-        logo.addEventListener('mouseleave', function() {
-            this.style.animation = 'float 3s ease-in-out infinite';
-        });
-    };
-    
-    // 页面加载时初始化
-    window.addEventListener('DOMContentLoaded', function() {
-        // 音频控制
-        const audioBtn = document.querySelector('.audio-btn');
-        const bgMusic = document.getElementById('bgMusic');
-        
-        // 更新为有效的音频URL
-        bgMusic.src = 'static/img/bg_music.mp3';
-        
-        audioBtn.addEventListener('click', function() {
-            try {
-                if (bgMusic.paused) {
-                    bgMusic.play().then(() => {
-                        this.classList.add('playing');
-                        this.setAttribute('title', '音乐播放中');
-                    }).catch(error => {
-                        console.error('播放失败:', error);
-                        this.setAttribute('title', '播放失败: ' + error.message);
-                        setTimeout(() => this.removeAttribute('title'), 3000);
-                    });
-                } else {
-                    bgMusic.pause();
-                    this.classList.remove('playing');
-                    this.setAttribute('title', '音乐已暂停');
-                    setTimeout(() => this.removeAttribute('title'), 3000);
-                }
-            } catch (error) {
-                console.error('音频控制错误:', error);
-            }
-        });
-    });
 
         // 滚动到顶部
         window.scrollTo({
