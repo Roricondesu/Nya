@@ -93,7 +93,6 @@
             background-color: #f5f5f5;
             color: #333;
             overflow-x: hidden;
-            /* 更新背景图片路径 */
             background-image: url('static/img/KZBG.png');
             background-size: cover;
             background-attachment: fixed;
@@ -101,16 +100,16 @@
             position: relative;
         }
 
-        /* 新增背景遮罩 */
+        /* 修改背景遮罩样式 */
         body::after {
             content: '';
-            position: absolute;
+            position: fixed;  /* 改为fixed定位 */
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(255, 255, 255, 0.7); /* 30%透明度 */
-            z-index: -1;
+            background-color: rgba(255, 255, 255, 0.5); /* 降低透明度到50% */
+            z-index: -1;  /* 确保在背景图片之上但在内容之下 */
         }
 
         .container {
