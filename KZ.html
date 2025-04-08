@@ -37,7 +37,8 @@
         .top-title {
             text-align: center;
             font-size: 5rem;  /* 使用视口宽度单位 */
-            margin-bottom: 30px;
+            top：15%;
+            margin-bottom: 60px;
             color: #d32f2f;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             font-family: 'ShuFa', serif;
@@ -68,6 +69,31 @@
             display: block;
         }
 
+        /* 音频按钮样式 */
+        .audio-btn {
+            position: fixed;
+            top: 7%;
+            right: 8%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-btn.playing {
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         /* 新增签名样式 */
         .signature {
             text-align: center;
@@ -470,6 +496,14 @@
     <div class="bg-image"></div>
     <div class="bg-overlay"></div>
     
+    <!-- 新增音频按钮和音频元素 -->
+    <div class="audio-btn">
+        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+            <path d="M921.600512 0H256.000512l-43.008 728.576A153.6 153.6 0 1 0 307.200512 870.4l33.28-563.2h563.2l-24.576 421.376A153.6 153.6 0 1 0 972.800512 870.4l51.2-870.4z" fill="#d32f2f"></path>
+        </svg>
+    </div>
+    <audio id="bgMusic" src="https://s1.aigei.com/src/aud/mp3/80/808c73142f164762a4ff965ff9ce5cb4.mp3?e=1744105560&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:aY-OnWTiTCJe2v3l8F_l3ao-aF8=" loop></audio>
+    
     <div class="container">
         <!-- 原有内容保持不变 -->
         <div class="logo-container">
@@ -478,7 +512,7 @@
 
         <!-- 铭记历史页面 -->
         <div id="history" class="page active">
-            <h1 class="top-title">铭记历史</h1>
+            <h1 class="top-title"></p>铭记历史</h1>
             <div class="page-content">
                 <p>中国人民抗日战争是世界反法西斯战争的重要组成部分，中国人民为世界反法西斯战争的胜利作出巨大民族牺牲和重要历史贡献。</p>
                 
@@ -519,7 +553,7 @@
         
         <!-- 缅怀先烈页面 -->
         <div id="martyrs" class="page">
-            <h1 class="top-title">缅怀先烈</h1>
+            <h1 class="top-title"></p>缅怀先烈</h1>
             <div class="page-content">
                 <p>在抗日战争中，无数中华儿女抛头颅、洒热血，用生命和鲜血捍卫了民族尊严和国家主权。</p>
                 
@@ -572,7 +606,7 @@
         
         <!-- 珍爱和平页面 -->
         <div id="peace" class="page">
-            <h1 class="top-title">珍爱和平</h1>
+            <h1 class="top-title"></p>珍爱和平</h1>
             <div class="page-content">
                 <p>和平来之不易，我们要铭记历史教训，珍惜今天的和平生活，共同维护世界和平。</p>
                 
@@ -607,7 +641,7 @@
         
         <!-- 开创未来页面 -->
         <div id="future" class="page">
-            <h1 class="top-title">开创未来</h1>
+            <h1 class="top-title"></p>开创未来</h1>
             <div class="page-content">
                 <div class="future-message">
                     <p>铭记历史，不是为了延续仇恨，</p>
@@ -663,6 +697,103 @@
             });
         });
         
+        // 滚动到顶部
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        
+        // 显示选中的页面
+        const activePage = document.getElementById(pageId);
+        activePage.classList.add('active');
+        
+        // 触发页面特定动画
+        triggerPageAnimations(pageId);
+    }
+    
+    // 添加触摸事件支持
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.backgroundColor = 'rgba(180, 40, 40, 0.9)';
+        });
+        
+        btn.addEventListener('touchend', function() {
+            this.style.transform = '';
+            this.style.backgroundColor = '';
+        });
+    });
+
+    // 优化动画性能
+    function animateElements(elements, delay, callback) {
+        elements.forEach((el, index) => {
+            setTimeout(() => {
+                if (callback) callback(el);
+                el.classList.add('show');
+            }, index * delay);
+        });
+    }
+    
+    // 修改后的页面特定动画
+    function triggerPageAnimations(pageId) {
+        switch(pageId) {
+            case 'history':
+                animateElements(document.querySelectorAll('.timeline-item'), 300);
+                break;
+            case 'martyrs':
+                animateElements(document.querySelectorAll('.hero-card'), 200, (card) => {
+                    card.style.willChange = 'transform, opacity';
+                });
+                break;
+            case 'peace':
+                animateElements(document.querySelectorAll('.peace-item'), 150);
+                break;
+            case 'future':
+                document.querySelector('.future-message').classList.add('show');
+                animateElements(document.querySelectorAll('.vision-item'), 200);
+                break;
+        }
+    }
+
+    // 页面加载时初始化
+    window.onload = function() {
+        // 默认显示第一个页面
+        showPage('history');
+        
+        // 添加滚动动画监听
+        setupScrollAnimations();
+
+        // 新增：点击logo返回首页
+        document.querySelector('.logo-container').addEventListener('click', function() {
+            showPage('history');
+        });
+
+        // 新增：logo悬停效果
+        const logo = document.querySelector('.logo-container');
+        logo.addEventListener('mouseenter', function() {
+            this.style.animation = 'float 1s ease-in-out infinite';
+        });
+        logo.addEventListener('mouseleave', function() {
+            this.style.animation = 'float 3s ease-in-out infinite';
+        });
+    };
+    
+    // 页面加载时初始化
+    window.onload = function() {
+        // 音频控制
+        const audioBtn = document.querySelector('.audio-btn');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        audioBtn.addEventListener('click', function() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                this.classList.add('playing');
+            } else {
+                bgMusic.pause();
+                this.classList.remove('playing');
+            }
+        });
+
         // 滚动到顶部
         window.scrollTo({
             top: 0,
