@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头七论坛 - 星星的个人档案</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --main-color: rgb(144, 36, 2);
+            --text-color: #000;
+            --border-color: #000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--main-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            background-image: url('static/img/old-paper-texture.jpg');
+            background-blend-mode: multiply;
+            background-attachment: fixed;
+        }
+        
+        .forum-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border: 3px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 2px dashed var(--border-color);
+            position: relative;
+        }
+        
+        .whoami {
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0;
+        }
+        
+        .eye-gif {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed var(--border-color);
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0;
+        }
+        
+        .eye-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .main-card {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .profile-section {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .profile-image {
+            border: 3px solid var(--border-color);
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        .profile-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .composition {
+            border: 3px dashed var(--main-color);
+            padding: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .composition img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .content-section {
+            flex: 2;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-box {
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .info-box h2 {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            color: var(--main-color);
+            font-size: 1.5rem;
+        }
+        
+        .info-box ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 10px;
+            border-top: 2px dashed var(--border-color);
+            font-size: 0.8rem;
+            opacity: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .main-card {
+                flex-direction: column;
+            }
+            
+            .profile-section, .content-section {
+                min-width: 100%;
+            }
+        }
+        
+        /* 古早论坛装饰元素 */
+        .corner-decoration {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            opacity: 0.5;
+        }
+        
+        .top-left {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .top-right {
+            top: 10px;
+            right: 10px;
+            border-left: none;
+            border-bottom: none;
+        }
+        
+        .bottom-left {
+            bottom: 10px;
+            left: 10px;
+            border-right: none;
+            border-top: none;
+        }
+        
+        .bottom-right {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        /* 闪烁光标效果 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: var(--text-color);
+            vertical-align: middle;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="forum-container">
+        <div class="corner-decoration top-left"></div>
+        <div class="corner-decoration top-right"></div>
+        <div class="corner-decoration bottom-left"></div>
+        <div class="corner-decoration bottom-right"></div>
+        
+        <div class="header">
+            <div class="whoami">WHO I AM<span class="cursor"></span></div>
+            <div class="eye-gif">
+                <img src="static/img/redeye.gif" alt="Red Eye">
+            </div>
+        </div>
+        
+        <div class="main-card">
+            <div class="profile-section">
+                <div class="profile-image">
+                    <img src="static/img/jyy.jpg" alt="朱耀星">
+                </div>
+                <div class="composition">
+                    <img src="static/img/jyyyp.png" alt="我的构成">
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <div class="info-box" id="identity">
+                    <h2>身份信息</h2>
+                    <ul>
+                        <li>姓名：朱耀星</li>
+                        <li>职业：福田百货老板/替死鬼/？？？/昊漠星</li>
+                        <li>头七论坛id: 星星</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box" id="experience">
+                    <h2>关键经历</h2>
+                    <ul>
+                        <li>童年：被朱老板收养当替死鬼，常被骂"饿死鬼转世"；有密不透风红房间</li>
+                        <li>成长：设计让原本朱耀星死去，反杀朱老板；靠眼仙致富后又破产</li>
+                        <li>结局：点燃福田百货，自焚成为地缚灵</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box" id="elements">
+                    <h2>特殊元素</h2>
+                    <ul>
+                        <li>项链：母亲捡的烧焦石头，藏于新项链瞳孔处</li>
+                        <li>象征：红房间、流星碎片（烧焦石头）、眼仙、鬼王面燃大士</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box" id="personality">
+                    <h2>性格与观念</h2>
+                    <ul>
+                        <li>对财富认知模糊，以食物为财富象征</li>
+                        <li>精神上自我认知极低</li>
+                    </ul>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="personalityChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            头七论坛 © 2023 - 本档案最后更新于<span id="current-date"></span>
+        </div>
+    </div>
+
+    <script>
+        // 设置当前日期
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('zh-CN');
+        
+        // 初始化动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 标题动画
+            anime({
+                targets: '.whoami',
+                opacity: 1,
+                duration: 1000,
+                easing: 'easeInOutQuad'
+            });
+            
+            // 眼睛动画
+            anime({
+                targets: '.eye-gif',
+                opacity: 1,
+                rotate: '1turn',
+                duration: 1500,
+                delay: 500,
+                easing: 'easeInOutBack'
+            });
+            
+            // 个人照片动画
+            anime({
+                targets: '.profile-image',
+                opacity: 1,
+                scale: 1,
+                duration: 1200,
+                delay: 800,
+                easing: 'easeOutElastic'
+            });
+            
+            // 信息框动画
+            anime({
+                targets: '.info-box',
+                opacity: 1,
+                translateX: 0,
+                duration: 800,
+                delay: anime.stagger(200),
+                easing: 'easeOutExpo'
+            });
+            
+            // 构成图动画
+            anime({
+                targets: '.composition',
+                opacity: 1,
+                translateY: 0,
+                duration: 1000,
+                delay: 1500,
+                easing: 'easeOutBack'
+            });
+            
+            // 页脚动画
+            anime({
+                targets: '.footer',
+                opacity: 1,
+                duration: 1000,
+                delay: 2000,
+                easing: 'easeInOutQuad'
+            });
+            
+            // 图表动画
+            setTimeout(initChart, 1800);
+            
+            // 装饰元素动画
+            anime({
+                targets: '.corner-decoration',
+                opacity: [0, 0.5],
+                scale: [0.5, 1],
+                duration: 1500,
+                delay: anime.stagger(300),
+                easing: 'easeOutElastic'
+            });
+        });
+        
+        // 初始化饼图
+        function initChart() {
+            const ctx = document.getElementById('personalityChart').getContext('2d');
+            
+            // 先让图表容器可见
+            anime({
+                targets: '.chart-container',
+                opacity: 1,
+                translateX: 0,
+                duration: 800,
+                easing: 'easeOutExpo'
+            });
+            
+            // 创建饼图
+            const chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['精明又脆弱的企业家', '脆弱又敏感的内核', '真诚而滚烫的灵魂'],
+                    datasets: [{
+                        data: [20, 35, 45],
+                        backgroundColor: [
+                            'rgba(144, 36, 2, 0.7)',
+                            'rgba(0, 0, 0, 0.7)',
+                            'rgba(255, 255, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(144, 36, 2, 1)',
+                            'rgba(0, 0, 0, 1)',
+                            'rgba(255, 255, 255, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#000',
+                                font: {
+                                    size: 14
+                                },
+                                padding: 20
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '人格构成分析',
+                            color: '#000',
+                            font: {
+                                size: 18,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                size: 14
+                            },
+                            titleFont: {
+                                size: 16
+                            }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+            
+            // 添加自定义动画
+            anime({
+                targets: ctx.canvas,
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 1500,
+                easing: 'easeOutElastic'
+            });
+        }
+        
+        // 添加鼠标悬停效果
+        document.querySelectorAll('.info-box').forEach(box => {
+            box.addEventListener('mouseenter', function() {
+                anime({
+                    targets: this,
+                    scale: 1.02,
+                    boxShadow: ['3px 3px 0 rgba(0, 0, 0, 0.2)', '5px 5px 10px rgba(0, 0, 0, 0.3)'],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            });
+            
+            box.addEventListener('mouseleave', function() {
+                anime({
+                    targets: this,
+                    scale: 1,
+                    boxShadow: ['5px 5px 10px rgba(0, 0, 0, 0.3)', '3px 3px 0 rgba(0, 0, 0, 0.2)'],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            });
+        });
+        
+        // 添加点击眼睛的交互效果
+        document.querySelector('.eye-gif').addEventListener('click', function() {
+            anime({
+                targets: this,
+                scale: [1, 1.2, 1],
+                rotate: ['0deg', '10deg', '-10deg', '0deg'],
+                duration: 800,
+                easing: 'easeInOutBack'
+            });
+            
+            // 创建粒子效果
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '5px';
+                particle.style.height = '5px';
+                particle.style.backgroundColor = 'red';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                
+                const rect = this.getBoundingClientRect();
+                particle.style.left = (rect.left + rect.width / 2) + 'px';
+                particle.style.top = (rect.top + rect.height / 2) + 'px';
+                
+                document.body.appendChild(particle);
+                
+                anime({
+                    targets: particle,
+                    translateX: () => anime.random(-50, 50),
+                    translateY: () => anime.random(-50, 50),
+                    opacity: [1, 0],
+                    scale: [1, 0],
+                    duration: 1000,
+                    easing: 'easeOutExpo',
+                    complete: () => document.body.removeChild(particle)
+                });
+            }
+        });
+    </script>
+</body>
+</html>
