@@ -336,7 +336,7 @@
         <div class="main-content">
             <div class="sidebar left">
                 <div class="viz-container">
-                    <img src="https://huiji-public.huijistatic.com/totk/uploads/8/8e/TotK_CN_Logo.png" alt="Zelda Logo" class="game-logo">
+                    <img src="static/img/zeldaLogo.png" alt="Zelda Logo" class="game-logo">
                     <div class="viz-title">ZELDA: TEARS OF THE KINGDOM</div>
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
@@ -373,7 +373,7 @@
 
             <div class="sidebar right">
                 <div class="viz-container">
-                    <img src="https://static.wikia.nocookie.net/logopedia/images/1/12/Splatoon3SplatlessLogo.png/revision/latest?cb=20210219180859" alt="Splatoon Logo" class="game-logo">
+                    <img src="static/img/SplatoonLogo.webp" alt="Splatoon Logo" class="game-logo">
                     <div class="viz-title">SPLATOON 3</div>
                     <div class="chart-container">
                         <canvas id="splatoonChart1"></canvas>
@@ -381,8 +381,8 @@
                 </div>
 
                 <div class="viz-container">
-                    <img src="https://img.moegirl.org.cn/common/a/a1/%E5%8A%A8%E7%89%A9%E6%A3%AE%E5%8F%8B%E4%BC%9A_Logo.png" alt="Animal Crossing Logo" class="game-logo">
-                    <div class="viz-title">ANIMAL CROSSING</div>
+                    <img src="static/img/Pokémon.svg" alt="Animal Crossing Logo" class="game-logo">
+                    <div class="viz-title">POKEMON</div>
                     <div class="chart-container">
                         <canvas id="acChart1"></canvas>
                     </div>
@@ -442,14 +442,14 @@
         const games = [
             {
                 title: "ZELDA: TEARS OF THE KINGDOM",
-                text: "Chen's current favorite adventure with 150+ hours played"
+                text: "The current favorite adventure with 150+ hours played"
             },
             {
                 title: "SPLATOON 3",
                 text: "Competitive multiplayer with 120+ hours of ink-splatting action"
             },
             {
-                title: "ANIMAL CROSSING",
+                title: "POKEMON",
                 text: "Relaxing island life with 100+ hours of creativity"
             },
             {
@@ -497,17 +497,17 @@
                         data: [45, 35, 40, 20, 10],
                         backgroundColor: [
                             'rgba(76, 175, 80, 0.7)',
-                            'rgba(76, 175, 80, 0.7)',
-                            'rgba(76, 175, 80, 0.7)',
-                            'rgba(76, 175, 80, 0.7)',
-                            'rgba(76, 175, 80, 0.7)'
+                            'rgba(76, 175, 80, 0.6)',
+                            'rgba(76, 175, 80, 0.5)',
+                            'rgba(76, 175, 80, 0.4)',
+                            'rgba(76, 175, 80, 0.3)'
                         ],
                         borderColor: [
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(76, 175, 80, 1)'
+                            'rgba(76, 175, 80, 0.9)',
+                            'rgba(76, 175, 80, 0.9)',
+                            'rgba(76, 175, 80, 0.9)',
+                            'rgba(76, 175, 80, 0.9)',
+                            'rgba(76, 175, 80, 0.9)'
                         ],
                         borderWidth: 1
                     }]
@@ -551,11 +551,11 @@
                     datasets: [{
                         data: [40, 25, 15, 10, 10],
                         backgroundColor: [
+                            'rgba(255, 235, 59, 0.9)',
+                            'rgba(255, 235, 59, 0.8)',
                             'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 235, 59, 0.7)',
-                            'rgba(255, 235, 59, 0.7)'
+                            'rgba(255, 235, 59, 0.6)',
+                            'rgba(255, 235, 59, 0.5)'
                         ],
                         borderColor: [
                             'rgba(255, 235, 59, 1)',
@@ -586,22 +586,22 @@
             new Chart(acCtx1, {
                 type: 'polarArea',
                 data: {
-                    labels: ['Fishing', 'Bug Catching', 'Fossils', 'Decorating', 'Villagers'],
+                    labels: ['Story', 'Catching', 'PTCG', 'Friends', 'Imotion'],
                     datasets: [{
-                        data: [25, 20, 15, 30, 10],
+                        data: [35, 20, 15, 18, 22],
                         backgroundColor: [
-                            'rgba(233, 30, 99, 0.7)',
-                            'rgba(233, 30, 99, 0.7)',
-                            'rgba(233, 30, 99, 0.7)',
-                            'rgba(233, 30, 99, 0.7)',
-                            'rgba(233, 30, 99, 0.7)'
+                            'rgba(255, 70, 0, 0.7)',
+                            'rgba(100, 200, 255, 0.7)',
+                            'rgba(120, 220, 100, 0.7)',
+                            'rgba(255, 250, 180, 0.7)',
+                            'rgba(180, 150, 0, 0.7)'
                         ],
                         borderColor: [
-                            'rgba(233, 30, 99, 1)',
-                            'rgba(233, 30, 99, 1)',
-                            'rgba(233, 30, 99, 1)',
-                            'rgba(233, 30, 99, 1)',
-                            'rgba(233, 30, 99, 1)'
+                            'rgba(255, 70, 0, 1)',
+                            'rgba(100, 200, 255, 1)',
+                            'rgba(120, 220, 100, 1)',
+                            'rgba(255, 250, 180, 1)',
+                            'rgba(180, 150, 0, 1)'
                         ],
                         borderWidth: 1
                     }]
