@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chen's Nintendo World</title>
+    <title>Yufan‘s GameWorld</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +12,8 @@
     <style>
         @font-face {
             font-family: 'Pixel';
-            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+            src: url('static/fonts/pix.ttf');
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');  
         }
 
         body {
@@ -329,7 +330,7 @@
     </video>
     <div class="container">
         <div class="header">
-            <h1>CHEN'S NINTENDO WORLD</h1>
+            <h1>Yufan’S GAMEWORLD</h1>
             <p>A College Student's Gaming Journey</p>
         </div>
 
@@ -354,6 +355,7 @@
                     <div class="viz-title">WEEKLY ACTIVITY</div>
                     <div class="chart-container">
                         <canvas id="lineChart"></canvas>
+                        <img src="http://www.sz4a.cn/Public/Uploads/image/cai/Nintendo-Logo-1983-500x300.png" alt="ntd Logo" class="game-logo">
                     </div>
                 </div>
             </div>
@@ -362,7 +364,7 @@
                 <div class="card" id="mainCard">
                     <img src="http://k.sinaimg.cn/n/sinakd20240512ac/278/w388h690/20240512/c299-4b6cecba9a2632fca7288905ba4716d2.jpg/w700d1q75cms.jpg?by=cms_fixed_width" alt="Zelda" class="card-image active">
                     <img src="https://splatoon.nintendo.com/base/_images/gallery/artwork-splatoon-3-countdown-to-release-poster-2x.webp" alt="Splatoon" class="card-image">
-                    <img src="https://c-ssl.duitang.com/uploads/item/202004/02/20200402154029_m3RyF.jpeg" alt="Animal Crossing" class="card-image">
+                    <img src="static/img/pokemonbg.jpg" alt="pokemon" class="card-image">
                     <img src="https://n.sinaimg.cn/sinakd10117/600/w1920h1080/20200514/ce41-itriats0146257.jpg" alt="Nintendo" class="card-image">
                     <div class="card-info">
                         <h3>ZELDA: TEARS OF THE KINGDOM</h3>
@@ -381,7 +383,7 @@
                 </div>
 
                 <div class="viz-container">
-                    <img src="static/img/Pokémon.svg" alt="Animal Crossing Logo" class="game-logo">
+                    <img src="static/img/Pokémon.svg" alt="Pokemon Logo" class="game-logo">
                     <div class="viz-title">POKEMON</div>
                     <div class="chart-container">
                         <canvas id="acChart1"></canvas>
@@ -400,8 +402,6 @@
         <div class="physics-container" id="physicsContainer"></div>
     </div>
 
-        <img src="https://static.wikia.nocookie.net/legendofzelda/images/2/25/ToK_Link_Artwork.png/revision/latest/thumbnail/width/360/height/360?cb=20230413151713&path-prefix=zh-tw" alt="Link" class="character floating" style="bottom: 50px; left: 50px;">
-        
         <div class="physics-container" id="physicsContainer"></div>
         
         <div class="legend">
@@ -415,7 +415,7 @@
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #E91E63;"></div>
-                <span>Animal Crossing (10h each)</span>
+                <span>Pokemon(10h each)</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #F44336;"></div>
@@ -427,7 +427,7 @@
             <div>Total Playtime: 420 hours</div>
             <div>Zelda: 150 hours</div>
             <div>Splatoon 3: 120 hours</div>
-            <div>Animal Crossing: 100 hours</div>
+            <div>Pokemon: 100 hours</div>
             <div>Other: 50 hours</div>
         </div>
     </div>
@@ -625,7 +625,7 @@
             new Chart(pieCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['Zelda', 'Splatoon 3', 'Animal Crossing', 'Other'],
+                    labels: ['Zelda', 'Splatoon 3', 'Pokemon', 'Other'],
                     datasets: [{
                         data: [150, 120, 100, 50],
                         backgroundColor: [
@@ -681,7 +681,7 @@
                             fill: true
                         },
                         {
-                            label: 'Animal Crossing',
+                            label: 'Pokemon',
                             data: [0, 1, 0, 2, 1, 3, 1],
                             borderColor: 'rgba(233, 30, 99, 1)',
                             backgroundColor: 'rgba(233, 30, 99, 0.1)',
@@ -751,7 +751,7 @@
                             pointHoverBorderColor: 'rgba(255, 235, 59, 1)'
                         },
                         {
-                            label: 'Animal Crossing',
+                            label: 'Pokemon',
                             data: [50, 30, 70, 85, 60],
                             backgroundColor: 'rgba(233, 30, 99, 0.2)',
                             borderColor: 'rgba(233, 30, 99, 1)',
@@ -1055,6 +1055,36 @@
                 duration: 3000,
                 direction: 'alternate',
                 loop: true
+            });
+            // 添加部件进入动画
+            anime.timeline({
+                easing: 'easeOutExpo',
+                duration: 800
+            })
+            .add({
+                targets: '.sidebar.left',
+                translateX: [-100, 0],
+                opacity: [0, 1],
+                delay: 200
+            })
+            .add({
+                targets: '.sidebar.right',
+                translateX: [100, 0],
+                opacity: [0, 1],
+                delay: 200
+            })
+            .add({
+                targets: '.card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                scale: [0.9, 1],
+                delay: 400
+            })
+            .add({
+                targets: '.chart-container',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100)
             });
         });
     </script>
