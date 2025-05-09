@@ -34,7 +34,7 @@
                     currentCharIndex = (currentCharIndex + 1) % characterImages.length;
                     this.src = characterImages[currentCharIndex];
                     this.classList.remove('flip-animation');
-                }, 400);
+                }, 800); // 增加动画时间以确保360度旋转完整
             });
 
             // 鼠标交互效果
@@ -211,8 +211,8 @@
 
         .character-switcher {
             position: absolute;
-            bottom: 30%;
-            right: 20%;
+            bottom: 20%;
+            right: 15%;
             width: 200px;
             height: 300px;
             z-index: 30;
@@ -234,7 +234,7 @@
         }
 
         .flip-animation {
-            animation: flip 0.8s ease-in-out;
+            animation: flip 0.8s ease-in-out forwards;
         }
 
         .card-info h3 {
