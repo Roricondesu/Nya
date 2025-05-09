@@ -3,13 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【灵异档案】谁在红房间中燃烧？ - 头七论坛 Madeby yui</title>
-    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <title>【灵异档案】</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <script>
+        // 显示加载图标
+        const loadingIcon = document.createElement('img');
+        loadingIcon.src = 'static/img/redeye.gif';
+        loadingIcon.className = 'loading-icon';
+        document.body.appendChild(loadingIcon);
+        
+        // 页面加载完成后移除加载图标并添加打字效果
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                loadingIcon.remove();
+                
+                // 为所有正文文字添加打字效果
+                const textElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div, li, a');
+                textElements.forEach(el => {
+                    el.classList.add('typing-effect');
+                });
+            }, 1000);
+        });
+        
         document.getElementById('eyeGif').addEventListener('click', function() {
             const ghosts = ['👻', '👹', '💀', '👽', '🤡'];
             for (let i = 0; i < 20; i++) {
@@ -47,6 +66,33 @@
             background-image: url('static/img/oldpaper.png');
             background-blend-mode: multiply;
             line-height: 1.6;
+        }
+        
+        .typing-effect {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid black;
+            animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: black; }
+        }
+        
+        .loading-icon {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            z-index: 9999;
         }
 
         .forum-header {
@@ -178,7 +224,9 @@
         }
 
         .info-title {
+            font-family: 'Ma Shan Zheng', cursive;
             font-size: 1.5rem;
+            color: rgb(92, 20, 20);
             border-bottom: 1px solid black;
             margin-bottom: 10px;
             padding-bottom: 5px;
@@ -295,6 +343,7 @@
             </div>
             
             <h3>我的构成</h3>
+            <p>由痛苦与火焰铸造的灵魂，在商业与灵异的夹缝中生存。 <br>既是精明的商人，又是脆弱的灵魂，最终化为福田百货的守护怨灵。<p>
             <img src="static/img/jyyyp.png" alt="构成" class="composition-image" id="compositionImage">
         </div>
     </div>
