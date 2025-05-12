@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yufan‘s GameWorld</title>
-    <link href="static/fonts/pix.ttf" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://nya.666lab.club/static/fonts/pix.ttf" rel="Pixel">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -58,7 +59,7 @@
                 {id: "totk", name: "塞尔达传说:王国之泪", type: "game"},
                 {id: "pokemon_rgb", name: "精灵宝可梦 红/绿", type: "game"},
                 {id: "splatoon3", name: "喷射战士3", type: "game"},
-                {id: "player", name: "我", type: "player"},
+                {id: "player", name: "我", type: "player", img: "https://nya.666lab.club/logoku.png"},
                 {id: "mario_kart", name: "马里奥赛车", type: "game"},
                 {id: "pokemon_go", name: "精灵宝可梦GO", type: "game"},
                 {id: "animal_crossing", name: "集合啦！动物森友会", type: "game"},
@@ -234,7 +235,11 @@
     <style>
         @font-face {
             font-family: 'Pixel';
-            src: url('static/fonts/pix.ttf');
+            src: url('https://nya.666lab.club/static/fonts/pix.ttf');
+            font-display: swap;
+        }
+        * {
+            font-family: 'Pixel', 'Press Start 2P', cursive !important;
         }
 
         body {
