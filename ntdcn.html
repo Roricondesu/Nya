@@ -59,7 +59,7 @@
                 {id: "totk", name: "塞尔达传说:王国之泪", type: "game"},
                 {id: "pokemon_rgb", name: "精灵宝可梦 红/绿", type: "game"},
                 {id: "splatoon3", name: "喷射战士3", type: "game"},
-                {id: "player", name: "我", type: "player", img: "https://nya.666lab.club/logoku.png"},
+                {id: "player", name: "我", type: "player", img: "logoku.png"},
                 {id: "mario_kart", name: "马里奥赛车", type: "game"},
                 {id: "pokemon_go", name: "精灵宝可梦GO", type: "game"},
                 {id: "animal_crossing", name: "集合啦！动物森友会", type: "game"},
@@ -121,9 +121,10 @@
             .attr('r', d => d.type === 'franchise' ? 20 : (d.type === 'game' ? 15 : 25))
             .attr('fill', d => {
                 switch(d.type) {
-                    case 'franchise': return '#e60012';
+                    case 'franchise': return '#00CED1';
                     case 'game': return '#0038a8';
                     case 'crossover': return '#ffcb05';
+                    case 'player': return '#ffffff';
                     default: return '#999';
                 }
             })
