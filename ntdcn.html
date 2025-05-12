@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yufan‘s GameWorld</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link href="https://nya.666lab.club/static/fonts/pix.ttf" rel="Pixel">
+    <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin />
+    <link rel="stylesheet"
+        href="https://fontsapi.zeoseven.com/39/main/result.css"
+        onerror="this.href='https://fontsapi-storage.zeoseven.com/39/main/result.css'" />
+    <style>
+        body {
+            font-family: "Uranus Pixel 11Px";
+            font-weight: normal;
+        }
+    </style>
+    <link href="PGpix.ttf" rel="Pixel">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -46,25 +55,32 @@
         // 任天堂游戏关系数据
         const gamesData = {
             nodes: [
-                {id: "mario", name: "超级马里奥", type: "franchise"},
-                {id: "zelda", name: "塞尔达传说", type: "franchise"},
-                {id: "pokemon", name: "精灵宝可梦", type: "franchise"},
-                {id: "splatoon", name: "喷射战士", type: "franchise"},
-                {id: "animal", name: "动物之森", type: "franchise"},
-                {id: "metroid", name: "银河战士", type: "franchise"},
-                {id: "kirby", name: "星之卡比", type: "franchise"},
-                {id: "smash", name: "任天堂明星大乱斗", type: "crossover"},
-                {id: "mario64", name: "超级马里奥奥德赛", type: "game"},
-                {id: "botw", name: "塞尔达传说:旷野之息", type: "game"},
-                {id: "totk", name: "塞尔达传说:王国之泪", type: "game"},
-                {id: "pokemon_rgb", name: "精灵宝可梦 红/绿", type: "game"},
-                {id: "splatoon3", name: "喷射战士3", type: "game"},
-                {id: "player", name: "我", type: "player", img: "logoku.png"},
-                {id: "mario_kart", name: "马里奥赛车", type: "game"},
-                {id: "pokemon_go", name: "精灵宝可梦GO", type: "game"},
-                {id: "animal_crossing", name: "集合啦！动物森友会", type: "game"},
-                {id: "metroid_dread", name: "银河战士:生存恐惧", type: "game"},
-                {id: "kirby_returns", name: "星之卡比:探索发现", type: "game"}
+                {id: "nintendo", name: "Nintendo 任天堂", type: "company"},
+                {id: "mario", name: "Super Mario 超级马里奥", type: "franchise"},
+                {id: "zelda", name: "The Legend of Zelda 塞尔达传说", type: "franchise"},
+                {id: "pokemon", name: "Pokémon 精灵宝可梦", type: "franchise"},
+                {id: "splatoon", name: "Splatoon 喷射战士", type: "franchise"},
+                {id: "animal", name: "Animal Crossing 动物之森", type: "franchise"},
+                {id: "metroid", name: "Metroid 银河战士", type: "franchise"},
+                {id: "kirby", name: "Kirby 星之卡比", type: "franchise"},
+                {id: "fire_emblem", name: "Fire Emblem 火焰纹章", type: "franchise"},
+                {id: "xenoblade", name: "Xenoblade 异度之刃", type: "franchise"},
+                {id: "smash", name: "Super Smash Bros. 任天堂明星大乱斗", type: "crossover"},
+                {id: "mario64", name: "Super Mario Odyssey 超级马里奥奥德赛", type: "game"},
+                {id: "botw", name: "The Legend of Zelda: Breath of the Wild 塞尔达传说:旷野之息", type: "game"},
+                {id: "totk", name: "The Legend of Zelda: Tears of the Kingdom 塞尔达传说:王国之泪", type: "game"},
+                {id: "pokemon_rgb", name: "Pokémon Red/Green 精灵宝可梦 红/绿", type: "game"},
+                {id: "splatoon3", name: "Splatoon 3 喷射战士3", type: "game"},
+                {id: "player", name: "Me 我", type: "player", img: "https://nya.666lab.club/logoku.png"},
+                {id: "mario_kart", name: "Mario Kart 马里奥赛车", type: "game"},
+                {id: "pokemon_go", name: "Pokémon GO 精灵宝可梦GO", type: "game"},
+                {id: "animal_crossing", name: "Animal Crossing: New Horizons 集合啦！动物森友会", type: "game"},
+                {id: "metroid_dread", name: "Metroid Dread 银河战士:生存恐惧", type: "game"},
+                {id: "kirby_returns", name: "Kirby and the Forgotten Land 星之卡比:探索发现", type: "game"},
+                {id: "fe_three_houses", name: "Fire Emblem: Three Houses 火焰纹章:风花雪月", type: "game"},
+                {id: "xenoblade3", name: "Xenoblade Chronicles 3 异度之刃3", type: "game"},
+                {id: "ring_fit", name: "Ring Fit Adventure 健身环大冒险", type: "game"},
+                {id: "arms", name: "ARMS", type: "game"}
             ],
             links: [
                 {source: "mario", target: "mario64"},
@@ -76,16 +92,21 @@
                 {source: "smash", target: "zelda"},
                 {source: "smash", target: "pokemon"},
                 {source: "smash", target: "kirby"},
+                {source: "smash", target: "fire_emblem"},
                 {source: "botw", target: "totk"},
                 {source: "player", target: "splatoon3"},
                 {source: "player", target: "totk"},
                 {source: "player", target: "pokemon"},
                 {source: "player", target: "mario"},
+                {source: "player", target: "animal_crossing"}, // 新增玩家与动森游戏的连接
                 {source: "mario", target: "mario_kart"},
                 {source: "pokemon", target: "pokemon_go"},
                 {source: "animal", target: "animal_crossing"},
                 {source: "metroid", target: "metroid_dread"},
-                {source: "kirby", target: "kirby_returns"}
+                {source: "kirby", target: "kirby_returns"},
+                {source: "fire_emblem", target: "fe_three_houses"},
+                {source: "xenoblade", target: "xenoblade3"},
+                {source: "player", target: "ring_fit"}, // 新增玩家与健身环的连接
             ]
         };
 
@@ -281,7 +302,7 @@
             font-display: swap;
         }
         * {
-            font-family: 'Pixel', 'Press Start 2P', cursive !important;
+            font-family: "Uranus Pixel 11Px", 'Pixel', 'Press Start 2P', cursive !important;
         }
 
         body {
@@ -289,7 +310,7 @@
             padding: 0;
             background-color: #0a0a1a;
             color: white;
-            font-family: 'Pixel', 'Press Start 2P', cursive;
+            font-family: "Uranus Pixel 11Px", 'Pixel', 'Press Start 2P', cursive;
             overflow-x: hidden;
             position: relative;
         }
