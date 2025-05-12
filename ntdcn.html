@@ -89,6 +89,35 @@
             ]
         };
 
+        // 添加发光滤镜定义
+        const defs = d3.select('#nintendo-graph').append('defs');
+        
+        // 不同类型节点的发光效果
+        const glowTypes = [
+            {id: 'franchise-glow', color: '#00CED1', stdDeviation: 8},
+            {id: 'game-glow', color: '#0038a8', stdDeviation: 6},
+            {id: 'crossover-glow', color: '#ffcb05', stdDeviation: 10},
+            {id: 'player-glow', color: '#ffffff', stdDeviation: 12}
+        ];
+        
+        glowTypes.forEach(type => {
+            const filter = defs.append('filter')
+                .attr('id', type.id)
+                .attr('x', '-30%')
+                .attr('y', '-30%')
+                .attr('width', '160%')
+                .attr('height', '160%');
+            
+            filter.append('feGaussianBlur')
+                .attr('stdDeviation', type.stdDeviation)
+                .attr('result', 'blur');
+            
+            filter.append('feComposite')
+                .attr('in', 'SourceGraphic')
+                .attr('in2', 'blur')
+                .attr('operator', 'over');
+        });
+        
         // 设置SVG画布
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -126,6 +155,15 @@
                     case 'crossover': return '#ffcb05';
                     case 'player': return '#ffffff';
                     default: return '#999';
+                }
+            })
+            .attr('filter', d => {
+                switch(d.type) {
+                    case 'franchise': return 'url(#franchise-glow)';
+                    case 'game': return 'url(#game-glow)';
+                    case 'crossover': return 'url(#crossover-glow)';
+                    case 'player': return 'url(#player-glow)';
+                    default: return 'none';
                 }
             })
             .call(d3.drag()
@@ -237,6 +275,8 @@
         @font-face {
             font-family: 'Pixel';
             src: url('https://nya.666lab.club/static/fonts/pix.ttf');
+            src: url('static/fonts/pix.ttf');
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
             font-display: swap;
         }
         * {
