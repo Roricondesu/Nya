@@ -31,7 +31,7 @@
     graphContainer.style.height = '100%';
     graphContainer.style.zIndex = '1000';
     graphContainer.style.display = 'none';
-    graphContainer.style.backgroundColor = 'rgba(0,0,0,0.2)';
+    graphContainer.style.backgroundColor = 'rgba(0,0,0,0.5)';
     document.body.appendChild(graphContainer);
 
     // 点击卡片事件
@@ -46,9 +46,6 @@
 
     graphContainer.addEventListener('click', function() {
         anime({
-            targets: graphContainer,
-            opacity: [1, 0],
-            duration: 500,
             easing: 'easeOutExpo',
             complete: function() {
                 graphContainer.style.display = 'none';
@@ -705,8 +702,8 @@
     </video>
     <div class="container">
         <div class="header">
-            <h1>雨凡的游戏世界</h1>
-            <p>一名大学生的游戏之旅</p>
+            <h1>YUFAN‘S GAMEWORLD</h1>
+            <p>A Journey of Nintendo</p>
         </div>
 
         <div class="main-content">
@@ -738,7 +735,7 @@
             <div class="center-card">
                 <div class="profile-intro">
                     <img src="logoku.png" class="profile-avatar" alt="Avatar">
-                    <div class="profile-text">雨凡 <br>任天堂粉丝 </div>
+                    <div class="profile-text">Yufan <br>任天堂粉丝 </div>
                 </div>
                 <div class="card" id="mainCard">
                     <img src="http://k.sinaimg.cn/n/sinakd20240512ac/278/w388h690/20240512/c299-4b6cecba9a2632fca7288905ba4716d2.jpg/w700d1q75cms.jpg?by=cms_fixed_width" alt="Zelda" class="card-image active">
@@ -747,7 +744,7 @@
                     <img src="https://n.sinaimg.cn/sinakd10117/600/w1920h1080/20200514/ce41-itriats0146257.jpg" alt="Nintendo" class="card-image">
                     <div class="card-info">
                         <h3>塞尔达传说：王国之泪</h3>
-                        <p>雨凡目前最喜欢的冒险游戏，已游玩150+小时</p>
+                        <p>目前最喜欢的冒险游戏，已游玩150+小时</p>
                     </div>
                 </div>
             </div>
