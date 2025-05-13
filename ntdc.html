@@ -1,6 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .creative-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+            background: rgba(20, 20, 40, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item {
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 210, 0, 0.5);
+        }
+        
+        .about-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 500px;
+            background: rgba(20, 20, 40, 0.5);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .about-window.active {
+            display: flex;
+        }
+        
+        .about-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .about-text {
+            color: white;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .about-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yufan</title>
@@ -21,6 +106,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            window.scrollTo(0, 0);
         // 音乐控制
         const musicControl = document.getElementById('musicControl');
         const bgMusic = document.getElementById('bgMusic');
@@ -346,6 +432,27 @@
             });
         });
     </script>
+    
+    <script>
+        document.getElementById('nav-about').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.toggle('active');
+        });
+        
+        document.getElementById('aboutClose').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.remove('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const aboutWindow = document.getElementById('aboutWindow');
+            const navAbout = document.getElementById('nav-about');
+            
+            if (aboutWindow.classList.contains('active') && 
+                !aboutWindow.contains(event.target) && 
+                event.target !== navAbout) {
+                aboutWindow.classList.remove('active');
+            }
+        });
+    </script>
     <style>
         @font-face {
             font-family: 'Pixel';
@@ -388,7 +495,7 @@
 
         .header h1 {
             font-size: 3rem;
-            margin: 0;
+            margin: 70px 0 0;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
             animation: colorChange 5s infinite alternate;
             background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
@@ -820,6 +927,21 @@
     </style>
 </head>
 <body>
+    <div class="creative-nav">
+        <div class="nav-item" id="nav-home">首页</div>
+        <div class="nav-item" id="nav-graph">关系图谱</div>
+        <div class="nav-item" id="nav-about">关于</div>
+    </div>
+    
+    <div class="about-window" id="aboutWindow">
+        <button class="about-close" id="aboutClose">×</button>
+        <img src="static/img/ppmp.jpg" class="avatar" alt="关于我">
+        <div class="about-text">
+            <h3>Yufan</h3>
+            <p>200410<br>四川农业大学艺术与传媒学院<br>视觉传达2023级</p>
+            <p><br>Email<br>Rorisu@qq.com</p>
+        </div>
+    </div>
     <audio id="bgMusic" loop>
         <source src="static/img/zelda.mp3" type="audio/mpeg">
     </audio>
@@ -1456,6 +1578,31 @@
             mouseY = e.touches[0].clientY;
         }, { passive: false });
         
+        // 导航栏交互效果
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                balls.forEach(ball => {
+                    if(this.id === 'nav-home') {
+                        ball.color = 'rgba(0, 210, 0, 0.7)';
+                    } else if(this.id === 'nav-graph') {
+                        ball.color = 'rgba(255, 215, 0, 0.7)';
+                    } else if(this.id === 'nav-about') {
+                        ball.color = 'rgba(255, 105, 180, 0.7)';
+                    }
+                });
+            });
+
+            item.addEventListener('click', function() {
+                if(this.id === 'nav-home') {
+                    window.scrollTo(0, 0);
+                } else if(this.id === 'nav-graph') {
+                    document.getElementById('mainCard').click();
+                } else if(this.id === 'nav-about') {
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            });
+        });
+
         // 物理模拟循环
         function animate() {
             // 清除画布
@@ -1639,6 +1786,27 @@
                 opacity: [0, 1],
                 delay: anime.stagger(100)
             });
+        });
+    </script>
+    
+    <script>
+        document.getElementById('nav-about').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.toggle('active');
+        });
+        
+        document.getElementById('aboutClose').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.remove('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const aboutWindow = document.getElementById('aboutWindow');
+            const navAbout = document.getElementById('nav-about');
+            
+            if (aboutWindow.classList.contains('active') && 
+                !aboutWindow.contains(event.target) && 
+                event.target !== navAbout) {
+                aboutWindow.classList.remove('active');
+            }
         });
     </script>
 </body>
