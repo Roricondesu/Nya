@@ -62,18 +62,6 @@
     const card = document.getElementById('mainCard');
     card.style.cursor = 'pointer';
     
-    // 鼠标悬停显示个人信息图片
-    card.addEventListener('mouseenter', function() {
-        const profileImg = document.createElement('img');
-        profileImg.src = 'static/img/n2.png';
-        profileImg.style.position = 'absolute';
-        profileImg.style.width = '100%';
-        profileImg.style.height = '100%';
-        profileImg.style.objectFit = 'cover';
-        profileImg.style.zIndex = '10';
-        this.appendChild(profileImg);
-    });
-    
     card.addEventListener('mouseleave', function() {
         const profileImg = this.querySelector('img');
         if (profileImg) {
