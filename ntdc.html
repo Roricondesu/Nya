@@ -559,6 +559,7 @@
             filter: drop-shadow(0 0 5px rgba(255, 203, 5, 0.7));
             border: none;
             background: transparent;
+            animation: breathe 3s ease-in-out infinite;
         }
 
         .character-switcher:hover {
@@ -570,6 +571,11 @@
             0% { transform: rotateY(0); }
             50% { transform: rotateY(180deg); }
             100% { transform: rotateY(360deg); }
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .flip-animation {
