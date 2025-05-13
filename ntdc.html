@@ -34,7 +34,7 @@
                 
                 // 根据容器ID设置不同的图片
                 const img = document.createElement('img');
-                if (this.id.includes('left')) {
+                if (this.id.includes('zelda')) {
                     img.src = 'static/img/1.gif';
                 } else {
                     img.src = 'static/img/ppmp.jpg';
@@ -104,7 +104,7 @@
                 {id: "mario64", name: "Super Mario Odyssey 超级马里奥奥德赛", type: "game"},
                 {id: "botw", name: "The Legend of Zelda: Breath of the Wild 塞尔达传说:旷野之息", type: "game"},
                 {id: "totk", name: "The Legend of Zelda: Tears of the Kingdom 塞尔达传说:王国之泪", type: "game"},
-                {id: "pokemon_rgb", name: "Pokémon  精灵宝可梦 剑盾", type: "game"},
+                {id: "pokemon_rgb", name: "Pokémon  精灵宝可梦", type: "game"},
                 {id: "splatoon3", name: "Splatoon 3 喷射战士3", type: "game"},
                 {id: "player", name: "Me 我", type: "player", img: "https://nya.666lab.club/logoku.png"},
                 {id: "mario_kart", name: "Mario Kart 马里奥赛车", type: "game"},
@@ -374,9 +374,19 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 4rem;
             margin: 0;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
+            animation: colorChange 5s infinite alternate;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @keyframes colorChange {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         .header p {
