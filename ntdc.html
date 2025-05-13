@@ -61,14 +61,6 @@
     // 点击卡片事件
     const card = document.getElementById('mainCard');
     card.style.cursor = 'pointer';
-    
-    card.addEventListener('mouseleave', function() {
-        const profileImg = this.querySelector('img');
-        if (profileImg) {
-            this.removeChild(profileImg);
-        }
-    });
-    
     card.addEventListener('click', function(e) {
         e.stopPropagation();
         card.style.display = 'none';
@@ -558,10 +550,10 @@
 
         .character-switcher {
             position: absolute;
-            bottom: 2%;
+            bottom: 5%;
             right: 10%;
-            width: 200px;
-            height: 300px;
+            width: 300px;
+            height: 400px;
             z-index: 30;
             transition: all 0.3s;
             filter: drop-shadow(0 0 5px rgba(255, 203, 5, 0.7));
@@ -787,7 +779,7 @@
             <div class="sidebar left">
                 <div class="viz-container">
                     <img src="static/img/zeldaLogo.png" alt="Zelda Logo" class="game-logo">
-                    <div class="viz-title">塞尔达传说：王国之泪 <br>全流程通关 <br>游戏体验分析</div>
+                    <div class="viz-title">塞尔达传说：王国之泪</div>
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
                     </div>
@@ -829,7 +821,7 @@
             <div class="sidebar right">
                 <div class="viz-container">
                     <img src="static/img/SplatoonLogo.webp" alt="Splatoon Logo" class="game-logo">
-                    <div class="viz-title">斯普拉遁3 <br>真格最高A rank <br>真格武器分析</div>
+                    <div class="viz-title">斯普拉遁3</div>
                     <div class="chart-container">
                         <canvas id="splatoonChart1"></canvas>
                     </div>
