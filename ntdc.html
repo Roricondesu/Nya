@@ -61,6 +61,26 @@
     // 点击卡片事件
     const card = document.getElementById('mainCard');
     card.style.cursor = 'pointer';
+    
+    // 鼠标悬停显示个人信息图片
+    card.addEventListener('mouseenter', function() {
+        const profileImg = document.createElement('img');
+        profileImg.src = 'static/img/n2.png';
+        profileImg.style.position = 'absolute';
+        profileImg.style.width = '100%';
+        profileImg.style.height = '100%';
+        profileImg.style.objectFit = 'cover';
+        profileImg.style.zIndex = '10';
+        this.appendChild(profileImg);
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        const profileImg = this.querySelector('img');
+        if (profileImg) {
+            this.removeChild(profileImg);
+        }
+    });
+    
     card.addEventListener('click', function(e) {
         e.stopPropagation();
         card.style.display = 'none';
@@ -288,7 +308,7 @@
             easing: 'easeOutExpo'
         });
     }
-            const characterImages = ['static/img/self.png', 'static/img/link.png', 'static/img/sadosi.png'];
+            const characterImages = ['static/img/n1.png', 'static/img/n2.png', 'static/img/n3.png', 'static/img/n4.png', 'static/img/n5.png'];
             let currentCharIndex = 0;
             const characterSwitcher = document.createElement('img');
             characterSwitcher.className = 'character-switcher';
@@ -779,7 +799,7 @@
             <div class="sidebar left">
                 <div class="viz-container">
                     <img src="static/img/zeldaLogo.png" alt="Zelda Logo" class="game-logo">
-                    <div class="viz-title">塞尔达传说：王国之泪</div>
+                    <div class="viz-title">塞尔达传说：王国之泪 <br>全流程通关 <br>游戏体验分析</div>
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
                     </div>
@@ -821,7 +841,7 @@
             <div class="sidebar right">
                 <div class="viz-container">
                     <img src="static/img/SplatoonLogo.webp" alt="Splatoon Logo" class="game-logo">
-                    <div class="viz-title">斯普拉遁3</div>
+                    <div class="viz-title">斯普拉遁3 <br>真格最高A rank <br>真格武器分析</div>
                     <div class="chart-container">
                         <canvas id="splatoonChart1"></canvas>
                     </div>
