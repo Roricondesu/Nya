@@ -21,6 +21,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+        // 音乐控制
+        const musicControl = document.getElementById('musicControl');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        musicControl.addEventListener('click', function() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicControl.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            } else {
+                bgMusic.pause();
+                musicControl.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+            }
+        });
     // 为所有viz-container添加点击事件
     document.querySelectorAll('.viz-container').forEach(container => {
         container.addEventListener('click', function(e) {
@@ -374,7 +387,7 @@
         }
 
         .header h1 {
-            font-size: 4rem;
+            font-size: 3rem;
             margin: 0;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
             animation: colorChange 5s infinite alternate;
@@ -390,7 +403,7 @@
         }
 
         .header p {
-            font-size: 1rem;
+            font-size: 2rem;
             margin: 10px 0 0;
         }
 
@@ -766,6 +779,31 @@
             100% { transform: translateY(0px); }
         }
 
+        #musicControl {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        #musicControl:hover {
+            background: rgba(0,210,0,0.7);
+            transform: scale(1.1);
+        }
+        
+        #musicControl svg {
+            fill: white;
+        }
+        
         .floating {
             animation: float 3s ease-in-out infinite;
         }
@@ -782,9 +820,17 @@
     </style>
 </head>
 <body>
+    <audio id="bgMusic" loop>
+        <source src="static/img/zelda.mp3" type="audio/mpeg">
+    </audio>
     <video class="video-background" autoplay muted loop>
         <source src="static/img/zelda.mp4" type="video/mp4">
     </video>
+    <div id="musicControl" class="floating">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </div>
     <div class="container">
         <div class="header">
             <h1>YUFAN‘S GAMEWORLD</h1>
@@ -795,7 +841,7 @@
             <div class="sidebar left">
                 <div class="viz-container">
                     <img src="static/img/zeldaLogo.png" alt="Zelda Logo" class="game-logo">
-                    <div class="viz-title">塞尔达传说：王国之泪</div>
+                    <div class="viz-title">塞尔达传说：王国之泪 <br>游戏体验分析</div>
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
                     </div>
