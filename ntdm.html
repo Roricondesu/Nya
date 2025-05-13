@@ -647,14 +647,17 @@
         align-items: center;
         perspective: 1000px;
         position: relative;
+        aspect-ratio: 16/9;
+        max-width: 1200px;
+        max-height: 675px;
     }
 
         @media (max-width: 768px) {
         .card {
             width: 90vw;
-            height: 120vw;
+            height: calc(90vw * 9/16);
             max-width: 350px;
-            max-height: 500px;
+            max-height: calc(350px * 9/16);
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.5s;
@@ -1016,8 +1019,8 @@
     </div>
     <div class="container">
         <div class="header">
-            <h1>YUFAN‘S GAMEWORLD</h1>
-            <p>A Journey of Nintendo</p>
+            <h1>YUFAN‘S GAME WORLD</h1>
+            <p>A Journey of Nintendo <br>信息可视化设计</p>
         </div>
 
         <div class="main-content">
