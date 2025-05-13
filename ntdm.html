@@ -741,8 +741,8 @@
 
         .character-switcher {
             position: absolute;
-            top: 610px;
-            right: 50px;
+            bottom: 2%;
+            right: 2%;
             width: 340px;
             height: 400px;
             z-index: 30;
@@ -1634,10 +1634,9 @@
         
         // 触摸交互
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
-        }, { passive: false });
+        }, { passive: true });
         
         // 导航栏交互效果
         document.querySelectorAll('.nav-item').forEach(item => {
