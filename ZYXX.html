@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【灵异档案】</title>
+    <link rel="icon" href="static/img/ssdw.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <script>
+        // 显示加载图标
+        const loadingIcon = document.createElement('img');
+        loadingIcon.src = 'static/img/redeye.gif';
+        loadingIcon.className = 'loading-icon';
+        document.body.appendChild(loadingIcon);
+        
+        // 页面加载完成后移除加载图标并添加打字效果
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                loadingIcon.remove();
+                
+                // 为所有正文文字添加打字效果
+                const textElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div, li, a');
+                textElements.forEach(el => {
+                    el.classList.add('typing-effect');
+                });
+            }, 1000);
+        });
+        
+        document.getElementById('eyeGif').addEventListener('click', function() {
+            const ghosts = ['👻', '👹', '💀', '👽', '🤡'];
+            for (let i = 0; i < 20; i++) {
+                const ghost = document.createElement('div');
+                ghost.textContent = ghosts[Math.floor(Math.random() * ghosts.length)];
+                ghost.style.position = 'fixed';
+                ghost.style.left = Math.random() * 100 + 'vw';
+                ghost.style.top = Math.random() * 100 + 'vh';
+                ghost.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                ghost.style.zIndex = '9999';
+                ghost.style.pointerEvents = 'none';
+                document.body.appendChild(ghost);
+                
+                anime({
+                    targets: ghost,
+                    translateX: Math.random() * 200 - 100,
+                    translateY: Math.random() * 200 - 100,
+                    opacity: [1, 0],
+                    duration: 2000,
+                    easing: 'easeOutExpo',
+                    complete: function() {
+                        ghost.remove();
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'ZCOOL QingKe HuangYou', cursive;
+            background-color: rgb(144, 36, 2);
+            color: black;
+            margin: 0;
+            padding: 20px;
+            background-image: url('static/img/oldpaper.png');
+            background-blend-mode: multiply;
+            line-height: 1.6;
+        }
+        
+        .typing-effect {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid black;
+            animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: black; }
+        }
+        
+        .loading-icon {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            z-index: 9999;
+        }
+
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 3px dashed black;
+            padding-bottom: 10px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .title-container {
+            flex: 1;
+        }
+
+        .forum-title {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            color: black;
+            font-family: 'Creepster', cursive;
+        }
+
+        .eye-container {
+            width: 140px;
+            height: 140px;
+            border: 0px dashed black;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .eye-gif {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #900000 0%, #000000 100%);
+            min-height: 100vh;
+        }
+        
+        .main-card {
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 3px solid black;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 0 auto 30px;
+            max-width: 1200px;
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .profile-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+        }
+
+        .profile-image {
+            width: 100%;
+            border: 2px solid black;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .composition-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-container {
+            margin-bottom: 30px;
+            height: 300px;
+            opacity: 0;
+        }
+
+        .composition-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            align-self: center;
+            margin-top: 4px;
+            left: 10%;
+            opacity: 0;
+        }
+
+        .relationship-chart {
+            width: 100%;
+            height: 500px;
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .floating-ghost {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            pointer-events: none;
+            z-index: 1000;
+            transition: transform 0.2s ease-out;
+        }
+
+        .info-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid black;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+        }
+
+        .info-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            color: rgb(92, 20, 20);
+            border-bottom: 1px solid black;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .fire-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .forum-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .eye-container {
+                margin-top: 20px;
+            }
+            
+            .profile-section, .composition-section {
+                min-width: 100%;
+            }
+            
+            .relationship-chart {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="fire-canvas" id="fireCanvas"></canvas>
+    <div class="forum-header">
+        <div class="title-container">
+            <h1 class="forum-title">WHO AM I？</h1>
+            <p>发帖人: 头七论坛管理员 | 【灵异档案】谁在红房间中燃烧？ - 头七论</p>
+        </div>
+        <div class="eye-container">
+            <img src="static/img/redeye.gif" alt="Red Eye" class="eye-gif">
+        </div>
+    </div>
+
+    <div class="main-card" id="mainCard">
+        <div class="profile-section">
+            <img src="static/img/jyy.jpg" alt="朱耀星" class="profile-image">
+            
+            <div class="info-box" id="identityBox">
+                <h2 class="info-title">身份信息</h2>
+                <p><strong>姓名：</strong>朱耀星</p>
+                <p><strong>职业：</strong>福田百货老板/替死鬼/？？？/昊漠星</p>
+                <p><strong>头七论坛id: </strong>星星</p>
+                <div>
+                    <span class="tag">地缚灵</span>
+                    <span class="tag">红房间</span>
+                    <span class="tag">鬼王面燃大士</span>
+                </div>
+            </div>
+            
+            <div class="info-box" id="experienceBox">
+                <h2 class="info-title">关键经历</h2>
+                <div class="timeline">
+<!-- 限制图片尺寸，设置宽度为 100% 以适配容器，最大高度为 300px -->
+<img src="static/img/ZYXJL.png" alt="朱耀星关键经历图片" style="width: 100%; max-height: 300px; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+        
+        <div class="composition-section">
+            <div class="chart-container" id="personalityChart">
+                <canvas id="personalityCanvas"></canvas>
+            </div>
+            
+            <div class="chart-container" id="emotionChart">
+                <canvas id="emotionCanvas"></canvas>
+            </div>
+            
+            <div class="info-box" id="elementsBox">
+                <h2 class="info-title">构成</h2>
+                <img src="static/img/ZYXG.png" alt="我的构成" style="width: 100%; max-height: 300px; object-fit: contain;">
+            </div>
+            
+            <div class="info-box" id="characterBox">
+                <h2 class="info-title">性格与观念</h2>
+                <p>对财富认知模糊，以食物为财富象征；精神上自我认知极低。</p>
+            </div>
+            
+            <p style="font-size: 24px;">由痛苦与火焰铸造的灵魂，在商业与灵异的夹缝中生存。 <br>既是精明的商人，又是脆弱的灵魂，最终化为福田百货的守护怨灵。</p>
+        </div>
+    </div>
+
+    </div>
+        
+        <div class="relationship-chart" id="relationshipChart">
+          
+            <svg id="relationGraph" width="100%" height="100%"></svg>
+        </div>
+    </div>
+
+    <img src="static/img/ssdw.png" alt="萌" class="floating-ghost" id="floatingGhost">
+
+    <script>
+        // 初始化动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主卡片入场动画
+            anime({
+                targets: '#mainCard',
+                opacity: 1,
+                translateY: 0,
+                duration: 1500,
+                easing: 'easeOutExpo'
+            });
+            
+            // 信息框逐个显示
+anime({
+    targets: '.info-box',
+    opacity: 1,
+    translateY: [200, 0], // 从下方 50px 处滑入
+    delay: anime.stagger(300, {start: 800}),
+    duration: 1000,
+    easing: 'easeOutExpo'
+});
+            
+            // 构成图片动画
+            anime({
+                targets: '#compositionImage',
+                opacity: 1,
+                duration: 1500,
+                delay: 2500,
+                easing: 'easeOutExpo',
+                complete: function() {
+                    // 浮动动画
+                    anime({
+                        targets: '#compositionImage',
+                        translateY: [0, -15, 0],
+                        loop: true,
+                        duration: 3000,
+                        easing: 'easeInOutSine'
+                    });
+                }
+            });
+            
+            // 图表动画
+            anime({
+                targets: '.chart-container',
+                opacity: 1,
+                delay: anime.stagger(300, {start: 1200}),
+                duration: 1000,
+                easing: 'easeOutExpo',
+                complete: function() {
+                    initCharts();
+                    initRelationshipChart();
+                }
+            });
+            
+            // 关系图动画
+            anime({
+                targets: '#relationshipChart',
+                opacity: 1,
+                delay: 2000,
+                duration: 1500,
+                easing: 'easeOutExpo'
+            });
+            
+            // 浮动幽灵跟随鼠标
+            document.addEventListener('mousemove', function(e) {
+                const ghost = document.getElementById('floatingGhost');
+                const x = e.clientX + window.scrollX;
+                const y = e.clientY + window.scrollY;
+                
+                anime({
+                    targets: ghost,
+                    left: x + 10,
+                    top: y + 10,
+                    duration: 500,
+                    easing: 'easeOutQuad'
+                });
+            });
+            
+            // 幽灵浮动动画
+            anime({
+                targets: '#floatingGhost',
+                translateY: [0, -20, 0],
+                loop: true,
+                duration: 3000,
+                easing: 'easeInOutSine'
+            });
+        });
+        
+        // 初始化图表
+        function initCharts() {
+            // 性格构成图表
+            const personalityCtx = document.getElementById('personalityCanvas').getContext('2d');
+            const personalityChart = new Chart(personalityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['精明又脆弱的企业家', '脆弱又敏感的内核', '真诚而滚烫的灵魂'],
+                    datasets: [{
+                        data: [20, 35, 45],
+                        backgroundColor: [
+                            'rgba(144, 36, 2, 0.8)',
+                            'rgba(0, 0, 0, 0.8)',
+                            'rgba(255, 215, 0, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(144, 36, 2, 1)',
+                            'rgba(0, 0, 0, 1)',
+                            'rgba(255, 215, 0, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '性格构成',
+                            font: {
+                                family: "'ZCOOL QingKe HuangYou', cursive",
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'ZCOOL QingKe HuangYou', cursive"
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+            
+            // 情绪波动图表
+            const emotionCtx = document.getElementById('emotionCanvas').getContext('2d');
+            const emotionChart = new Chart(emotionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['童年', '童年后期', '少年', '少年后期', '青年', '青年中期', '青年后期', '成年', '成年中期', '死亡'],
+                    datasets: [{
+                        label: '愤怒值',
+                        data: [65, 70, 80, 85, 95, 85, 80, 70, 75, 100],
+                        borderColor: 'rgba(144, 36, 2, 1)',
+                        backgroundColor: 'rgba(144, 36, 2, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '绝望值',
+                        data: [40, 45, 60, 65, 75, 80, 85, 90, 95, 100],
+                        borderColor: 'rgba(0, 0, 0, 1)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '恐惧值',
+                        data: [30, 35, 50, 55, 65, 70, 75, 80, 85, 90],
+                        borderColor: 'rgba(139, 0, 139, 1)',
+                        backgroundColor: 'rgba(139, 0, 139, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '快乐值',
+                        data: [70, 65, 40, 35, 25, 20, 15, 10, 5, 0],
+                        borderColor: 'rgba(0, 100, 0, 1)',
+                        backgroundColor: 'rgba(0, 100, 0, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '情绪波动曲线',
+                            font: {
+                                family: "'ZCOOL QingKe HuangYou', cursive",
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'ZCOOL QingKe HuangYou', cursive"
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 初始化关系图
+        function initRelationshipChart() {
+            const data = {
+                nodes: [
+                    { id: 1, name: "朱耀星", group: 1, size: 25 },
+                    { id: 2, name: "吴成木", group: 2, size: 20 },
+                    { id: 3, name: "陈香茹", group: 2, size: 20 },
+                    { id: 4, name: "朱五明", group: 3, size: 22 },
+                    { id: 5, name: "管珉", group: 3, size: 20 },
+                    { id: 6, name: "蒋乘", group: 3, size: 22 },
+                    { id: 7, name: "朱升泰", group: 4, size: 18 },
+                    { id: 8, name: "毋颂", group: 4, size: 18 },
+                    { id: 9, name: "莫承威", group: 4, size: 18 }
+                ],
+                links: [
+                    { source: 1, target: 2, value: 5, relation: "父子" },
+                    { source: 1, target: 3, value: 5, relation: "母子" },
+                    { source: 1, target: 4, value: 8, relation: "仇敌" },
+                    { source: 1, target: 5, value: 6, relation: "仇敌/照顾" },
+                    { source: 1, target: 6, value: 7, relation: "仇敌" },
+                    { source: 1, target: 7, value: 3, relation: "兄弟" },
+                    { source: 1, target: 8, value: 4, relation: "干父子" },
+                    { source: 1, target: 9, value: 5, relation: "好友" },
+                    { source: 2, target: 4, value: 8, relation: "仇敌" },
+                    { source: 2, target: 5, value: 7, relation: "仇敌" },
+                    { source: 4, target: 5, value: 5, relation: "同谋" },
+                    { source: 4, target: 6, value: 4, relation: "同谋" },
+                    { source: 4, target: 7, value: 6, relation: "父子" },
+                    { source: 6, target: 9, value: 5, relation: "仇敌" }
+                ]
+            };
+
+            const width = document.getElementById('relationGraph').clientWidth;
+            const height = document.getElementById('relationGraph').clientHeight;
+
+            const svg = d3.select("#relationGraph")
+                .attr("viewBox", [0, 0, width, height]);
+
+            const color = d3.scaleOrdinal()
+                .domain([1, 2, 3, 4])
+                .range(["#902402", "#ffeb3b", "#8b0000", "#5d4037"]);
+
+            const simulation = d3.forceSimulation(data.nodes)
+                .force("link", d3.forceLink(data.links).id(d => d.id).distance(150))
+                .force("charge", d3.forceManyBody().strength(-500))
+                .force("x", d3.forceX(width / 2).strength(0.05))
+                .force("y", d3.forceY(height / 2).strength(0.05));
+
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(data.links)
+                .join("line")
+                .attr("stroke", "#000")
+                .attr("stroke-width", d => Math.sqrt(d.value))
+                .attr("stroke-opacity", 0.6);
+
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(data.nodes)
+                .join("g")
+                .call(drag(simulation));
+
+            node.append("circle")
+                .attr("r", d => d.size * 1.5)
+                .attr("fill", d => color(d.group))
+                .attr("stroke", "#000")
+                .attr("stroke-width", 2);
+
+            node.append("text")
+                .attr("dy", 4)
+                .attr("text-anchor", "middle")
+                .text(d => d.name)
+                .style("font-family", "'ZCOOL QingKe HuangYou', cursive")
+                .style("font-size", "12px")
+                .style("fill", "#000");
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+        }
+    </script>
+<script>
+        const canvas = document.getElementById('fireCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 100;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.size = Math.random() * 15 + 5;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * -3 - 3;
+                this.color = `hsl(${Math.random() * 20 + 10}, 100%, ${Math.random() * 30 + 50}%)`;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.1;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 火焰发光效果
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+            }
+        }
+        
+        function init() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animate() {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.globalCompositeOperation = 'lighter';
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                if (particles[i].size <= 0.2) {
+                    particles.splice(i, 1);
+                    particles.push(new Particle());
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        init();
+        animate();
+    </script>
+</body>
+</html>
