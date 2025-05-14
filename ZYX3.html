@@ -10,10 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <audio id="bgMusic" loop>
+        <source src="static/img/fire.mp3" type="audio/mpeg">
     <script>
         // 显示加载图标
         const loadingIcon = document.createElement('img');
-        loadingIcon.src = 'static/img/redeye.gif';
+        loadingIcon.src = 'static/img/ssdw.gif';
         loadingIcon.className = 'loading-icon';
         document.body.appendChild(loadingIcon);
         
@@ -370,13 +372,14 @@
             });
             
             // 信息框逐个显示
-            anime({
-                targets: '.info-box',
-                opacity: 1,
-                delay: anime.stagger(300, {start: 800}),
-                duration: 1000,
-                easing: 'easeOutExpo'
-            });
+anime({
+    targets: '.info-box',
+    opacity: 1,
+    translateY: [200, 0], // 从下方 50px 处滑入
+    delay: anime.stagger(300, {start: 800}),
+    duration: 1000,
+    easing: 'easeOutExpo'
+});
             
             // 构成图片动画
             anime({
