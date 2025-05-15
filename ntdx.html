@@ -153,51 +153,6 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo(0, 0);
-            
-            // 设备倾斜检测
-            window.addEventListener('deviceorientation', function(event) {
-                const beta = event.beta;  // 前后倾斜
-                const gamma = event.gamma; // 左右倾斜
-                
-                const vizContainers = document.querySelectorAll('.viz-container');
-                if (vizContainers.length < 2) return;
-                
-                // 根据倾斜方向调整容器大小
-                if (gamma > 15) { // 向右倾斜
-                    anime({
-                        targets: vizContainers[1],
-                        scale: 1.2,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                    anime({
-                        targets: vizContainers[0],
-                        scale: 1,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                } else if (gamma < -15) { // 向左倾斜
-                    anime({
-                        targets: vizContainers[0],
-                        scale: 1.2,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                    anime({
-                        targets: vizContainers[1],
-                        scale: 1,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                } else { // 水平状态
-                    anime({
-                        targets: vizContainers,
-                        scale: 1,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                }
-            });
         // 音乐控制
         const musicControl = document.getElementById('musicControl');
         const bgMusic = document.getElementById('bgMusic');
@@ -209,6 +164,54 @@
             } else {
                 bgMusic.pause();
                 musicControl.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+            }
+        });
+        
+        // 陀螺仪倾斜检测
+        window.addEventListener('deviceorientation', function(event) {
+            const beta = event.beta;  // 前后倾斜
+            const gamma = event.gamma; // 左右倾斜
+            
+            // 获取所有viz-container并按垂直位置排序
+            const containers = Array.from(document.querySelectorAll('.viz-container'))
+                .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
+            
+            // 向左倾斜时放大左侧元素
+            if (gamma < -15) {
+                containers.forEach((container, index) => {
+                    if (container.getBoundingClientRect().left < window.innerWidth / 2) {
+                        anime({
+                            targets: container,
+                            scale: [1, 1.2 + index * 0.1],
+                            duration: 500,
+                            delay: index * 100,
+                            easing: 'easeOutElastic'
+                        });
+                    }
+                });
+            } 
+            // 向右倾斜时放大右侧元素
+            else if (gamma > 15) {
+                containers.forEach((container, index) => {
+                    if (container.getBoundingClientRect().left > window.innerWidth / 2) {
+                        anime({
+                            targets: container,
+                            scale: [1, 1.2 + index * 0.1],
+                            duration: 500,
+                            delay: index * 100,
+                            easing: 'easeOutElastic'
+                        });
+                    }
+                });
+            }
+            // 恢复原始大小
+            else {
+                anime({
+                    targets: '.viz-container',
+                    scale: 1,
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
             }
         });
     // 为所有viz-container添加点击事件
