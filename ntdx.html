@@ -146,51 +146,49 @@
             }
         }
         
-        // 检测设备倾斜
-        function handleDeviceTilt(event) {
-            const gamma = event.gamma; // 左右倾斜角度(-90到90)
-            const vizContainers = Array.from(document.querySelectorAll('.viz-container'));
-            
-            // 按垂直位置从下往上排序
-            vizContainers.sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
-            
-            // 根据倾斜方向应用动画
-            if (gamma > 15) { // 向右倾斜
-                vizContainers.forEach((container, index) => {
-                    anime({
-                        targets: container,
-                        scale: 1 + (0.1 * (vizContainers.length - index)),
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                });
-            } else if (gamma < -15) { // 向左倾斜
-                vizContainers.forEach((container, index) => {
-                    anime({
-                        targets: container,
-                        scale: 1 + (0.1 * (vizContainers.length - index)),
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                });
-            } else { // 恢复原始大小
-                vizContainers.forEach(container => {
-                    anime({
-                        targets: container,
-                        scale: 1,
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                });
-            }
-        }
-        
         // 初始检测
         window.addEventListener('load', handleOrientationChange);
         // 方向变化时重新检测
         window.addEventListener('orientationchange', handleOrientationChange);
-        // 添加倾斜检测
-        window.addEventListener('deviceorientation', handleDeviceTilt);
+
+// 设备倾斜检测
+window.addEventListener('deviceorientation', handleTilt);
+
+function handleTilt(event) {
+    const tiltThreshold = 15;
+    const vizContainers = Array.from(document.querySelectorAll('.viz-container'));
+    
+    // 从下到上排序
+    const sortedContainers = vizContainers.sort((a, b) => 
+        b.getBoundingClientRect().top - a.getBoundingClientRect().top
+    );
+
+    anime.remove(sortedContainers);
+    
+    if (event.gamma < -tiltThreshold) {
+        anime.timeline({
+            targets: sortedContainers.filter(c => c.offsetLeft < window.innerWidth/2),
+            easing: 'easeOutExpo'
+        }).add({
+            scale: [1, 1.2],
+            delay: (el, i) => i * 80
+        });
+    } else if (event.gamma > tiltThreshold) {
+        anime.timeline({
+            targets: sortedContainers.filter(c => c.offsetLeft > window.innerWidth/2),
+            easing: 'easeOutExpo'
+        }).add({
+            scale: [1, 1.2],
+            delay: (el, i) => i * 80
+        });
+    } else {
+        anime({
+            targets: sortedContainers,
+            scale: 1,
+            duration: 500
+        });
+    }
+}
         
         document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo(0, 0);
@@ -663,6 +661,8 @@
     }
         
         .viz-container {
+    transform-origin: center bottom;
+    will-change: transform;
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             padding: 15px;
@@ -872,6 +872,8 @@
         }
 
         .viz-container {
+    transform-origin: center bottom;
+    will-change: transform;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 15px;
