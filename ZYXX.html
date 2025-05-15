@@ -111,7 +111,7 @@
         }
 
         .forum-title {
-            font-size: 2.5rem;
+            font-size: 4rem;
             margin: 0;
             text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
             letter-spacing: 2px;
@@ -255,6 +255,25 @@
             100% { transform: translateY(0px); }
         }
         
+        .close-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 20px;
+            background-color: rgba(144, 36, 2, 0.8);
+            color: white;
+            border: 2px solid black;
+            border-radius: 5px;
+            font-family: 'ZCOOL QingKe HuangYou', cursive;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .close-button:hover {
+            background-color: rgba(144, 36, 2, 1);
+        }
+        
         .fire-canvas {
             position: fixed;
             top: 0;
@@ -300,7 +319,7 @@
 
     <div class="main-card" id="mainCard">
         <div class="profile-section">
-            <img src="static/img/jyy.jpg" alt="朱耀星" class="profile-image">
+            <img src="static/img/jyy.jpg" alt="朱耀星" class="profile-image" id="profileImage">
             
             <div class="info-box" id="identityBox">
                 <h2 class="info-title">身份信息</h2>
@@ -348,9 +367,9 @@
 
     </div>
         
-        <div class="relationship-chart" id="relationshipChart">
-          
+        <div class="relationship-chart" id="relationshipChart" style="display:none;">
             <svg id="relationGraph" width="100%" height="100%"></svg>
+            <button id="closeRelationChart" class="close-button">关闭关系图</button>
         </div>
     </div>
 
@@ -410,14 +429,7 @@ anime({
                 }
             });
             
-            // 关系图动画
-            anime({
-                targets: '#relationshipChart',
-                opacity: 1,
-                delay: 2000,
-                duration: 1500,
-                easing: 'easeOutExpo'
-            });
+            
             
             // 浮动幽灵跟随鼠标
             document.addEventListener('mousemove', function(e) {
@@ -568,6 +580,31 @@ anime({
         
         // 初始化关系图
         function initRelationshipChart() {
+            // 点击头像显示关系图
+            document.getElementById('profileImage').addEventListener('click', function() {
+                const chart = document.getElementById('relationshipChart');
+                chart.style.display = 'block';
+                anime({
+                    targets: chart,
+                    opacity: 1,
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+            });
+            
+            // 点击关闭按钮隐藏关系图
+            document.getElementById('closeRelationChart').addEventListener('click', function() {
+                const chart = document.getElementById('relationshipChart');
+                anime({
+                    targets: chart,
+                    opacity: 0,
+                    duration: 500,
+                    easing: 'easeOutExpo',
+                    complete: function() {
+                        chart.style.display = 'none';
+                    }
+                });
+            });
             const data = {
                 nodes: [
                     { id: 1, name: "朱耀星", group: 1, size: 25 },
