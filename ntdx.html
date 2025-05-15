@@ -153,6 +153,51 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo(0, 0);
+            
+            // 设备倾斜检测
+            window.addEventListener('deviceorientation', function(event) {
+                const beta = event.beta;  // 前后倾斜
+                const gamma = event.gamma; // 左右倾斜
+                
+                const vizContainers = document.querySelectorAll('.viz-container');
+                if (vizContainers.length < 2) return;
+                
+                // 根据倾斜方向调整容器大小
+                if (gamma > 15) { // 向右倾斜
+                    anime({
+                        targets: vizContainers[1],
+                        scale: 1.2,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                    anime({
+                        targets: vizContainers[0],
+                        scale: 1,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                } else if (gamma < -15) { // 向左倾斜
+                    anime({
+                        targets: vizContainers[0],
+                        scale: 1.2,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                    anime({
+                        targets: vizContainers[1],
+                        scale: 1,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                } else { // 水平状态
+                    anime({
+                        targets: vizContainers,
+                        scale: 1,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                }
+            });
         // 音乐控制
         const musicControl = document.getElementById('musicControl');
         const bgMusic = document.getElementById('bgMusic');
