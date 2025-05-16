@@ -1,19 +1,878 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        @media (max-width: 768px) {
+        .landscape-mode .creative-nav {
+            position: fixed;
+            right: 10px;
+            left: auto;
+            top: 50%;
+            bottom: auto;
+            transform: translateY(-50%);
+            flex-direction: column;
+            width: auto;
+        }
+        
+        .creative-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            transform: none;
+            display: flex;
+            justify-content: space-around;
+            gap: 5px;
+            z-index: 1000;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 10px 5px;
+            border-radius: 0;
+            backdrop-filter: blur(10px);
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    }
+    
+    .creative-nav {
+        position: fixed;
+        bottom: 6%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 1000;
+        background: rgba(20, 20, 40, 0.7);
+        padding: 8px 16px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+        .nav-item {
+            color: white;
+            padding: 6.4px 12.8px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 500px;
+            background: rgba(20, 20, 40, 0.5);
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-window.active {
+            display: flex;
+        }
+        
+        .timeline-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .timeline-close {
+            position: absolute;
+            top: 15px;
+            right: 8%;
+            color: white;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 210, 0, 0.5);
+        }
+        
+        .about-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 400px;
+            background: rgba(20, 20, 40, 0.5);
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .about-window.active {
+            display: flex;
+        }
+        
+        .about-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .about-text {
+            color: white;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .about-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 210, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(0, 161, 224, 0.2);
+            border: 1px solid rgba(87, 87, 87, 0.3);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 210, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>Yufan‘s GameWorld</title>
+    <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin />
+    <link rel="stylesheet"
+        href="https://fontsapi.zeoseven.com/382/main/result.css"
+        onerror="this.href='https://fontsapi-storage.zeoseven.com/382/main/result.css'" />
+    <style>
+        body {
+            font-family: "MaokenAssortedSans";
+            font-weight: normal;
+        }
+    </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 210, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(0, 161, 224, 0.2);
+            border: 1px solid rgba(0, 161, 224, 0.5);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(244, 255, 31, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
+    <link href="PGpix.ttf" rel="Pixel">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+    <script>
+        // 时间线数据
+        const timelineData = [
+            { date: '2015-06', title: '超级马里奥', description: '接触马里奥U系列游戏' },
+            { date: '2015-08', title: '斯普拉顿', description: '喷射战士1代在wiiU上面游玩' },
+            { date: '2017-03', title: '塞尔达传说:旷野之息', description: 'Switch首发游戏' },
+            { date: '2018-11', title: '精灵宝可梦', description: '宝可梦日月和剑盾' },
+            { date: '2020-03', title: '集合啦！动物森友会', description: '疫情期间的治愈岛屿建设游戏' },
+            { date: '2023-05', title: '塞尔达传说:王国之泪', description: '最新塞尔达传说作品' }
+        ];
+        
+        // 渲染时间线
+        function renderTimeline() {
+            const container = document.getElementById('timeline-content');
+            container.innerHTML = '';
+            
+            timelineData.forEach(item => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                timelineItem.innerHTML = `
+                    <div class="timeline-date">${item.date}</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                `;
+                container.appendChild(timelineItem);
+            });
+        }
+        
+        // 检测设备方向变化
+        function handleOrientationChange() {
+            if (window.matchMedia("(orientation: landscape)").matches) {
+                document.body.classList.add('landscape-mode');
+            } else {
+                document.body.classList.remove('landscape-mode');
+            }
+        }
+        
+        // 初始检测
+        window.addEventListener('load', handleOrientationChange);
+        // 方向变化时重新检测
+        window.addEventListener('orientationchange', handleOrientationChange);
+
+// 设备倾斜检测
+window.addEventListener('deviceorientation', handleDeviceTilt);
+
+function handleDeviceTilt(event) {
+    const gamma = event.gamma;
+    const containers = Array.from(document.querySelectorAll('.viz-container'));
+    
+    // 右侧元素反向排序（底部优先）
+    const rightContainers = containers
+        .filter(el => el.getBoundingClientRect().left > window.innerWidth/2)
+        .reverse();
+
+    // 左侧元素正向排序（顶部优先）
+    const leftContainers = containers
+        .filter(el => el.getBoundingClientRect().right < window.innerWidth/2);
+
+    anime({
+        targets: gamma > 15 ? rightContainers : gamma < -15 ? leftContainers : [],
+        scale: 1.2,
+        delay: (el, i) => i * 50,
+        duration: 800,
+        easing: 'easeOutElastic(1, .5)',
+        complete: () => anime({
+            targets: containers,
+            scale: 1,
+            duration: 400
+        })
+    });
+}
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            window.scrollTo(0, 0);
+            
+            // 时间线按钮点击事件
+            document.getElementById('timelineBtn').addEventListener('click', function() {
+                document.querySelector('.timeline-window').classList.add('active');
+                renderTimeline();
+            });
+            
+            // 时间线关闭按钮
+            document.querySelector('.timeline-close').addEventListener('click', function() {
+                document.querySelector('.timeline-window').classList.remove('active');
+            });
+        // 音乐控制
+        const musicControl = document.getElementById('musicControl');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        musicControl.addEventListener('click', function() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicControl.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            } else {
+                bgMusic.pause();
+                musicControl.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+            }
+        });
+    // 为所有viz-container添加点击事件
+    document.querySelectorAll('.viz-container').forEach(container => {
+        container.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            
+            // 如果还没有额外信息内容，则创建
+            if (!this.querySelector('.extra-info')) {
+                const extraInfo = document.createElement('div');
+                extraInfo.className = 'extra-info';
+                
+                // 根据容器ID设置不同的图片
+                const img = document.createElement('img');
+                if (this.id.includes('zelda')) {
+                    img.src = 'static/img/1.gif';
+                } else {
+                    img.src = 'static/img/ppmp.jpg';
+                }
+                
+                extraInfo.appendChild(img);
+                this.appendChild(extraInfo);
+            }
+        });
+    });
+    // 创建关系图谱容器
+    const graphContainer = document.createElement('div');
+    graphContainer.id = 'nintendo-graph';
+    graphContainer.style.position = 'fixed';
+    graphContainer.style.top = '0';
+    graphContainer.style.left = '0';
+    graphContainer.style.width = '100%';
+    graphContainer.style.height = '100%';
+    graphContainer.style.zIndex = '1000';
+    graphContainer.style.display = 'none';
+    graphContainer.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    
+    // 添加关闭按钮
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '×';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '20px';
+    closeBtn.style.right = '20px';
+    closeBtn.style.fontSize = '2rem';
+    closeBtn.style.color = 'white';
+    closeBtn.style.background = 'transparent';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.zIndex = '1001';
+    closeBtn.addEventListener('click', function() {
+        graphContainer.style.display = 'none';
+        document.getElementById('mainCard').style.display = 'block';
+    });
+    graphContainer.appendChild(closeBtn);
+    
+    document.body.appendChild(graphContainer);
+
+    // 点击卡片事件
+    const card = document.getElementById('mainCard');
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function(e) {
+        e.stopPropagation();
+        card.style.display = 'none';
+        graphContainer.style.display = 'block';
+        renderNintendoGraph();
+    });
+
+    graphContainer.addEventListener('click', function() {
+        anime({
+            easing: 'easeOutExpo',
+            complete: function() {
+                graphContainer.style.display = 'none';
+                card.style.display = 'block';
+                anime({
+                    targets: card,
+                    opacity: [0, 1],
+                    duration: 500,
+                    easing: 'easeOutExpo'
+                });
+            }
+        });
+    });
+
+
+    // 渲染任天堂游戏关系图谱
+    function renderNintendoGraph() {
+        // 任天堂游戏关系数据
+        const gamesData = {
+            nodes: [
+                {id: "nintendo", name: "任天堂", type: "company"},
+                {id: "mario", name: "超级马里奥", type: "franchise"},
+                {id: "zelda", name: "塞尔达传说", type: "franchise"},
+                {id: "pokemon", name: "精灵宝可梦", type: "franchise"},
+                {id: "splatoon", name: "喷射战士", type: "franchise"},
+                {id: "animal", name: "动物之森", type: "franchise"},
+                {id: "metroid", name: "银河战士", type: "franchise"},
+                {id: "kirby", name: "星之卡比", type: "franchise"},
+                {id: "fire_emblem", name: "火焰纹章", type: "franchise"},
+                {id: "xenoblade", name: "异度之刃", type: "franchise"},
+                {id: "smash", name: "任天堂明星大乱斗", type: "crossover"},
+                {id: "mario64", name: "超级马里奥奥德赛", type: "game"},
+                {id: "botw", name: "塞尔达传说:旷野之息", type: "game"},
+                {id: "totk", name: "塞尔达传说:王国之泪", type: "game"},
+                {id: "pokemon_rgb", name: "精灵宝可梦", type: "game"},
+                {id: "splatoon3", name: "喷射战士3", type: "game"},
+                {id: "player", name: "我", type: "player", img: "https://nya.666lab.club/logoku.png"},
+                {id: "mario_kart", name: "马里奥赛车", type: "game"},
+                {id: "pokemon_go", name: "精灵宝可梦GO", type: "game"},
+                {id: "animal_crossing", name: "集合啦！动物森友会", type: "game"},
+                {id: "metroid_dread", name: "银河战士:生存恐惧", type: "game"},
+                {id: "kirby_returns", name: "星之卡比:探索发现", type: "game"},
+                {id: "fe_three_houses", name: "火焰纹章:风花雪月", type: "game"},
+                {id: "xenoblade3", name: "异度之刃3", type: "game"},
+                {id: "ring_fit", name: "健身环大冒险", type: "game"},
+                {id: "arms", name: "ARMS", type: "game"},
+                {id: "pokemon_rs", name: "精灵宝可梦 红宝石&蓝宝石", type: "game"},
+                {id: "pokemon_dp", name: "精灵宝可梦 钻石&珍珠", type: "game"},
+                {id: "pokemon_swsh", name: "精灵宝可梦 剑&盾", type: "game"}
+            ],
+            links: [
+                {source: "mario", target: "mario64"},
+                {source: "zelda", target: "botw"},
+                {source: "zelda", target: "totk"},
+                {source: "pokemon", target: "pokemon_rgb"},
+                {source: "splatoon", target: "splatoon3"},
+                {source: "smash", target: "mario"},
+                {source: "smash", target: "zelda"},
+                {source: "smash", target: "pokemon"},
+                {source: "smash", target: "kirby"},
+                {source: "smash", target: "fire_emblem"},
+                {source: "botw", target: "totk"},
+                {source: "player", target: "splatoon3"},
+                {source: "player", target: "totk"},
+                {source: "player", target: "pokemon"},
+                {source: "player", target: "mario"},
+                {source: "player", target: "animal_crossing"}, // 新增玩家与动森游戏的连接
+                {source: "mario", target: "mario_kart"},
+                {source: "pokemon", target: "pokemon_go"},
+                {source: "animal", target: "animal_crossing"},
+                {source: "metroid", target: "metroid_dread"},
+                {source: "kirby", target: "kirby_returns"},
+                {source: "fire_emblem", target: "fe_three_houses"},
+                {source: "xenoblade", target: "xenoblade3"},
+                {source: "player", target: "ring_fit"}, // 新增玩家与健身环的连接
+                {source: "pokemon", target: "pokemon_rs"},
+                {source: "pokemon", target: "pokemon_dp"},
+                {source: "pokemon", target: "pokemon_swsh"}
+            ]
+        };
+
+        // 添加发光滤镜定义
+        const defs = d3.select('#nintendo-graph').append('defs');
+        
+        // 不同类型节点的发光效果
+        const glowTypes = [
+            {id: "franchise-glow", color: '#39C5BB', stdDeviation: 8},
+            {id: "game-glow", color: '#0038a8', stdDeviation: 6},
+            {id: "crossover-glow", color: '#FF9500', stdDeviation: 10},
+            {id: "player-glow", color: '#FA8072', stdDeviation: 12}
+        ];
+        
+        glowTypes.forEach(type => {
+            const filter = defs.append('filter')
+                .attr('id', type.id)
+                .attr('x', '-30%')
+                .attr('y', '-30%')
+                .attr('width', '160%')
+                .attr('height', '160%');
+            
+            filter.append('feGaussianBlur')
+                .attr('stdDeviation', type.stdDeviation)
+                .attr('result', 'blur');
+            
+            filter.append('feComposite')
+                .attr('in', 'SourceGraphic')
+                .attr('in2', 'blur')
+                .attr('operator', 'over');
+        });
+        
+        // 设置SVG画布
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select('#nintendo-graph')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        // 创建力导向图
+        const simulation = d3.forceSimulation(gamesData.nodes)
+            .force('link', d3.forceLink(gamesData.links).id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(50));
+
+        // 绘制连线
+        const link = svg.append('g')
+            .selectAll('line')
+            .data(gamesData.links)
+            .enter().append('line')
+            .attr('stroke', '#999')
+            .attr('stroke-opacity', 0.6)
+            .attr('stroke-width', 2);
+
+        // 绘制节点
+        const node = svg.append('g')
+            .selectAll('circle')
+            .data(gamesData.nodes)
+            .enter().append('circle')
+            .attr('r', d => d.type === 'franchise' ? 20 : (d.type === 'game' ? 15 : 25))
+            .attr('fill', d => {
+                switch(d.id) {
+                    case 'mario': return '#E52521';
+                    case 'zelda': return '#5A8F29';
+                    case 'pokemon': return '#FF5BAA';
+                    case 'splatoon': return '#FFCB05';
+                    case 'animal': return '#8FD694';
+                    case 'metroid': return '#4B4B4B';
+                    case 'kirby': return '#FF9EB5';
+                    case 'fire_emblem': return '#C41E3A';
+                    case 'xenoblade': return '#0070C0';
+                    case 'smash': return '#FF9500';
+                    case 'player': return '#FA8072';
+default: return '#800080';
+                }
+            })
+            .attr('filter', d => {
+                switch(d.type) {
+                    case 'franchise': return 'url(#franchise-glow)';
+                    case 'game': return 'url(#game-glow)';
+                    case 'crossover': return 'url(#crossover-glow)';
+                    case 'player': return 'url(#player-glow)';
+                    default: return 'none';
+                }
+            })
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        // 添加节点标签
+        const label = svg.append('g')
+            .selectAll('text')
+            .data(gamesData.nodes)
+            .enter().append('text')
+            .attr('dy', -15)
+            .attr('text-anchor', 'middle')
+            .text(d => d.name)
+            .style('fill', 'white')
+            .style('font-family', '"Press Start 2P", cursive')
+            .style('font-size', '14px');
+
+        // 力导向图更新函数
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            label
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
+        });
+
+        // 拖拽函数
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // 添加动画效果
+        anime({
+            targets: '#nintendo-graph svg',
+            opacity: [0, 1],
+            duration: 1000,
+            easing: 'easeOutExpo'
+        });
+    }
+            const characterImages = ['static/img/yui.png','static/img/n1.png', 'static/img/n2.png', 'static/img/n3.png', 'static/img/n4.png', 'static/img/n5.png'];
+            let currentCharIndex = 0;
+            const characterSwitcher = document.createElement('img');
+            characterSwitcher.className = 'character-switcher';
+            characterSwitcher.src = characterImages[currentCharIndex];
+            document.querySelector('.center-card').appendChild(characterSwitcher);
+
+            // 页面加载切入效果
+            anime({
+                targets: characterSwitcher,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 800,
+                easing: 'easeOutExpo'
+            });
+
+            // 点击切换图片
+            characterSwitcher.addEventListener('click', function() {
+                this.classList.add('flip-animation');
+                setTimeout(() => {
+                    currentCharIndex = (currentCharIndex + 1) % characterImages.length;
+                    this.src = characterImages[currentCharIndex];
+                    this.classList.remove('flip-animation');
+                }, 800); // 增加动画时间以确保360度旋转完整
+            });
+
+            // 鼠标交互效果
+            characterSwitcher.addEventListener('mousemove', (e) => {
+                const x = e.clientX - characterSwitcher.getBoundingClientRect().left;
+                const y = e.clientY - characterSwitcher.getBoundingClientRect().top;
+                
+                const centerX = characterSwitcher.offsetWidth / 2;
+                const centerY = characterSwitcher.offsetHeight / 2;
+                
+                const angleX = (y - centerY) / 10;
+                const angleY = (centerX - x) / 10;
+                
+                characterSwitcher.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            });
+
+            characterSwitcher.addEventListener('mouseleave', () => {
+                characterSwitcher.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        });
+    </script>
+    
+    <script>
+        document.getElementById('nav-about').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.toggle('active');
+        });
+        
+        document.getElementById('aboutClose').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.remove('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const aboutWindow = document.getElementById('aboutWindow');
+            const navAbout = document.getElementById('nav-about');
+            
+            if (aboutWindow.classList.contains('active') && 
+                !aboutWindow.contains(event.target) && 
+                event.target !== navAbout) {
+                aboutWindow.classList.remove('active');
+            }
+        });
+    </script>
     <style>
         @font-face {
             font-family: 'Pixel';
+            src: url('PGpix.ttf') format('truetype');
+            src: url('https://nya.666lab.club/static/fonts/pix.ttf');
             src: url('static/fonts/pix.ttf');
-            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');  
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+            font-display: swap;
+        }
+        * {
+            font-family: "MaokenAssortedSans", 'Pixel', 'Press Start 2P', cursive !important;
         }
 
         body {
@@ -21,7 +880,7 @@
             padding: 0;
             background-color: #0a0a1a;
             color: white;
-            font-family: 'Pixel', 'Press Start 2P', cursive;
+            font-family: "Uranus Pixel 11Px", 'Pixel', 'Press Start 2P', cursive;
             overflow-x: hidden;
             position: relative;
         }
@@ -35,29 +894,42 @@
 
         .header {
             text-align: center;
-            padding: 20px;
+            padding: -20px;
             background: linear-gradient(90deg, #e60012 0%, #0038a8 50%, #ffcb05 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            position: relative;
+            position: absolute; /* 使用绝对定位 */
+            left: 50%; /* 将元素左侧定位到页面水平中心 */
+            transform: translateX(-50%); /* 通过负的水平偏移量使元素自身居中 */
             z-index: 10;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin: 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 4rem;
+            margin: 70px 0 0;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
+            animation: colorChange 5s infinite alternate;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @keyframes colorChange {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         .header p {
-            font-size: 1rem;
+            font-size: 3rem;
             margin: 10px 0 0;
         }
 
         .main-content {
             display: flex;
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             position: relative;
             z-index: 5;
         }
@@ -73,12 +945,71 @@
             opacity: 0.3; 
         }
 
+        @media (max-width: 768px) {
         .sidebar {
-            width: 25%;
-            padding: 15px;
+            width: 100%;
+            padding: 10px;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+    }
+    
+    .sidebar {
+        width: 25%;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+        
+        .viz-container {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center bottom;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        
+        .viz-container:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .extra-info {
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .extra-info img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .viz-container.active .extra-info {
+            right: 0;
         }
 
         .sidebar.left {
@@ -89,29 +1020,56 @@
             align-items: flex-start;
         }
 
+        @media (max-width: 768px) {
         .center-card {
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             perspective: 1000px;
             position: relative;
+            padding-top: 20px;
         }
+    }
+    
+    .center-card {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+        position: relative;
+    }
 
+        @media (max-width: 768px) {
         .card {
-            width: 500px;
-            height: 700px;
+            width: 90vw;
+            height: 120vw;
+            max-width: 350px;
+            max-height: 500px;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.5s;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
+    }
+    
+    .card {
+        width: 500px;
+        height: 700px;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
         
         .profile-intro {
             position: absolute;
-            top: 1%;
+            top: 20%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
@@ -162,6 +1120,51 @@
             transform: translateZ(30px);
         }
 
+        .myinfo {
+            position: absolute;
+            bottom: -30%;
+            left: -20%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            text-align: center;
+            transform: translateZ(30px);
+        }
+
+        .character-switcher {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            height: 350px;
+            z-index: 30;
+            transition: all 0.3s;
+            filter: drop-shadow(0 0 5px rgba(255, 250, 228, 0.7));
+            border: none;
+            background: transparent;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .character-switcher:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(255, 248, 222, 0.9));
+        }
+
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .flip-animation {
+            animation: flip 0.8s ease-in-out forwards;
+        }
+
         .card-info h3 {
             margin: 0;
             font-size: 1.5rem;
@@ -174,6 +1177,8 @@
         }
 
         .viz-container {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center bottom;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 15px;
@@ -336,6 +1341,31 @@
             100% { transform: translateY(0px); }
         }
 
+        #musicControl {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        #musicControl:hover {
+            background: rgba(0,210,0,0.7);
+            transform: scale(1.1);
+        }
+        
+        #musicControl svg {
+            fill: white;
+        }
+        
         .floating {
             animation: float 3s ease-in-out infinite;
         }
@@ -350,39 +1380,188 @@
             100% { transform: scale(1); }
         }
     </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 210, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(126, 134, 137, 0.2);
+            border: 1px solid rgba(87, 91, 93, 0.5);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+    <style>
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 30px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 210, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-content {
+            background: rgba(20, 20, 40, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
+    <div class="creative-nav">
+        <div class="nav-item" id="nav-home">首页</div>
+        <div class="nav-item" id="nav-graph">关系图谱</div>
+        <div class="nav-item" id="timelineBtn">时间线</div>
+        <div class="nav-item" id="nav-about">关于</div>
+    </div>
+    
+    <div class="about-window" id="aboutWindow">
+        <button class="about-close" id="aboutClose">×</button>
+        <img src="static/img/link.gif" class="about-avatar" alt="关于我">
+        <div class="about-text">
+            <h3>Yufan</h3>
+            <p>200410<br>四川农业大学艺术与传媒学院<br>视觉传达2023级</p>
+            <p>Email<br>Rorisu@qq.com</p>
+        </div>
+    </div>
+    <audio id="bgMusic" loop>
+        <source src="static/img/zelda.mp3" type="audio/mpeg">
+    </audio>
     <video class="video-background" autoplay muted loop>
         <source src="static/img/zelda.mp4" type="video/mp4">
     </video>
+    <div id="musicControl" class="floating">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </div>
     <div class="container">
         <div class="header">
-            <h1>Yufan’S GAMEWORLD</h1>
-            <p>A College Student's Gaming Journey</p>
+            <h1>YUFAN‘S GAME WORLD</h1>
+            <p>玙璠的任天堂之旅</p>
         </div>
 
         <div class="main-content">
             <div class="sidebar left">
                 <div class="viz-container">
                     <img src="static/img/zeldaLogo.png" alt="Zelda Logo" class="game-logo">
-                    <div class="viz-title">ZELDA: TEARS OF THE KINGDOM</div>
+                    <div class="viz-title">塞尔达传说：王国之泪 <br>游戏体验分析</div>
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
+                    </div>
+                    <div class="achievement-list">
+                        <div class="achievement">
+                            <img src="static/img/ntd2.png" style="width: 100%; max-width: 20px; height: auto;">
+                            <span>神庙完成</span>
+                        </div>
+                        <div class="achievement">
+                            <img src="static/img/ntd3.png" style="width: 100%; max-width: 20px; height: auto;">
+                            <span>瞭望台解锁</span>
+                        </div>
+                        <div class="achievement">
+                            <img src="static/img/ntd1.png" style="width: 100%; max-width: 20px; height: auto;">
+                            <span>大师剑获得</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="viz-container">
-                    <div class="viz-title">PLAYTIME DISTRIBUTION</div>
+                    <div class="viz-title">⏳ <br><br>游戏时间分布</div>
                     <div class="chart-container">
                         <canvas id="pieChart"></canvas>
                     </div>
                 </div>
 
                 <div class="viz-container">
-                    <div class="viz-title">WEEKLY ACTIVITY</div>
+                    <div class="viz-title">每周活动</div>
                     <div class="chart-container">
                         <canvas id="lineChart"></canvas>
-                        <img src="static/img/Nintendo-Logo.png" alt="ntd Logo" class="game-logo">
                     </div>
                 </div>
             </div>
@@ -390,7 +1569,7 @@
             <div class="center-card">
                 <div class="profile-intro">
                     <img src="logoku.png" class="profile-avatar" alt="Avatar">
-                    <div class="profile-text">Yufan <br>A Nintendo Fans </div>
+                    <div class="profile-text">Yufan <br>一个普通的任天堂粉丝 </div>
                 </div>
                 <div class="card" id="mainCard">
                     <img src="http://k.sinaimg.cn/n/sinakd20240512ac/278/w388h690/20240512/c299-4b6cecba9a2632fca7288905ba4716d2.jpg/w700d1q75cms.jpg?by=cms_fixed_width" alt="Zelda" class="card-image active">
@@ -398,8 +1577,8 @@
                     <img src="static/img/pokemonbg.jpg" alt="pokemon" class="card-image">
                     <img src="https://n.sinaimg.cn/sinakd10117/600/w1920h1080/20200514/ce41-itriats0146257.jpg" alt="Nintendo" class="card-image">
                     <div class="card-info">
-                        <h3>ZELDA: TEARS OF THE KINGDOM</h3>
-                        <p>Chen's current favorite adventure with 150+ hours played</p>
+                        <h3>塞尔达传说：王国之泪</h3>
+                        <p>跨越时空的宿命感，林克与塞尔达的牺牲与重逢</p>
                     </div>
                 </div>
             </div>
@@ -407,22 +1586,23 @@
             <div class="sidebar right">
                 <div class="viz-container">
                     <img src="static/img/SplatoonLogo.webp" alt="Splatoon Logo" class="game-logo">
-                    <div class="viz-title">SPLATOON 3</div>
+                    <div class="viz-title">斯普拉遁3<br>真格对战武器统计</div>
                     <div class="chart-container">
                         <canvas id="splatoonChart1"></canvas>
                     </div>
+                    <div class="rank-display"><br>真格 <span style="font-size: larger; color: rgb(255, 255, 35);">S+</span> 段位</div>
                 </div>
 
                 <div class="viz-container">
                     <img src="static/img/Pokémon.svg" alt="Pokemon Logo" class="game-logo">
-                    <div class="viz-title">POKEMON</div>
+                    <div class="viz-title">宝可梦 Pokemon</div>
                     <div class="chart-container">
                         <canvas id="acChart1"></canvas>
                     </div>
                 </div>
 
                 <div class="viz-container">
-                    <div class="viz-title">ACHIEVEMENTS</div>
+                    <div class="viz-title">成就</div>
                     <div class="chart-container">
                         <canvas id="radarChart"></canvas>
                     </div>
@@ -438,28 +1618,28 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #4CAF50;"></div>
-                <span>Zelda (10h each)</span>
+                <span>塞尔达(每10小时)</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #FFEB3B;"></div>
-                <span>Splatoon 3 (10h each)</span>
+                <span>斯普拉遁3(每10小时)</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #E91E63;"></div>
-                <span>Pokemon(10h each)</span>
+                <div class="legend-color" style="background-color: #f55d90;"></div>
+                <span>宝可梦(每10小时)</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #F44336;"></div>
-                <span>Other Nintendo (10h each)</span>
+                <span>其他任天堂游戏(每10小时)</span>
             </div>
         </div>
 
         <div class="stats">
-            <div>Total Playtime: 420 hours</div>
-            <div>Zelda: 150 hours</div>
-            <div>Splatoon 3: 120 hours</div>
-            <div>Pokemon: 100 hours</div>
-            <div>Other: 50 hours</div>
+            <div>总游戏时间: 420小时</div>
+            <div>塞尔达: 150小时</div>
+            <div>斯普拉遁3: 120小时</div>
+            <div>宝可梦: 100小时</div>
+            <div>其他: 50小时</div>
         </div>
     </div>
 
@@ -472,20 +1652,20 @@
         
         const games = [
             {
-                title: "ZELDA: TEARS OF THE KINGDOM",
-                text: "The current favorite adventure with 150+ hours played"
+                title: "塞尔达传说：王国之泪",
+                text: "跨越时空的宿命感，林克与塞尔达的牺牲与重逢"
             },
             {
-                title: "SPLATOON 3",
-                text: "Competitive multiplayer with 120+ hours of ink-splatting action"
+                title: "斯普拉遁3",
+                text: "竞技性墨水对战，一起来涂地吧"
             },
             {
-                title: "POKEMON",
-                text: "Pokemon getodaze！"
+                title: "宝可梦",
+                text: "皮卡丘，就决定是你了！"
             },
             {
-                title: "NINTENDO UNIVERSE",
-                text: "A lifelong fan with 500+ hours across various Nintendo titles"
+                title: "任天堂宇宙",
+                text: "任天堂，游戏界的传奇，从红白机到Switch，创新不断，童心未泯。"
             }
         ];
 
@@ -522,7 +1702,7 @@
             new Chart(zeldaCtx1, {
                 type: 'bar',
                 data: {
-                    labels: ['Main Story', 'Side Quests', 'Exploration', 'Shrines', 'Combat'],
+                    labels: ['主线剧情', '支线任务', '探索', '神庙', '战斗'],
                     datasets: [{
                         label: 'Hours',
                         data: [45, 35, 40, 20, 10],
@@ -617,7 +1797,7 @@
             new Chart(acCtx1, {
                 type: 'polarArea',
                 data: {
-                    labels: ['Story', 'Catching', 'PTCG', 'Friends', 'Imotion'],
+                    labels: ['剧情', '捕捉', '集换式卡牌游戏', '好友', '情感'],
                     datasets: [{
                         data: [35, 20, 15, 18, 22],
                         backgroundColor: [
@@ -656,7 +1836,7 @@
             new Chart(pieCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['Zelda', 'Splatoon 3', 'Pokemon', 'Other'],
+                    labels: ['塞尔达传说', '喷射战士3', '精灵宝可梦', '其他'],
                     datasets: [{
                         data: [150, 120, 100, 50],
                         backgroundColor: [
@@ -693,10 +1873,10 @@
             new Chart(lineCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
                     datasets: [
                         {
-                            label: 'Zelda',
+                            label: '塞尔达传说',
                             data: [3, 2, 4, 3, 2, 6, 5],
                             borderColor: 'rgba(76, 175, 80, 1)',
                             backgroundColor: 'rgba(76, 175, 80, 0.1)',
@@ -704,7 +1884,7 @@
                             fill: true
                         },
                         {
-                            label: 'Splatoon',
+                            label: '喷射战士',
                             data: [1, 2, 1, 3, 2, 1, 2],
                             borderColor: 'rgba(255, 235, 59, 1)',
                             backgroundColor: 'rgba(255, 235, 59, 0.1)',
@@ -712,7 +1892,7 @@
                             fill: true
                         },
                         {
-                            label: 'Pokemon',
+                            label: '精灵宝可梦',
                             data: [0, 1, 0, 2, 1, 3, 1],
                             borderColor: 'rgba(233, 30, 99, 1)',
                             backgroundColor: 'rgba(233, 30, 99, 0.1)',
@@ -759,10 +1939,10 @@
             new Chart(radarCtx, {
                 type: 'radar',
                 data: {
-                    labels: ['Completion', 'Skill', 'Collection', 'Creativity', 'Social'],
+                    labels: ['完成度', '技能', '收集', '创造力', '社交'],
                     datasets: [
                         {
-                            label: 'Zelda',
+                            label: '塞尔达传说',
                             data: [85, 75, 60, 40, 30],
                             backgroundColor: 'rgba(76, 175, 80, 0.2)',
                             borderColor: 'rgba(76, 175, 80, 1)',
@@ -772,7 +1952,7 @@
                             pointHoverBorderColor: 'rgba(76, 175, 80, 1)'
                         },
                         {
-                            label: 'Splatoon',
+                            label: '喷射战士',
                             data: [60, 85, 40, 30, 70],
                             backgroundColor: 'rgba(255, 235, 59, 0.2)',
                             borderColor: 'rgba(255, 235, 59, 1)',
@@ -782,7 +1962,7 @@
                             pointHoverBorderColor: 'rgba(255, 235, 59, 1)'
                         },
                         {
-                            label: 'Pokemon',
+                            label: '精灵宝可梦',
                             data: [50, 30, 70, 85, 60],
                             backgroundColor: 'rgba(233, 30, 99, 0.2)',
                             borderColor: 'rgba(233, 30, 99, 1)',
@@ -976,11 +2156,35 @@
         
         // 触摸交互
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
-        }, { passive: false });
+        }, { passive: true });
         
+        // 导航栏交互效果
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                balls.forEach(ball => {
+                    if(this.id === 'nav-home') {
+                        ball.color = 'rgba(0, 210, 0, 0.7)';
+                    } else if(this.id === 'nav-graph') {
+                        ball.color = 'rgba(255, 215, 0, 0.7)';
+                    } else if(this.id === 'nav-about') {
+                        ball.color = 'rgba(255, 105, 180, 0.7)';
+                    }
+                });
+            });
+
+            item.addEventListener('click', function() {
+                if(this.id === 'nav-home') {
+                    window.scrollTo(0, 0);
+                } else if(this.id === 'nav-graph') {
+                    document.getElementById('mainCard').click();
+                } else if(this.id === 'nav-about') {
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            });
+        });
+
         // 物理模拟循环
         function animate() {
             // 清除画布
@@ -1030,9 +2234,56 @@
         
         // 设备倾斜检测
         if (window.DeviceOrientationEvent) {
+            let upsideDownTimer = null;
+            let rightSideUpTimer = null;
+            const hiddenImage = document.createElement('img');
+            hiddenImage.src = 'static/img/1.gif';
+            hiddenImage.style.position = 'fixed';
+            hiddenImage.style.bottom = '-120px';
+            hiddenImage.style.left = '50%';
+            hiddenImage.style.transform = 'translateX(-50%)';
+            hiddenImage.style.width = '100px';
+            hiddenImage.style.transition = 'all 0.5s ease-in-out';
+            document.body.appendChild(hiddenImage);
+
             window.addEventListener('deviceorientation', (e) => {
                 const tiltX = e.gamma;  // -90到90度
                 const tiltY = e.beta;   // -180到180度
+                
+                // 倒置检测 (设备倒置)
+                if (Math.abs(tiltY) > 150) {
+                    if (!upsideDownTimer) {
+                        upsideDownTimer = setTimeout(() => {
+                            anime({
+                                targets: hiddenImage,
+                                bottom: '20px',
+                                duration: 800,
+                                easing: 'easeOutExpo'
+                            });
+                        }, 3000);
+                    }
+                    if (rightSideUpTimer) {
+                        clearTimeout(rightSideUpTimer);
+                        rightSideUpTimer = null;
+                    }
+                } 
+                // 正置检测 (设备正置)
+                else if (Math.abs(tiltY) < 30) {
+                    if (!rightSideUpTimer) {
+                        rightSideUpTimer = setTimeout(() => {
+                            anime({
+                                targets: hiddenImage,
+                                bottom: '-100px',
+                                duration: 800,
+                                easing: 'easeOutExpo'
+                            });
+                        }, 3000);
+                    }
+                    if (upsideDownTimer) {
+                        clearTimeout(upsideDownTimer);
+                        upsideDownTimer = null;
+                    }
+                }
                 
                 balls.forEach(ball => {
                     // 根据设备倾斜调整重力
@@ -1119,5 +2370,30 @@
             });
         });
     </script>
-</body>
+    
+    <script>
+        document.getElementById('nav-about').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.toggle('active');
+        });
+        
+        document.getElementById('aboutClose').addEventListener('click', function() {
+            document.getElementById('aboutWindow').classList.remove('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            const aboutWindow = document.getElementById('aboutWindow');
+            const navAbout = document.getElementById('nav-about');
+            
+            if (aboutWindow.classList.contains('active') && 
+                !aboutWindow.contains(event.target) && 
+                event.target !== navAbout) {
+                aboutWindow.classList.remove('active');
+            }
+        });
+    </script>
+        <div class="timeline-window">
+            <button class="timeline-close">×</button>
+            <div class="timeline-container" id="timeline-content"></div>
+        </div>
+    </body>
 </html>
