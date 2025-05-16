@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>赛博石头剪刀布</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+  .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+  .status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+  .choice-buttons {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+  .choice-buttons button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+    }
+  .choice-buttons button:hover {
+      background-color: #0056b3;
+    }
+  .element {
+      position: absolute;
+      font-size: 30px;
+      z-index: 1;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+  .game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      display: none;
+      z-index: 2;
+    }
+  .restart-button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+    }
+  .restart-button:hover {
+      background-color: #218838;
+    }
+  .footer-info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+  .footer-info a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+  .footer-info a:hover {
+      text-decoration: underline;
+    }
+  .quantity-buttons {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+  .quantity-buttons button {
+      padding: 10px 14px;
+      font-size: 18px;
+      background-color: white;
+      color: #007BFF;
+      border: none;
+      border-radius: 28px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+    }
+  .quantity-buttons button:hover {
+      background-color: #e0e0e0;
+    }
+  .quantity-buttons span {
+      font-size: 18px;
+      line-height: 42px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="status">
+      <p>✂️ <span id="scissors-count">0</span></p>
+      <p>🪨<span id="rock-count">0</span></p>
+      <p>🧻<span id="paper-count">0</span></p>
+    </div>
+    <div class="choice-buttons">
+      <button onclick="startGame('✂️')">选择✂️</button>
+      <button onclick="startGame('🪨')">选择🪨 </button>
+      <button onclick="startGame('🧻')">选择🧻</button>
+    </div>
+    <div class="game-over">
+      <h2 id="game-over-message"></h2>
+      <p id="guess-result"></p>
+      <button class="restart-button" onclick="restartGame()">RESTART</button>
+    </div>
+    <div class="footer-info" id="footer-info">
+      By <a href="https://space.bilibili.com/88516143" target="_blank">Yuyui</a> FPS: <span id="fps-value"></span> ID: <span id="browser-id"></span>
+    </div>
+    <div class="quantity-buttons" id="quantity-buttons">
+      <button onclick="decreaseQuantity()">&#8722;</button>
+      <span id="quantity-value">22</span>
+      <button onclick="increaseQuantity()">+</button>
+    </div>
+  </div>
+  <script>
+    let elements = [];
+    let quantity = 20;
+    const container = document.querySelector('.container');
+    const scissorsCountElement = document.getElementById('scissors-count');
+    const rockCountElement = document.getElementById('rock-count');
+    const paperCountElement = document.getElementById('paper-count');
+    const gameOverMessage = document.getElementById('game-over-message');
+    const guessResult = document.getElementById('guess-result');
+    const gameOverDiv = document.querySelector('.game-over');
+    const quantityValueElement = document.getElementById('quantity-value');
+    let playerChoice;
+    let animationFrameId;
+    let intervalId;
+    let lastFrameTime = 0;
+    let frameCount = 0;
+    let fpsInterval;
+    let startTime;
+    let now;
+    let then;
+    function createElement(type) {
+      const element = document.createElement('div');
+      element.classList.add('element');
+      element.textContent = type;
+      element.style.left = Math.random() * window.innerWidth + 'px';
+      element.style.top = Math.random() * window.innerHeight + 'px';
+      container.appendChild(element);
+      return element;
+    }
+    function startGame(choice) {
+      playerChoice = choice;
+      document.querySelector('.choice-buttons').style.display = 'none';
+      document.getElementById('quantity-buttons').style.display = 'none';
+      // 根据quantity变量生成元素
+      for (let i = 0; i < quantity; i++) { 
+        elements.push(createElement('✂️'));
+        elements.push(createElement('🪨'));
+        elements.push(createElement('🧻'));
+      }
+      updateCounts();
+      fpsInterval = 1000;
+      startTime = performance.now();
+      then = startTime;
+      intervalId = setInterval(() => {
+        const now = performance.now();
+        if (now - lastFrameTime >= 16) {
+          lastFrameTime = now;
+          animationFrameId = requestAnimationFrame(moveElements);
+        }
+      }, 8);
+    }
+    function moveElements() {
+      const elementCount = elements.length;
+      for (let i = 0; i < elementCount; i++) {
+        const element = elements[i];
+        const target = findClosestEnemy(element);
+        if (target) {
+          const dx = target.offsetLeft - element.offsetLeft;
+          const dy = target.offsetTop - element.offsetTop;
+          const distanceSquared = dx * dx + dy * dy;
+          const speed = 3;
+          if (distanceSquared < 900) {
+            const winner = getWinner(element.textContent, target.textContent);
+            if (winner === element.textContent) {
+              target.textContent = element.textContent;
+              target.style.color = 'inherit';
+            } else if (winner === target.textContent) {
+              element.textContent = target.textContent;
+              element.style.color = 'inherit';
+            }
+          } else {
+            const moveFactor = speed / Math.sqrt(distanceSquared);
+            element.style.left = element.offsetLeft + dx * moveFactor + 'px';
+            element.style.top = element.offsetTop + dy * moveFactor + 'px';
+          }
+        }
+      }
+      updateCounts();
+      checkGameOver();
+      now = performance.now();
+      frameCount++;
+      if (now - startTime >= fpsInterval) {
+        const fps = Math.round(frameCount * 1000 / (now - startTime));
+        document.getElementById('fps-value').textContent = fps;
+        frameCount = 0;
+        startTime = now;
+      }
+    }
+    function findClosestEnemy(element) {
+      let closestEnemy;
+      let minDistanceSquared = Infinity;
+      const elementCount = elements.length;
+      for (let i = 0; i < elementCount; i++) {
+        const target = elements[i];
+        if (target!== element && isEnemy(element.textContent, target.textContent)) {
+          const dx = target.offsetLeft - element.offsetLeft;
+          const dy = target.offsetTop - element.offsetTop;
+          const distanceSquared = dx * dx + dy * dy;
+          if (distanceSquared < minDistanceSquared) {
+            minDistanceSquared = distanceSquared;
+            closestEnemy = target;
+          }
+        }
+      }
+      return closestEnemy;
+    }
+    function isEnemy(type1, type2) {
+      return (type1 === '✂️' && type2 === '🧻') ||
+        (type1 === '🪨' && type2 === '✂️') ||
+        (type1 === '🧻' && type2 === '🪨');
+    }
+    function getWinner(type1, type2) {
+      if (type1 === '✂️' && type2 === '🧻') return '✂️';
+      if (type1 === '🪨' && type2 === '✂️') return '🪨';
+      if (type1 === '🧻' && type2 === '🪨') return '🧻';
+      if (type1 === type2) return null;
+      return type2 === '✂️'? '🧻' : type2 === '🪨'? '✂️' : '🪨';
+    }
+    function updateCounts() {
+      const scissorsCount = elements.filter(e => e.textContent === '✂️').length;
+      const rockCount = elements.filter(e => e.textContent === '🪨').length;
+      const paperCount = elements.filter(e => e.textContent === '🧻').length;
+      scissorsCountElement.textContent = scissorsCount;
+      rockCountElement.textContent = rockCount;
+      paperCountElement.textContent = paperCount;
+      return { scissorsCount, rockCount, paperCount };
+    }
+    function checkGameOver() {
+      const { scissorsCount, rockCount, paperCount } = updateCounts();
+      if (scissorsCount === 0 && rockCount === 0 ||
+        scissorsCount === 0 && paperCount === 0 ||
+        rockCount === 0 && paperCount === 0) {
+        clearInterval(intervalId);
+        cancelAnimationFrame(animationFrameId);
+        const winner = scissorsCount > 0? '✂️' : rockCount > 0? '🪨' : '🧻';
+        gameOverMessage.textContent = `游戏结束！胜者是：${winner}`;
+        guessResult.textContent = playerChoice === winner? '你猜对了！' : '你猜错了！';
+        gameOverDiv.style.display = 'block';
+      }
+    }
+    function restartGame() {
+      clearInterval(intervalId);
+      cancelAnimationFrame(animationFrameId);
+      elements.forEach(element => container.removeChild(element));
+      elements = [];
+      gameOverDiv.style.display = 'none';
+      document.querySelector('.choice-buttons').style.display = 'flex';
+      document.getElementById('quantity-buttons').style.display = 'flex';
+      // 根据quantity变量更新元素数量显示
+      scissorsCountElement.textContent = '0';
+      rockCountElement.textContent = '0';
+      paperCountElement.textContent = '0';
+      playerChoice = null;
+      lastFrameTime = 0;
+      gameOverMessage.textContent = '';
+      guessResult.textContent = '';
+      document.getElementById('fps-value').textContent = '';
+      quantityValueElement.textContent = quantity;
+    }
+    function increaseQuantity() {
+      quantity++;
+      quantityValueElement.textContent = quantity;
+    }
+    function decreaseQuantity() {
+      if (quantity > 1) {
+        quantity--;
+        quantityValueElement.textContent = quantity;
+      }
+    }
+    // 页面加载时设置初始quantity值
+    window.onload = function() {
+      quantityValueElement.textContent = quantity;
+    };
+    const userAgent = navigator.userAgent;
+    let browser = '未知';
+    if (/Chrome/.test(userAgent) && /Chrome/.test(userAgent.match(/(Chrome|Chromium)/)[0])) {
+      browser = 'Chrome';
+    } else if (/Firefox/.test(userAgent)) {
+      browser = 'Firefox';
+    } else if (/Safari/.test(userAgent) &&!/.+Version\/[\d.]+ Safari/.test(userAgent)) {
+      browser = 'Safari';
+    } else if (/Opera/.test(userAgent) || /OPR/.test(userAgent)) {
+      browser = 'Opera';
+    } else if (/Edge/.test(userAgent)) {
+      browser = 'Edge';
+    }
+    document.getElementById('browser-id').textContent = browser;
+  </script>
+</body>
+</html>
