@@ -117,6 +117,30 @@
             cursor: pointer;
         }
     </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(0, 161, 224, 0.2);
+            border: 1px solid rgba(87, 87, 87, 0.3);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>Yufan‘s GameWorld</title>
@@ -128,6 +152,30 @@
         body {
             font-family: "MaokenAssortedSans";
             font-weight: normal;
+        }
+    </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(0, 161, 224, 0.2);
+            border: 1px solid rgba(0, 161, 224, 0.5);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
         }
     </style>
     <link href="PGpix.ttf" rel="Pixel">
@@ -1073,6 +1121,30 @@ default: return '#800080';
             100% { transform: scale(1); }
         }
     </style>
+    <style>
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .achievement {
+            background: rgba(126, 134, 137, 0.2);
+            border: 1px solid rgba(87, 91, 93, 0.5);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .achievement-icon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
 </head>
 <body>
     <div class="creative-nav">
@@ -1115,6 +1187,20 @@ default: return '#800080';
                     <div class="chart-container">
                         <canvas id="zeldaChart1"></canvas>
                     </div>
+                    <div class="achievement-list">
+                        <div class="achievement">
+                            <img src="https://huiji-thumb.huijistatic.com/totk/uploads/thumb/9/96/%E7%A0%B4%E9%AD%94%E7%A5%9E%E5%BA%99.png/128px-%E7%A0%B4%E9%AD%94%E7%A5%9E%E5%BA%99.png" alt="成就" class="achievement-icon" onerror="this.src='https://via.placeholder.com/15/0a0a1a/00d200?text=✓'">
+                            <span>神庙完成</span>
+                        </div>
+                        <div class="achievement">
+                            <img src="https://huiji-thumb.huijistatic.com/totk/uploads/thumb/3/3b/%E9%B8%9F%E6%9C%9B%E5%8F%B0.png/128px-%E9%B8%9F%E6%9C%9B%E5%8F%B0.png" alt="成就" class="achievement-icon" onerror="this.src='https://via.placeholder.com/15/0a0a1a/00d200?text=✓'">
+                            <span>瞭望台解锁</span>
+                        </div>
+                        <div class="achievement">
+                            <img src="https://huiji-thumb.huijistatic.com/totk/uploads/thumb/c/c3/%E4%BD%99%E6%96%99%E5%BB%BA%E9%80%A0.png/128px-%E4%BD%99%E6%96%99%E5%BB%BA%E9%80%A0.png" alt="成就" class="achievement-icon" onerror="this.src='https://via.placeholder.com/15/0a0a1a/00d200?text=✓'">
+                            <span>大师剑获得</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="viz-container">
@@ -1156,6 +1242,7 @@ default: return '#800080';
                     <div class="chart-container">
                         <canvas id="splatoonChart1"></canvas>
                     </div>
+                    <div class="rank-display"><br>真格 <span style="font-size: larger; color: rgb(255, 255, 35);">S+</span> 段位</div>
                 </div>
 
                 <div class="viz-container">
