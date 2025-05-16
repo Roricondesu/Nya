@@ -60,12 +60,17 @@
     <style>
         body {
             font-family: 'ZCOOL QingKe HuangYou', cursive;
-            background-color: rgb(144, 36, 2);
+            background-color: #f5f5f5;
             color: black;
             margin: 0;
             padding: 20px;
-            background-image: url('static/img/oldpaper.png');
-            background-blend-mode: multiply;
+            background-image: 
+                linear-gradient(45deg, #ddd 25%, transparent 25%),
+                linear-gradient(-45deg, #ddd 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #ddd 75%),
+                linear-gradient(-45deg, transparent 75%, #ddd 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             line-height: 1.6;
         }
         
@@ -154,6 +159,22 @@
             justify-content: space-between;
             opacity: 0;
             transform: translateY(50px);
+            position: relative;
+        }
+        
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, transparent 95%, black 95%),
+                linear-gradient(0deg, transparent 95%, black 95%);
+            background-size: 10px 10px;
+            pointer-events: none;
+            opacity: 0.1;
         }
 
         .profile-section {
