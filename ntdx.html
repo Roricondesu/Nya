@@ -35,7 +35,7 @@
     
     .creative-nav {
         position: fixed;
-        bottom: 20px;
+        bottom: 6%;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
@@ -350,10 +350,10 @@ function handleDeviceTilt(event) {
         
         // 不同类型节点的发光效果
         const glowTypes = [
-            {id: 'franchise-glow', color: '#00CED1', stdDeviation: 8},
-            {id: 'game-glow', color: '#0038a8', stdDeviation: 6},
-            {id: 'crossover-glow', color: '#ffcb05', stdDeviation: 10},
-            {id: 'player-glow', color: '#ffffff', stdDeviation: 12}
+            {id: "franchise-glow", color: '#39C5BB', stdDeviation: 8},
+            {id: "game-glow", color: '#0038a8', stdDeviation: 6},
+            {id: "crossover-glow", color: '#FF9500', stdDeviation: 10},
+            {id: "player-glow", color: '#FA8072', stdDeviation: 12}
         ];
         
         glowTypes.forEach(type => {
@@ -405,12 +405,19 @@ function handleDeviceTilt(event) {
             .enter().append('circle')
             .attr('r', d => d.type === 'franchise' ? 20 : (d.type === 'game' ? 15 : 25))
             .attr('fill', d => {
-                switch(d.type) {
-                    case 'franchise': return '#39C5BB';
-                    case 'game': return '#0038a8';
-                    case 'crossover': return '#ffcb05';
+                switch(d.id) {
+                    case 'mario': return '#E52521';
+                    case 'zelda': return '#5A8F29';
+                    case 'pokemon': return '#FF5BAA';
+                    case 'splatoon': return '#FFCB05';
+                    case 'animal': return '#8FD694';
+                    case 'metroid': return '#4B4B4B';
+                    case 'kirby': return '#FF9EB5';
+                    case 'fire_emblem': return '#C41E3A';
+                    case 'xenoblade': return '#0070C0';
+                    case 'smash': return '#FF9500';
                     case 'player': return '#FA8072';
-                    default: return '#FA8072';
+default: return '#800080';
                 }
             })
             .attr('filter', d => {
