@@ -57,6 +57,10 @@
             font-size: 0.9rem;
         }
         
+        #homeBtn {
+            cursor: pointer;
+        }
+        
         .timeline-window {
             position: fixed;
             top: 50%;
@@ -106,6 +110,40 @@
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
             animation: pulse 0.5s ease infinite alternate;
+        }
+        
+        .game-cloud-window {
+            position: fixed;
+            top: -400px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            transition: all 0.3s ease;
+        }
+        
+        .game-cloud-window.active {
+            display: block;
+        }
+        
+        .game-cloud-close {
+            position: absolute;
+            top: 15px;
+            right: 8%;
+            color: white;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 15px;
+            margin: -15px;
         }
         
         @keyframes pulse {
@@ -508,13 +546,104 @@ function handleDeviceTilt(event) {
 }
         
         document.addEventListener('DOMContentLoaded', function() {
+    // 首页按钮点击事件
+    document.getElementById('homeBtn').addEventListener('click', function() {
+        location.reload();
+    });
             window.scrollTo(0, 0);
             
             // 时间线按钮点击事件
-            document.getElementById('timelineBtn').addEventListener('click', function() {
-                document.querySelector('.timeline-window').classList.add('active');
-                renderTimeline();
+        document.getElementById('timelineBtn').addEventListener('click', function() {
+            document.querySelector('.timeline-window').classList.add('active');
+            renderTimeline();
+        });
+        
+        // 游戏云图按钮点击事件
+        document.getElementById('cloudBtn').addEventListener('click', function() {
+            document.querySelector('.game-cloud-window').classList.add('active');
+            renderGameCloud();
+        });
+        
+        // 游戏云图关闭按钮
+        document.querySelector('.game-cloud-close').addEventListener('click', function() {
+            document.querySelector('.game-cloud-window').classList.remove('active');
+        });
+        
+        // 游戏时间数据
+        const gameTimeData = [
+            { name: '超级马里奥', hours: 120, logo: 'mario.png', color: '#e52521' },
+            { name: '塞尔达传说', hours: 200, logo: 'zelda.png', color: '#5bb12f' },
+            { name: '斯普拉顿', hours: 180, logo: 'splatoon.png', color: '#f02d7d' },
+            { name: '星之卡比', hours: 90, logo: 'kirby.png', color: '#ff9eb8' },
+            { name: '动物森友会', hours: 150, logo: 'animal-crossing.png', color: '#7ed321' },
+            { name: '健身环大冒险', hours: 80, logo: 'ringfit.png', color: '#ff6b00' },
+            { name: '马里奥赛车', hours: 100, logo: 'mariokart.png', color: '#00a8f3' },
+            { name: '精灵宝可梦', hours: 160, logo: 'pokemon.png', color: '#ffcb05' },
+            { name: '皮克敏4', hours: 70, logo: 'pikmin.png', color: '#8bc34a' },
+            { name: '耀西的手工世界', hours: 60, logo: 'yoshi.png', color: '#7ac143' }
+        ];
+        
+        // 渲染游戏云图
+        function renderGameCloud() {
+            const svg = d3.select('#game-cloud-svg');
+            const width = svg.node().getBoundingClientRect().width;
+            const height = svg.node().getBoundingClientRect().height;
+            
+            // 清除之前的内容
+            svg.selectAll('*').remove();
+            
+            // 创建力导向图
+            const simulation = d3.forceSimulation(gameTimeData)
+                .force('charge', d3.forceManyBody().strength(5))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => Math.sqrt(d.hours) * 3));
+            
+            // 创建节点
+            const nodes = svg.selectAll('g')
+                .data(gameTimeData)
+                .enter().append('g')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+            
+            // 添加节点图形
+            nodes.append('circle')
+                .attr('r', d => Math.sqrt(d.hours) * 3)
+                .attr('fill', d => d.color)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2);
+            
+            // 添加游戏名称
+            nodes.append('text')
+                .attr('dy', 4)
+                .attr('text-anchor', 'middle')
+                .text(d => d.name)
+                .style('fill', '#fff')
+                .style('font-size', '12px');
+            
+            // 更新位置
+            simulation.on('tick', () => {
+                nodes.attr('transform', d => `translate(${d.x},${d.y})`);
             });
+            
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
             
             // 时间线关闭按钮
             document.querySelector('.timeline-close').addEventListener('click', function() {
@@ -1546,9 +1675,14 @@ default: return '#800080';
 </head>
 <body>
     <div class="creative-nav">
-        <div class="nav-item" id="nav-home">首页</div>
+        <div id="homeBtn" class="nav-item">首页</div>
         <div class="nav-item" id="nav-graph">关系图谱</div>
         <div class="nav-item" id="timelineBtn">时间线</div>
+        <div class="nav-item" id="cloudBtn">游戏云图</div>
+        <div class="game-cloud-window">
+            <button class="game-cloud-close">×</button>
+            <svg id="game-cloud-svg" width="100%" height="100%"></svg>
+        </div>
         <div class="nav-item" id="nav-about">关于</div>
     </div>
     
