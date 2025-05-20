@@ -406,7 +406,7 @@
         // 时间线数据
         const timelineData = [
             { date: '2015-06', title: '超级马里奥', description: '接触马里奥U系列游戏' },
-            { date: '2015-08', title: '斯普拉顿', description: '喷射战士1代在wiiU上面游玩' },
+            { date: '2015-08', title: '斯普拉顿', description: '斯普拉顿1代在wiiU上面游玩' },
             { date: '2017-03', title: '塞尔达传说:旷野之息', description: 'Switch首发游戏' },
             { date: '2018-11', title: '精灵宝可梦', description: '宝可梦日月和剑盾' },
             { date: '2020-03', title: '集合啦！动物森友会', description: '疫情期间的治愈岛屿建设游戏' },
@@ -514,12 +514,22 @@ function handleDeviceTilt(event) {
                 const extraInfo = document.createElement('div');
                 extraInfo.className = 'extra-info';
                 
-                // 根据容器ID设置不同的图片
+                // 根据容器文本内容设置不同的图片
                 const img = document.createElement('img');
-                if (this.id.includes('zelda')) {
-                    img.src = 'static/img/1.gif';
+                const containerText = this.textContent.trim();
+                
+                if (containerText.includes('塞尔达')) {
+                    img.src = 'n2.png';
+                } else if (containerText.includes('斯普拉顿')) {
+                    img.src = 'ppmp.png';
+                } else if (containerText.includes('宝可梦')) {
+                    img.src = 'n4.png';
+                } else if (containerText.includes('时间分布')) {
+                    img.src = 'n3.png';
+                } else if (containerText.includes('成就')) {
+                    img.src = 'n5.png';
                 } else {
-                    img.src = 'static/img/ppmp.jpg';
+                    img.src = 'n1.png';
                 }
                 
                 extraInfo.appendChild(img);
@@ -595,7 +605,7 @@ function handleDeviceTilt(event) {
                 {id: "mario", name: "超级马里奥", type: "franchise"},
                 {id: "zelda", name: "塞尔达传说", type: "franchise"},
                 {id: "pokemon", name: "精灵宝可梦", type: "franchise"},
-                {id: "splatoon", name: "喷射战士", type: "franchise"},
+                {id: "splatoon", name: "斯普拉顿", type: "franchise"},
                 {id: "animal", name: "动物之森", type: "franchise"},
                 {id: "metroid", name: "银河战士", type: "franchise"},
                 {id: "kirby", name: "星之卡比", type: "franchise"},
@@ -606,7 +616,7 @@ function handleDeviceTilt(event) {
                 {id: "botw", name: "塞尔达传说:旷野之息", type: "game"},
                 {id: "totk", name: "塞尔达传说:王国之泪", type: "game"},
                 {id: "pokemon_rgb", name: "精灵宝可梦", type: "game"},
-                {id: "splatoon3", name: "喷射战士3", type: "game"},
+                {id: "splatoon3", name: "斯普拉顿3", type: "game"},
                 {id: "player", name: "我", type: "player", img: "https://nya.666lab.club/logoku.png"},
                 {id: "mario_kart", name: "马里奥赛车", type: "game"},
                 {id: "pokemon_go", name: "精灵宝可梦GO", type: "game"},
@@ -1836,7 +1846,7 @@ default: return '#800080';
             new Chart(pieCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['塞尔达传说', '喷射战士3', '精灵宝可梦', '其他'],
+                    labels: ['塞尔达传说', '斯普拉顿3', '精灵宝可梦', '其他'],
                     datasets: [{
                         data: [150, 120, 100, 50],
                         backgroundColor: [
@@ -1884,7 +1894,7 @@ default: return '#800080';
                             fill: true
                         },
                         {
-                            label: '喷射战士',
+                            label: '斯普拉顿',
                             data: [1, 2, 1, 3, 2, 1, 2],
                             borderColor: 'rgba(255, 235, 59, 1)',
                             backgroundColor: 'rgba(255, 235, 59, 0.1)',
@@ -1952,7 +1962,7 @@ default: return '#800080';
                             pointHoverBorderColor: 'rgba(76, 175, 80, 1)'
                         },
                         {
-                            label: '喷射战士',
+                            label: '斯普拉顿',
                             data: [60, 85, 40, 30, 70],
                             backgroundColor: 'rgba(255, 235, 59, 0.2)',
                             borderColor: 'rgba(255, 235, 59, 1)',
