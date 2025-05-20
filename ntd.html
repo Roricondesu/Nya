@@ -97,6 +97,8 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
+            padding: 15px;
+            margin: -15px;
         }
 
         .nav-item:hover {
@@ -517,6 +519,16 @@ function handleDeviceTilt(event) {
             // 时间线关闭按钮
             document.querySelector('.timeline-close').addEventListener('click', function() {
                 document.querySelector('.timeline-window').classList.remove('active');
+            });
+            
+            // 点击模态框外部关闭
+            document.addEventListener('click', function(e) {
+                const timelineWindow = document.querySelector('.timeline-window');
+                if(timelineWindow.classList.contains('active') && 
+                   !timelineWindow.contains(e.target) && 
+                   e.target.id !== 'timelineBtn') {
+                    timelineWindow.classList.remove('active');
+                }
             });
         // 音乐控制
         const musicControl = document.getElementById('musicControl');
