@@ -148,6 +148,9 @@
         
         .main-card {
             background-color: rgba(255, 255, 255, 0.85);
+            background-image: url('static/img/zyxbg.png'); /* 设置背景图片 */
+            background-size: cover; /* 让背景图片覆盖整个元素 */
+            background-position: center; /* 背景图片居中显示 */
             border: 3px solid black;
             border-radius: 5px;
             padding: 20px;
@@ -162,21 +165,20 @@
             position: relative;
         }
         
-.main-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        url('static/img/zyxbg.png'),
-        linear-gradient(90deg, transparent 95%, black 95%),
-        linear-gradient(0deg, transparent 95%, black 95%);
-    background-size: cover, 10px 10px;
-    pointer-events: none;
-    opacity: 0.1;
-}
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, transparent 95%, black 95%),
+                linear-gradient(0deg, transparent 95%, black 95%);
+            background-size: 10px 10px;
+            pointer-events: none;
+            opacity: 0.1;
+        }
 
         .profile-section {
             flex: 1;
