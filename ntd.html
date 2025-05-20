@@ -102,6 +102,27 @@
         .nav-item:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            animation: pulse 0.5s ease infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+            to { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
+        }
+        
+        .viz-container {
+            transition: all 0.3s ease;
+        }
+        
+        .viz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .viz-container.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 210, 0, 0.5);
         }
 
         .nav-item.active {
@@ -404,14 +425,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
     <script>
         // 时间线数据
-        const timelineData = [
-            { date: '2015-06', title: '超级马里奥', description: '接触马里奥U系列游戏' },
-            { date: '2015-08', title: '斯普拉顿', description: '斯普拉顿1代在wiiU上面游玩' },
-            { date: '2017-03', title: '塞尔达传说:旷野之息', description: 'Switch首发游戏' },
-            { date: '2018-11', title: '精灵宝可梦', description: '宝可梦日月和剑盾' },
-            { date: '2020-03', title: '集合啦！动物森友会', description: '疫情期间的治愈岛屿建设游戏' },
-            { date: '2023-05', title: '塞尔达传说:王国之泪', description: '最新塞尔达传说作品' }
-        ];
+const timelineData = [
+    { date: '2015-06', title: '超级马里奥', description: '接触马里奥U系列游戏，被其丰富的关卡设计和趣味玩法吸引，开启了任天堂游戏之旅' },
+    { date: '2015-08', title: '斯普拉顿', description: '斯普拉顿1代在wiiU上面游玩，独特的墨水对战模式让人眼前一亮，沉浸在激烈的团队对战中' },
+    { date: '2016-09', title: '星之卡比', description: '初次体验星之卡比系列，卡比可爱的形象和多变的能力，带来了轻松愉快的游戏体验' },
+    { date: '2017-03', title: '塞尔达传说:旷野之息', description: 'Switch首发游戏，开放世界的设定和高自由度的探索玩法，让人仿佛置身于一个真实的奇幻世界' },
+    { date: '2017-10', title: '马里奥赛车8豪华版', description: '在Switch平台上体验到了马里奥赛车系列的经典魅力，各种特色赛道和赛车让人乐此不疲' },
+    { date: '2018-11', title: '精灵宝可梦', description: '宝可梦日月和剑盾，收集各种可爱的宝可梦，培养它们并参与对战，感受宝可梦世界的奇妙' },
+    { date: '2019-09', title: '健身环大冒险', description: '疫情前开始接触的健身游戏，通过游戏的方式让运动变得有趣，有效锻炼身体' },
+    { date: '2020-03', title: '集合啦！动物森友会', description: '疫情期间的治愈岛屿建设游戏，在岛上自由布置建筑、种植作物，与可爱的岛民互动，缓解了疫情带来的压力' },
+    { date: '2021-10', title: '马里奥派对超级巨星', description: '和朋友们一起玩马里奥派对，各种有趣的小游戏增进了彼此之间的感情，充满欢乐氛围' },
+    { date: '2023-05', title: '塞尔达传说:王国之泪', description: '最新塞尔达传说作品，延续了旷野之息的精彩，新增的究极手和通天术等能力，带来了更多探索乐趣' },
+    // 新增数据示例，可根据实际情况修改
+    { date: '2023-07', title: '皮克敏4', description: '皮克敏系列新作，全新的玩法和可爱的皮克敏生物，在各种奇妙的环境中展开冒险' },
+    { date: '2024-01', title: '耀西的手工世界', description: '耀西系列的创新之作，以手工风格打造的游戏世界，充满了创意和乐趣' }
+];
         
         // 渲染时间线
         function renderTimeline() {
