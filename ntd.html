@@ -226,32 +226,6 @@
             width: 15px;
             height: 15px;
         }
-        
-        /* 竖排标题样式 */
-        .viz-title {
-            position: absolute;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            color: white;
-            font-size: 1.2rem;
-            z-index: 1001;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        /* 左侧容器标题放在右侧 */
-        .viz-container:not(.right) .viz-title {
-            right: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        /* 右侧容器标题放在左侧 */
-        .viz-container.right .viz-title {
-            left: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
     </style>
     <style>
         .timeline-item {
@@ -376,32 +350,6 @@
         .achievement-icon {
             width: 15px;
             height: 15px;
-        }
-        
-        /* 竖排标题样式 */
-        .viz-title {
-            position: absolute;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            color: white;
-            font-size: 1.2rem;
-            z-index: 1001;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        /* 左侧容器标题放在右侧 */
-        .viz-container:not(.right) .viz-title {
-            right: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        /* 右侧容器标题放在左侧 */
-        .viz-container.right .viz-title {
-            left: -50px;
-            top: 50%;
-            transform: translateY(-50%);
         }
     </style>
     <style>
@@ -557,38 +505,28 @@ function handleDeviceTilt(event) {
         });
     // 为所有viz-container添加点击事件
     document.querySelectorAll('.viz-container').forEach(container => {
-            container.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.classList.toggle('active');
+        container.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            
+            // 如果还没有额外信息内容，则创建
+            if (!this.querySelector('.extra-info')) {
+                const extraInfo = document.createElement('div');
+                extraInfo.className = 'extra-info';
                 
-                // 如果还没有额外信息内容，则创建
-                if (!this.querySelector('.extra-info')) {
-                    const extraInfo = document.createElement('div');
-                    extraInfo.className = 'extra-info';
-                    
-                    // 为每个容器分配不同的图片
-                    const img = document.createElement('img');
-                    
-                    // 根据容器ID或类名设置不同的图片
-                    if (this.id.includes('zelda')) {
-                        img.src = 'static/img/zelda.gif';
-                    } else if (this.id.includes('mario')) {
-                        img.src = 'static/img/mario.gif';
-                    } else if (this.id.includes('pokemon')) {
-                        img.src = 'static/img/pokemon.gif';
-                    } else if (this.id.includes('splatoon')) {
-                        img.src = 'static/img/splatoon.gif';
-                    } else if (this.id.includes('animal')) {
-                        img.src = 'static/img/animal.gif';
-                    } else {
-                        img.src = 'static/img/default.gif';
-                    }
-                    
-                    extraInfo.appendChild(img);
-                    this.appendChild(extraInfo);
+                // 根据容器ID设置不同的图片
+                const img = document.createElement('img');
+                if (this.id.includes('zelda')) {
+                    img.src = 'static/img/1.gif';
+                } else {
+                    img.src = 'static/img/ppmp.jpg';
                 }
-            });
+                
+                extraInfo.appendChild(img);
+                this.appendChild(extraInfo);
+            }
         });
+    });
     // 创建关系图谱容器
     const graphContainer = document.createElement('div');
     graphContainer.id = 'nintendo-graph';
@@ -1041,28 +979,6 @@ default: return '#800080';
             backface-visibility: hidden;
         }
         
-        .viz-container .side-title {
-            position: absolute;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            color: white;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        
-        .viz-container.left .side-title {
-            right: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .viz-container.right .side-title {
-            left: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
         .viz-container:hover {
             transform: translateY(-5px) scale(1.02);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
@@ -1297,7 +1213,7 @@ default: return '#800080';
 
         .game-logo {
             width: 80%;
-            max-width: 150px;
+            max-width: 200px;
             margin: 0 auto 15px;
             display: block;
             filter: drop-shadow(0 0 5px white);
@@ -1531,32 +1447,6 @@ default: return '#800080';
             width: 15px;
             height: 15px;
         }
-        
-        /* 竖排标题样式 */
-        .viz-title {
-            position: absolute;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            color: white;
-            font-size: 1.2rem;
-            z-index: 1001;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        /* 左侧容器标题放在右侧 */
-        .viz-container:not(.right) .viz-title {
-            right: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        /* 右侧容器标题放在左侧 */
-        .viz-container.right .viz-title {
-            left: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
     </style>
     <style>
         .timeline-item {
@@ -1634,7 +1524,7 @@ default: return '#800080';
     <div class="container">
         <div class="header">
             <h1>YUFAN‘S GAME WORLD</h1>
-            <p>玙璠の任天堂之旅</p>
+            <p>玙璠的任天堂之旅</p>
         </div>
 
         <div class="main-content">
