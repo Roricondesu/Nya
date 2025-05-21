@@ -380,7 +380,28 @@
             </div>
             
             <div class="info-box" id="elementsBox">
-                <img src="static/img/ZYXYX.png" alt="元素" style="width: 100%; max-height: 300px; object-fit: contain;">
+                <style>
+                    /* 定义呼吸动画 */
+                    @keyframes breathing {
+                        0% {
+                            transform: scale(1);
+                            opacity: 1;
+                        }
+                        50% {
+                            transform: scale(1.1);
+                            opacity: 0.7;
+                        }
+                        100% {
+                            transform: scale(1);
+                            opacity: 1;
+                        }
+                    }
+                    /* 为图片应用动画 */
+                    #elementsBox img {
+                        animation: breathing 3s infinite;
+                    }
+                </style>
+                <img src="static/img/ZYXYX.png" alt="元素" style="width: 100%; max-height: 200px; object-fit: contain;">
             </div>
 
             <div class="info-box" id="elementsBox">
