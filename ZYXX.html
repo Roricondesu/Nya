@@ -366,8 +366,34 @@
 <img src="static/img/ZYJL.png" alt="朱耀星关键经历图片" style="width: 100%; max-height: 300px; object-fit: contain;">
                 </div>
             </div>
-            <p style="font-size: 24px;">由痛苦与火焰铸造的灵魂，在商业与灵异的夹缝中生存。 <br>既是精明的商人，又是脆弱的灵魂，最终化为福田百货的守护怨灵。</p>
+            <style>
 
+            <style>
+                /* 定义燃烧一样的呼吸动画 */
+                @keyframes burningBreathing {
+                    0% {
+                        transform: scale(1);
+                        opacity: 1;
+                        text-shadow: 0 0 5px #ff6600, 0 0 10px #ff6600, 0 0 15px #ff3300, 0 0 20px #ff3300;
+                    }
+                    50% {
+                        transform: scale(0.9);
+                        opacity: 0.7;
+                        text-shadow: 0 0 10px #ff6600, 0 0 20px #ff6600, 0 0 30px #ff3300, 0 0 40px #ff3300;
+                    }
+                    100% {
+                        transform: scale(1);
+                        opacity: 1;
+                        text-shadow: 0 0 5px #ff6600, 0 0 10px #ff6600, 0 0 15px #ff3300, 0 0 20px #ff3300;
+                    }
+                }
+                /* 为重点词应用新的燃烧动画样式 */
+                .highlight {
+                    color: #e65000; /* 调整为火焰颜色 */
+                    animation: burningBreathing 4s infinite;
+                }
+            </style>
+            <p style="font-size: 24px;">由<span class="highlight">痛苦</span>与<span class="highlight">火焰</span>铸造的灵魂，在<span class="highlight">商业</span>与<span class="highlight">灵异</span>的夹缝中生存。 <br>既是<span class="highlight">精明</span>的商人，又是<span class="highlight">脆弱</span>的灵魂，最终化为福田百货的守护怨灵。</p>
         </div>
         
         <div class="composition-section">
