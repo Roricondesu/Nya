@@ -1004,8 +1004,8 @@ const gameTypes = ['smash', 'mario', 'zelda', 'pokemon', 'splatoon', 'animal', '
 anime({
     targets: [
         ...node.filter(d => d.type === 'game' || d.type === 'crossover').nodes(),
-        ...link.nodes(),
-        ...label.nodes()
+        ...label.nodes(),
+        ...link.nodes()
     ],
     opacity: [0, 1],
     delay: anime.stagger(50),
