@@ -969,12 +969,54 @@ default: return '#800080';
             d.fy = null;
         }
 
-        // 添加动画效果
+        // 初始化所有节点和连线为透明
+        node.attr('opacity', 0);
+        link.attr('opacity', 0);
+        label.attr('opacity', 0);
+        
+        // 分阶段动画效果
         anime({
             targets: '#nintendo-graph svg',
             opacity: [0, 1],
             duration: 1000,
-            easing: 'easeOutExpo'
+            easing: 'easeOutExpo',
+            complete: function() {
+// 第一阶段: 显示player节点
+// 定义游戏类型数组，将指定游戏归类为game
+const gameTypes = ['smash', 'mario', 'zelda', 'pokemon', 'splatoon', 'animal', 'metroid', 'kirby', 'fire_emblem', 'xenoblade'];
+                anime({
+                    targets:  node.filter(d => d.type === 'player').nodes(),
+                    opacity: [0, 1],
+                    duration: 800,
+                    easing: 'easeOutExpo',
+                    complete: function() {
+                        // 第二阶段: 依次显示小节点
+                        anime({
+                            targets: node.filter(d => d.type === 'franchise').nodes(),
+                            opacity: [0, 1],
+                            delay: anime.stagger(100),
+                            duration: 500,
+                            easing: 'easeOutExpo',
+                            complete: function() {
+                                
+
+// 第三阶段: 显示franchise节点和连线
+anime({
+    targets: [
+        ...node.filter(d => d.type === 'game' || d.type === 'crossover').nodes(),
+        ...link.nodes(),
+        ...label.nodes()
+    ],
+    opacity: [0, 1],
+    delay: anime.stagger(50),
+    duration: 400,
+    easing: 'easeOutExpo',
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
     }
             const characterImages = ['static/img/yui.png','static/img/n1.png', 'static/img/n2.png', 'static/img/n3.png', 'static/img/n4.png', 'static/img/n5.png'];
