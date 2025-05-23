@@ -350,14 +350,6 @@
                 }
             });
 
-            // 处理触摸移动事件
-            document.addEventListener('touchmove', (event) => {
-                const touch = event.touches[0];
-                const string = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (string && string.classList.contains('string')) {
-                    handleStringInteraction({ target: string, preventDefault: () => {} });
-                }
-            });
             
             // 创建古筝弦
             function createGuzhengStrings() {
@@ -391,12 +383,29 @@ if (!note.includes('#') && !note.includes('b')) {
             }
             
             // 处理弦的交互事件
-            function handleStringInteraction(event) {
-                event.preventDefault(); // 防止触摸事件的默认行为
-                const string = event.target.closest('.string');
-                if (!string) return;
-                const note = parseInt(string.dataset.note);
-                
+// 增加弦的触摸点击范围，通过获取事件坐标并检查是否在弦的扩展区域内
+function handleStringInteraction(event) {
+    event.preventDefault(); // 防止触摸事件的默认行为
+    let string = null;
+    const touchX = event.touches ? event.touches[0].clientX : event.clientX;
+    const touchY = event.touches ? event.touches[0].clientY : event.clientY;
+    const extendedRange = 14; // 扩展点击范围，单位为像素
+
+    // 遍历所有弦，检查触摸点是否在扩展范围内
+    strings.forEach((s) => {
+        const rect = s.getBoundingClientRect();
+        if (
+            touchX >= rect.left - extendedRange &&
+            touchX <= rect.right + extendedRange &&
+            touchY >= rect.top - extendedRange &&
+            touchY <= rect.bottom + extendedRange
+        ) {
+            string = s;
+        }
+    });
+
+    if (!string) return;
+    const note = parseInt(string.dataset.note);
                 // 触发弦动画
                 string.classList.add('plucked');
                 setTimeout(() => {
