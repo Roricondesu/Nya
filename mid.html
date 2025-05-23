@@ -376,12 +376,14 @@
                     guzhengBody.appendChild(string);
                     strings.push(string);
                     
-                    // 添加音名
-                    const stringName = document.createElement('div');
-                    stringName.className = 'string-name';
-                    stringName.textContent = Tone.Midi(midiNote).toNote();
-                    string.appendChild(stringName);
-
+// 检查是否为全音（即音名中不包含 # 或 b）
+const note = Tone.Midi(midiNote).toNote();
+if (!note.includes('#') && !note.includes('b')) {
+    const stringName = document.createElement('div');
+    stringName.className = 'string-name';
+    stringName.textContent = note;
+    string.appendChild(stringName);
+}
                     // 添加鼠标点击和触摸事件监听器
                     string.addEventListener('mousedown', handleStringInteraction);
                     string.addEventListener('touchstart', handleStringInteraction);
