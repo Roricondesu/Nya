@@ -531,6 +531,10 @@ ball.style.backgroundColor = getNoteColor(note.midi);
 ball.style.boxShadow = `0 0 15px ${getNoteColor(note.midi)}`;
 // 初始时球体透明度为 0，即隐藏
 ball.style.opacity = 0; 
+// 根据音符的音量调整球的大小，假设音量范围是 0 到 1，这里将球的大小范围设置为 10px 到 50px
+const ballSize = 5 + (note.velocity * 20); 
+ball.style.width = `${ballSize}px`;
+ball.style.height = `${ballSize}px`;
 visualizer.appendChild(ball);
 
 // 计算下落时间 (提前一点开始下落)
