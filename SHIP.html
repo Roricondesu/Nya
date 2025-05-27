@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>织谱·天弦</title>
+    <style>
+        @import url("https://fontsapi.zeoseven.com/309/main/result.css");
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Heiti SC", "SimHei", sans-serif;
+            background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+            color: #e6d8b5;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .main-title {
+            font-family: "KingHwa_OldSong", serif;
+            font-weight: normal;
+            font-size: 3.5rem;
+            color: #e6c77d;
+            text-shadow: 0 0 10px rgba(230, 199, 125, 0.3);
+            position: fixed;
+            top: 2rem;
+            left: 3rem;
+            z-index: 100;
+            letter-spacing: 5px;
+        }
+        
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 8rem;
+            padding-bottom: 200px; /* 为底部导航栏留空间 */
+        }
+        
+        .left-column, .right-column {
+            width: 25%;
+            padding: 2rem;
+        }
+        
+        .center-column {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .instrument-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .instrument {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.5s ease;
+        }
+        
+        .instrument img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(230, 199, 125, 0.5));
+            transition: transform 0.5s ease;
+        }
+        
+        .instrument:hover img {
+            transform: scale(1.05);
+        }
+        
+        .instrument-info {
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(45, 27, 78, 0.8);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: 1px solid #e6c77d;
+            font-size: 1.2rem;
+            color: #e6d8b5;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .instrument:hover .instrument-info {
+            opacity: 1;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 2rem 0;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .info-box {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box:hover {
+            background: rgba(45, 27, 78, 0.5);
+            border: 1px solid rgba(230, 199, 125, 0.5);
+            transform: translateY(-5px);
+        }
+        
+        .info-box h3 {
+            font-family: "KingHwa_OldSong", serif;
+            color: #e6c77d;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(230, 199, 125, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* 弦线式导航栏 */
+        .string-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: rgba(26, 10, 46, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        
+        .string-line {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e6c77d, transparent);
+            transform-origin: center;
+        }
+        
+        .string-item {
+            position: relative;
+            padding: 0 2rem;
+            cursor: pointer;
+        }
+        
+        .string-item span {
+            font-family: "KingHwa_OldSong", serif;
+            color: #e6d8b5;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .string-item.active span {
+            color: #e6c77d;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(230, 199, 125, 0.5);
+        }
+        
+        .string-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e6c77d;
+            animation: stringVibration 1s infinite alternate;
+        }
+        
+        @keyframes stringVibration {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+        
+        .section {
+            display: none;
+            width: 100%;
+        }
+        
+        .section.active {
+            display: flex;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+                padding-bottom: 180px;
+            }
+            
+            .left-column, .center-column, .right-column {
+                width: 100%;
+                padding: 1rem;
+            }
+            
+            .bottom-nav {
+                width: 100%;
+                bottom: 1rem;
+            }
+            
+            .nav-circle {
+                width: 300px;
+                height: 80px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+                left: 1rem;
+                top: 1rem;
+            }
+            
+            .instrument {
+                max-width: 250px;
+            }
+            
+            .nav-item span {
+                font-size: 0.8rem;
+            }
+            
+            .nav-item.active span {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="main-title">织谱·天弦</h1>
+    <svg id="sine-wave" width="18%" height="40" style="position: fixed; top: 6%; left: 3%; z-index: 9999;">
+        <path id="sine-path" d="" fill="none" stroke="#e6c77d" stroke-width="1" stroke-opacity="0.5" />
+
+    </svg>
+
+
+    </svg>
+    <script>
+        // 定义正弦波动画函数
+        function animateSineWave() {
+            const svg = document.getElementById('sine-wave');
+            const path = document.getElementById('sine-path');
+            // 确保在 SVG 加载完成后获取正确的宽度和高度
+            const width = svg.getBoundingClientRect().width;
+            const height = svg.getBoundingClientRect().height;
+            const amplitude = 10;
+            const frequency = 0.02;
+            const phase = 0;
+            let time = 0;
+
+            function updateWave() {
+                const points = [];
+                for (let x = 0; x <= width; x++) {
+                    const y = height / 2 + amplitude * Math.sin((x * frequency) + (time * 0.05));
+                    points.push(`${x},${y}`);
+                }
+                path.setAttribute('d', `M${points.join('L')}`);
+                time++;
+                requestAnimationFrame(updateWave);
+            }
+
+            updateWave();
+        }
+        // 页面加载完成后启动动画
+        window.addEventListener('load', animateSineWave);
+    </script>
+    
+    <!-- 第一部分：弦乐概览 -->
+    <section class="section active" id="section-0">
+        <div class="main-container">
+            <div class="left-column">
+                <div class="info-box">
+                    <h3>弦乐分类</h3>
+                    <p>中国传统弦乐器主要分为弹拨类和拉弦类。弹拨乐器历史悠久，可追溯至秦汉时期；拉弦乐器则相对较晚，大约在唐宋时期逐渐发展成熟。</p>
+                    <div id="category-chart-0" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>历史沿革</h3>
+                    <p>琵琶类乐器最早可追溯至秦汉时期的"弦鼗"，后经丝绸之路传入的波斯乐器"乌德"影响，逐渐演变为今天的琵琶形制。</p>
+                    <div id="history-chart-0" class="chart-container"></div>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <div class="instrument-container">
+                    <div class="instrument">
+                        <img src="static/svg/pipa.svg" alt="琵琶">
+                        <div class="instrument-info">琵琶 - 四弦四柱，横抱弹拨</div>
+                    </div>
+                    <div class="instrument">
+                        <img src="static/svg/erhu.svg" alt="二胡">
+                        <div class="instrument-info">二胡 - 二弦拉奏，音色悠扬</div>
+                    </div>
+                </div>
+                
+                <div class="info-box" style="width: 80%;">
+                    <h3>中国传统弦乐</h3>
+                    <p>中国传统弦乐以"韵"为核心审美特征，注重音色的变化和余韵的表达。琵琶音色清脆明亮，表现力丰富；二胡音色柔美悠扬，擅长表现哀婉情感。这些特点与中国传统美学追求的"含蓄"、"意境"相契合。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-box">
+                    <h3>音色特点</h3>
+                    <p>琵琶音色清脆明亮，表现力丰富；二胡音色柔美悠扬，擅长表现哀婉情感。古筝音色清亮悦耳，中阮音色圆润柔和。</p>
+                    <div id="tone-chart-0" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>演奏技法</h3>
+                    <p>琵琶：弹、挑、轮指、扫弦等；二胡：拉弓、推弓、颤音、滑音等。不同技法组合形成丰富的音乐表现力。</p>
+                    <div id="technique-chart-0" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 第二部分：历史发展 -->
+    <section class="section" id="section-1">
+        <div class="main-container">
+            <div class="left-column">
+                <div class="info-box">
+                    <h3>起源与演变</h3>
+                    <p>琵琶类乐器最早可追溯至秦汉时期的"弦鼗"，后经丝绸之路传入的波斯乐器"乌德"影响，逐渐演变为今天的琵琶形制。</p>
+                    <div id="origin-chart-1" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>唐代发展</h3>
+                    <p>唐代是琵琶发展的鼎盛时期，从宫廷到民间广泛流行，形制基本定型，演奏技法日趋成熟。</p>
+                    <div id="tang-chart-1" class="chart-container"></div>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <div class="instrument-container">
+                    <div class="instrument">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Tang_Dynasty_musicians_playing_guqin_and_pipa.jpg/800px-Tang_Dynasty_musicians_playing_guqin_and_pipa.jpg" alt="古代琵琶演奏">
+                        <div class="instrument-info">唐代壁画中的琵琶演奏</div>
+                    </div>
+                    <div class="instrument">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Song_Dynasty_painting_of_erhu_player.jpg/800px-Song_Dynasty_painting_of_erhu_player.jpg" alt="古代二胡演奏">
+                        <div class="instrument-info">宋代绘画中的弦乐演奏</div>
+                    </div>
+                </div>
+                
+                <div class="info-box" style="width: 80%;">
+                    <h3>历史发展脉络</h3>
+                    <p>中国传统弦乐经历了从宫廷雅乐到民间俗乐的转变过程，形制、演奏技法和音乐风格都随着时代变迁而不断演化，形成了丰富多样的流派和风格。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-box">
+                    <h3>宋代发展</h3>
+                    <p>宋代二胡兴起，从奚琴演变而来，经改良后逐渐成为重要的拉弦乐器，广泛应用于民间音乐。</p>
+                    <div id="song-chart-1" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>明清时期</h3>
+                    <p>明清时期，各种弦乐器基本定型，地方流派形成，如琵琶的"浦东派"、"平湖派"，二胡的"江南丝竹"等。</p>
+                    <div id="mingqing-chart-1" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 第三部分：乐器对比 -->
+    <section class="string-item" id="2">
+        <div class="main-container">
+            <div class="left-column">
+                <div class="info-box">
+                    <h3>形制特点</h3>
+                    <p>琵琶：梨形音箱，短颈，四弦四柱(相)，横抱弹奏；二胡：筒形音箱，长杆，二弦无品，竖置拉奏。</p>
+                    <div id="shape-chart-2" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>音域范围</h3>
+                    <p>琵琶：A2-d3，约三个八度；二胡：d1-a3，约两个八度。不同音域适合表现不同的音乐情感。</p>
+                    <div id="range-chart-2" class="chart-container"></div>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <div class="instrument-container">
+                    <div class="instrument">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Pipa_parts.jpg/800px-Pipa_parts.jpg" alt="琵琶结构">
+                        <div class="instrument-info">琵琶结构分解</div>
+                    </div>
+                    <div class="instrument">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Erhu_parts.jpg/800px-Erhu_parts.jpg" alt="二胡结构">
+                        <div class="instrument-info">二胡结构分解</div>
+                    </div>
+                </div>
+                
+                <div class="info-box" style="width: 80%;">
+                    <h3>乐器结构与特点</h3>
+                    <p>中国传统弦乐器在形制、音色、演奏技法等方面各具特色，反映了中国古人对音乐美学的独特理解和追求。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-box">
+                    <h3>演奏技法</h3>
+                    <p>琵琶：弹、挑、轮指、扫弦等；二胡：拉弓、推弓、颤音、滑音等。技法丰富多样，表现力强。</p>
+                    <div id="play-chart-2" class="chart-container"></div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>音乐表现</h3>
+                    <p>琵琶：擅长表现战争场面、叙事性内容；二胡：擅长抒情、表达内心情感。不同乐器适合不同类型音乐。</p>
+                    <div id="expression-chart-2" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        // 页面导航控制
+        const sections = document.querySelectorAll('.section');
+        const navItems = document.querySelectorAll('.nav-item');
+        let currentSection = 0;
+        
+        // 初始化导航栏位置
+        function initNav() {
+            const count = navItems.length;
+            const radius = 150;
+            const angleStep = 360 / count;
+            
+            navItems.forEach((item, index) => {
+                const angle = index * angleStep;
+                const radian = angle * Math.PI / 180;
+                
+                const x = Math.cos(radian) * radius;
+                const y = Math.sin(radian) * 40; // 椭圆形状
+                
+                item.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        }
+        
+        // 旋转导航栏
+        function rotateNav(direction) {
+            const count = navItems.length;
+            const radius = 150;
+            const angleStep = 360 / count;
+            
+            navItems.forEach((item, index) => {
+                let newAngle;
+                
+                if (direction === 'next') {
+                    newAngle = index * angleStep - angleStep;
+                } else {
+                    newAngle = index * angleStep + angleStep;
+                }
+                
+                // 确保角度在0-360度之间
+                newAngle = (newAngle + 360) % 360;
+                const radian = newAngle * Math.PI / 180;
+                
+                const x = Math.cos(radian) * radius;
+                const y = Math.sin(radian) * 40;
+                
+                anime({
+                    targets: item,
+                    transform: `translate(${x}px, ${y}px)`,
+                    duration: 800,
+                    easing: 'easeInOutQuad'
+                });
+            });
+        }
+        
+        // 切换页面
+        function goToSection(index) {
+            // 隐藏当前页面
+            sections[currentSection].classList.remove('active');
+            navItems[currentSection].classList.remove('active');
+            
+            // 计算旋转方向和次数
+            const diff = index - currentSection;
+            const count = navItems.length;
+            const direction = diff > 0 || (diff < -count/2) ? 'next' : 'prev';
+            const steps = Math.abs(diff) <= count/2 ? Math.abs(diff) : count - Math.abs(diff);
+            
+            // 旋转导航栏
+            for (let i = 0; i < steps; i++) {
+                setTimeout(() => {
+                    rotateNav(direction);
+                }, i * 200);
+            }
+            
+            // 显示新页面
+            currentSection = index;
+            setTimeout(() => {
+                sections[currentSection].classList.add('active');
+                navItems[currentSection].classList.add('active');
+            }, steps * 200);
+        }
+        
+        // 导航栏点击事件
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const index = parseInt(item.getAttribute('data-index'));
+                if (index !== currentSection) {
+                    goToSection(index);
+                }
+            });
+        });
+        
+        // 触摸事件支持
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        window.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            const count = sections.length;
+            
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    // 向上滑动
+                    goToSection((currentSection + 1) % count);
+                } else {
+                    // 向下滑动
+                    goToSection((currentSection - 1 + count) % count);
+                }
+            }
+        }, { passive: true });
+        
+        // 初始化图表
+        function initCharts() {
+            // 弦乐分类图表 - 第一部分
+            const categoryData0 = [
+                { name: "弹拨类", value: 12, color: "#e6c77d" },
+                { name: "拉弦类", value: 8, color: "#9b59b6" },
+                { name: "击弦类", value: 2, color: "#3498db" }
+            ];
+            
+            createPieChart("#category-chart-0", categoryData0, "中国传统弦乐分类");
+            
+            // 历史发展图表 - 第一部分
+            const historyData0 = [
+                { year: "秦汉", value: 1 },
+                { year: "魏晋", value: 3 },
+                { year: "唐代", value: 8 },
+                { year: "宋代", value: 6 },
+                { year: "明清", value: 4 },
+                { year: "现代", value: 5 }
+            ];
+            
+            createBarChart("#history-chart-0", historyData0, "历史发展", "year", "value");
+            
+            // 音色特点图表 - 第一部分
+            // 丰富乐器音色数据
+            const toneData0 = [
+                { name: "琵琶", brightness: 85, warmth: 60, complexity: 75, uniqueness: 80, flexibility: 70, color: "#FF5733" },
+                { name: "二胡", brightness: 65, warmth: 85, complexity: 70, uniqueness: 85, flexibility: 65, color: "#33FF57" },
+                { name: "古筝", brightness: 75, warmth: 70, complexity: 80, uniqueness: 75, flexibility: 80, color: "#5733FF" },
+                { name: "中阮", brightness: 70, warmth: 75, complexity: 65, uniqueness: 70, flexibility: 75, color: "#FF33E0" },
+                { name: "扬琴", brightness: 80, warmth: 65, complexity: 78, uniqueness: 72, flexibility: 78, color: "#33FFE0" },
+                { name: "柳琴", brightness: 88, warmth: 55, complexity: 73, uniqueness: 82, flexibility: 72, color: "#E0FF33" }
+            ];
+            
+            // 更新雷达图的坐标轴标签以匹配新数据
+            createRadarChart("#tone-chart-0", toneData0, ["明亮度", "温暖度", "复杂度", "独特性", "灵活性"]);
+            
+            // 其他图表初始化...
+        }
+        
+        // 创建饼图
+        function createPieChart(selector, data, title) {
+            const container = d3.select(selector);
+            const width = parseInt(container.style("width"));
+            const height = parseInt(container.style("height"));
+            const radius = Math.min(width, height) / 2 - 20;
+            
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${width/2}, ${height/2})`);
+                
+            const pie = d3.pie()
+                .value(d => d.value);
+                
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+                
+            const arcs = g.selectAll("arc")
+                .data(pie(data))
+                .enter()
+                .append("g");
+                
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "#2d1b4e")
+                .attr("stroke-width", 2);
+                
+            // 添加标题
+            svg.append("text")
+                .attr("x", width/2)
+                .attr("y", 20)
+                .attr("text-anchor", "middle")
+                .text(title)
+                .style("fill", "#e6d8b5")
+                .style("font-size", "14px");
+                
+            // 添加图例
+            const legend = svg.selectAll(".legend")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(20, ${i * 20 + 40})`);
+                
+            legend.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", d => d.color);
+                
+            legend.append("text")
+                .attr("x", 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .text(d => `${d.name}: ${d.value}种`)
+                .style("fill", "#e6d8b5")
+                .style("font-size", "12px");
+        }
+        
+        // 创建柱状图
+        function createBarChart(selector, data, title, xKey, yKey) {
+            const container = d3.select(selector);
+            const width = parseInt(container.style("width"));
+            const height = parseInt(container.style("height"));
+            const margin = { top: 30, right: 20, bottom: 40, left: 40 };
+            
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+                
+            const x = d3.scaleBand()
+                .domain(data.map(d => d[xKey]))
+                .range([margin.left, width - margin.right])
+                .padding(0.2);
+                
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d[yKey]) * 1.1])
+                .nice()
+                .range([height - margin.bottom, margin.top]);
+                
+            // 添加X轴
+            svg.append("g")
+                .attr("transform", `translate(0, ${height - margin.bottom})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("fill", "#e6d8b5")
+                .style("font-size", "12px");
+                
+            // 添加Y轴
+            svg.append("g")
+                .attr("transform", `translate(${margin.left}, 0)`)
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .style("fill", "#e6d8b5")
+                .style("font-size", "12px");
+                
+            // 添加柱状
+            svg.selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", d => x(d[xKey]))
+                .attr("y", d => y(d[yKey]))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - margin.bottom - y(d[yKey]))
+                .attr("fill", "#e6c77d")
+                .attr("rx", 3)
+                .attr("ry", 3);
+                
+            // 添加标题
+            svg.append("text")
+                .attr("x", width/2)
+                .attr("y", margin.top - 10)
+                .attr("text-anchor", "middle")
+                .text(title)
+                .style("fill", "#e6d8b5")
+                .style("font-size", "14px");
+        }
+        
+        // 创建雷达图
+        function createRadarChart(selector, data, axes) {
+            const container = d3.select(selector);
+            const width = parseInt(container.style("width"));
+            const height = parseInt(container.style("height"));
+            const radius = Math.min(width, height) / 2 - 30;
+            const levels = 4;
+            const colors = ["#e6c77d", "#9b59b6", "#3498db", "#2ecc71"];
+            
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${width/2}, ${height/2})`);
+                
+            // 创建雷达图轴线
+            const angleSlice = Math.PI * 2 / axes.length;
+            
+            // 绘制等级网格
+            for (let level = 0; level < levels; level++) {
+                const levelFactor = radius * ((level + 1) / levels);
+                
+                g.selectAll(".levels")
+                    .data(axes)
+                    .enter()
+                    .append("line")
+                    .attr("x1", (d, i) => levelFactor * Math.cos(angleSlice * i - Math.PI/2))
+                    .attr("y1", (d, i) => levelFactor * Math.sin(angleSlice * i - Math.PI/2))
+                    .attr("x2", (d, i) => levelFactor * Math.cos(angleSlice * (i + 1) - Math.PI/2))
+                    .attr("y2", (d, i) => levelFactor * Math.sin(angleSlice * (i + 1) - Math.PI/2))
+                    .attr("class", "line")
+                    .style("stroke", "rgba(230, 216, 181, 0.3)")
+                    .style("stroke-width", "1px");
+            }
+            
+            // 绘制轴线
+            axes.forEach((axis, i) => {
+                const x = radius * Math.cos(angleSlice * i - Math.PI/2);
+                const y = radius * Math.sin(angleSlice * i - Math.PI/2);
+                
+                g.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", 0)
+                    .attr("x2", x)
+                    .attr("y2", y)
+                    .attr("class", "line")
+                    .style("stroke", "rgba(230, 216, 181, 0.5)")
+                    .style("stroke-width", "1px");
+                    
+                // 添加轴标签
+                g.append("text")
+                    .attr("class", "legend")
+                    .text(axis)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", "1.5em")
+                    .attr("x", x * 1.1)
+                    .attr("y", y * 1.1)
+                    .style("fill", "#e6d8b5")
+                    .style("font-size", "12px");
+            });
+            
+            // 绘制数据
+            data.forEach((item, itemIndex) => {
+                const itemData = [];
+                axes.forEach((axis, i) => {
+                    const value = item[axis.toLowerCase().replace("度", "")];
+                    itemData.push({
+                        axis: axis,
+                        value: value / 100,
+                        x: radius * (value / 100) * Math.cos(angleSlice * i - Math.PI/2),
+                        y: radius * (value / 100) * Math.sin(angleSlice * i - Math.PI/2)
+                    });
+                });
+                
+                // 绘制数据区域
+                const radarLine = d3.line()
+                    .x(d => d.x)
+                    .y(d => d.y)
+                    .curve(d3.curveLinearClosed);
+                    
+                g.append("path")
+                    .datum(itemData)
+                    .attr("class", "radar-area")
+                    .attr("d", radarLine)
+                    .style("fill", colors[itemIndex])
+                    .style("fill-opacity", 0.3)
+                    .style("stroke", colors[itemIndex])
+                    .style("stroke-width", "2px");
+                    
+                // 添加数据点
+                g.selectAll(".radar-circle")
+                    .data(itemData)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "radar-circle")
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y)
+                    .attr("r", 3)
+                    .style("fill", colors[itemIndex])
+                    .style("stroke", "#2d1b4e")
+                    .style("stroke-width", "1px");
+            });
+            
+            // 添加图例
+            const legend = svg.append("g")
+                .attr("transform", `translate(${width - 120}, 20)`);
+                
+            data.forEach((d, i) => {
+                legend.append("circle")
+                    .attr("cx", 10)
+                    .attr("cy", i * 20 + 10)
+                    .attr("r", 5)
+                    .attr("fill", colors[i]);
+                    
+                legend.append("text")
+                    .attr("x", 20)
+                    .attr("y", i * 20 + 10)
+                    .attr("dy", ".35em")
+                    .text(d.name)
+                    .style("fill", "#e6d8b5")
+                    .style("font-size", "12px");
+            });
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initNav();
+            initCharts();
+        });
+    </script>
+    <!-- 弦线导航栏 -->
+    <div class="string-nav">
+        <div class="string-line"></div>
+        <div class="string-item active" data-index="0"><span>乐器</span></div>
+        <div class="string-item" data-index="1"><span>发展</span></div>
+        <div class="string-item" data-index="2"><span>演奏</span></div>
+        <div class="string-item" data-index="4"><span>关于</span></div>
+    </div>
+
+    <!-- 引入animejs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        // 弦线动画
+        const stringItems = document.querySelectorAll('.string-item');
+        const stringLine = document.querySelector('.string-line');
+        
+        // 初始化弦线动画
+        anime({
+            targets: stringLine,
+            scaleY: [0.5, 1.5],
+            duration: 2000,
+            loop: true,
+            direction: 'alternate',
+            easing: 'easeInOutSine'
+        });
+        
+        // 点击交互
+        stringItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                stringItems.forEach(i => i.classList.remove('active'));
+                // 添加当前active类
+                this.classList.add('active');
+                
+                // 获取对应的section
+                const sectionId = 'section-' + this.getAttribute('data-index');
+                const targetSection = document.getElementById(sectionId);
+                
+                // 隐藏所有section
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // 显示当前section
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    
+                    // 平滑滚动到section顶部
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // 点击时的弦线波动效果
+                anime({
+                    targets: stringLine,
+                    scaleY: [1, 2, 1],
+                    duration: 800,
+                    easing: 'easeOutElastic'
+                });
+                
+                // 当前标题下方的弦线振动
+                anime({
+                    targets: this.querySelector('span'),
+                    translateY: [0, -5, 0],
+                    duration: 1000,
+                    easing: 'easeOutElastic'
+                });
+            });
+            
+            // 悬停效果
+            item.addEventListener('mouseenter', function() {
+                if(!this.classList.contains('active')) {
+                    anime({
+                        targets: this.querySelector('span'),
+                        scale: 1.2,
+                        duration: 300,
+                        easing: 'easeOutBack'
+                    });
+                }
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                if(!this.classList.contains('active')) {
+                    anime({
+                        targets: this.querySelector('span'),
+                        scale: 1,
+                        duration: 300,
+                        easing: 'easeOutBack'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
