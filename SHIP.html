@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>织谱·天弦</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.27/build/Midi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         @import url("https://fontsapi.zeoseven.com/309/main/result.css");
         
@@ -51,10 +54,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             padding: 2rem;
-            overflow-y: auto;
-            height: calc(100vh - 8rem - 80px);
         }
         
         .instrument-container {
@@ -63,56 +64,6 @@
             align-items: center;
             gap: 3rem;
             margin-bottom: 3rem;
-            scroll-snap-type: y mandatory;
-        }
-        
-        /* 音乐可视化容器 */
-        .visualizer-container {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 30px;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(230, 199, 125, 0.3);
-            scroll-snap-align: start;
-        }
-        
-        /* 古筝弦样式 */
-        .guzheng {
-            position: absolute;
-            bottom: 50px;
-            left: 0;
-            width: 100%;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .string {
-            position: absolute;
-            top: -120px;
-            width: 2px;
-            background: linear-gradient(to bottom, #e6c77d, #a67c52);
-            height: 120px;
-            transform-origin: bottom center;
-            box-shadow: 0 0 10px rgba(230, 199, 125, 0.5);
-            transition: box-shadow 0.2s;
-        }
-        
-        .string.plucked {
-            animation: pluck 0.5s ease-out;
-            box-shadow: 0 0 20px rgba(230, 199, 125, 0.8);
-        }
-        
-        @keyframes pluck {
-            0% { transform: scaleY(1) translateX(0); }
-            25% { transform: scaleY(1.2) translateX(-2px); }
-            50% { transform: scaleY(0.9) translateX(2px); }
-            75% { transform: scaleY(1.1) translateX(-1px); }
-            100% { transform: scaleY(1) translateX(0); }
         }
         
         .instrument {
@@ -297,6 +248,52 @@
             }
         }
     </style>
+    <style>
+        .floating-visualizer {
+            position: fixed;
+            bottom: -5%;
+            left: 5%;
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .floating-visualizer .guzheng {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .floating-visualizer .guzheng-body {
+            width: 90%;
+            height: 40px;
+            background: url('https://cdn.pixabay.com/photo/2016/10/27/15/09/wood-1775986_1280.jpg');
+            background-size: cover;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .floating-visualizer .string {
+            position: absolute;
+            top: -80px;
+            width: 2px;
+            background: linear-gradient(to bottom, #e6d8b5, #A9A9A9);
+            height: 80px;
+            transform-origin: bottom center;
+            box-shadow: 0 0 5px #e6d8b5;
+        }
+        
+        .floating-visualizer .string.plucked {
+            animation: pluck 0.5s ease-out;
+            box-shadow: 0 0 10px #FFA500;
+        }
+    </style>
 </head>
 <body>
 
@@ -308,64 +305,7 @@
 
 
     </svg>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.27/build/Midi.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
-        // 音乐可视化功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const visualizer = document.querySelector('.visualizer-container');
-            const guzheng = document.createElement('div');
-            guzheng.className = 'guzheng';
-            visualizer.appendChild(guzheng);
-            
-            // 创建21根弦
-            for (let i = 0; i < 21; i++) {
-                const string = document.createElement('div');
-                string.className = 'string';
-                string.style.left = `${5 + i * 4.5}%`;
-                guzheng.appendChild(string);
-            }
-            
-            // 加载MIDI文件
-            const midiUrl = 'static/svg/pipa.mid';
-            
-            fetch(midiUrl)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => {
-                    const midi = new Midi(arrayBuffer);
-                    const now = Tone.now() + 0.5;
-                    
-                    // 创建合成器
-                    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synth.volume.value = -20;
-                    
-                    // 播放MIDI
-                    midi.tracks.forEach(track => {
-                        track.notes.forEach(note => {
-                            synth.triggerAttackRelease(
-                                note.name, 
-                                note.duration, 
-                                note.time + now, 
-                                note.velocity
-                            );
-                            
-                            // 可视化效果
-                            const stringIndex = Math.floor(Math.random() * 21);
-                            const string = document.querySelectorAll('.string')[stringIndex];
-                            string.classList.add('plucked');
-                            setTimeout(() => {
-                                string.classList.remove('plucked');
-                            }, 500);
-                        });
-                    });
-                    
-                    Tone.Transport.start();
-                })
-                .catch(error => {
-                    console.error('Error loading MIDI file:', error);
-                });
-        });
         // 定义正弦波动画函数
         function animateSineWave() {
             const svg = document.getElementById('sine-wave');
@@ -496,46 +436,8 @@
         </div>
     </section>
     
-    <!-- 第三部分：演奏可视化 -->
-    <section class="section" id="section-2" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-        <div class="main-container" style="display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
-            <div class="visualizer-container">
-                <div class="guzheng">
-                    <div class="guzheng-body">
-                        <!-- 21根弦 -->
-                        <div class="string" style="left: 5%;"></div>
-                        <div class="string" style="left: 10%;"></div>
-                        <div class="string" style="left: 15%;"></div>
-                        <div class="string" style="left: 20%;"></div>
-                        <div class="string" style="left: 25%;"></div>
-                        <div class="string" style="left: 30%;"></div>
-                        <div class="string" style="left: 35%;"></div>
-                        <div class="string" style="left: 40%;"></div>
-                        <div class="string" style="left: 45%;"></div>
-                        <div class="string" style="left: 50%;"></div>
-                        <div class="string" style="left: 55%;"></div>
-                        <div class="string" style="left: 60%;"></div>
-                        <div class="string" style="left: 65%;"></div>
-                        <div class="string" style="left: 70%;"></div>
-                        <div class="string" style="left: 75%;"></div>
-                        <div class="string" style="left: 80%;"></div>
-                        <div class="string" style="left: 85%;"></div>
-                        <div class="string" style="left: 90%;"></div>
-                        <div class="string" style="left: 95%;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="info-box">
-                <h3>琵琶演奏可视化</h3>
-                <p>实时可视化演奏效果。弦线会根据音符振动，展现中国传统音乐的韵律美。</p>
-                <button id="load-midi" class="upload-btn">点击开始</button>
-            </div>
-        </div>
-    </section>
-    
-    <!-- 第四部分：乐器对比 -->
-    <section class="section" id="section-3">
+    <!-- 第三部分：乐器对比 -->
+    <section class="string-item" id="2">
         <div class="main-container">
             <div class="left-column">
                 <div class="info-box">
@@ -588,64 +490,7 @@
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.27/build/Midi.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
-        // 音乐可视化功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const visualizer = document.querySelector('.visualizer-container');
-            const guzheng = document.createElement('div');
-            guzheng.className = 'guzheng';
-            visualizer.appendChild(guzheng);
-            
-            // 创建21根弦
-            for (let i = 0; i < 21; i++) {
-                const string = document.createElement('div');
-                string.className = 'string';
-                string.style.left = `${5 + i * 4.5}%`;
-                guzheng.appendChild(string);
-            }
-            
-            // 加载MIDI文件
-            const midiUrl = 'static/svg/pipa.mid';
-            
-            fetch(midiUrl)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => {
-                    const midi = new Midi(arrayBuffer);
-                    const now = Tone.now() + 0.5;
-                    
-                    // 创建合成器
-                    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synth.volume.value = -20;
-                    
-                    // 播放MIDI
-                    midi.tracks.forEach(track => {
-                        track.notes.forEach(note => {
-                            synth.triggerAttackRelease(
-                                note.name, 
-                                note.duration, 
-                                note.time + now, 
-                                note.velocity
-                            );
-                            
-                            // 可视化效果
-                            const stringIndex = Math.floor(Math.random() * 21);
-                            const string = document.querySelectorAll('.string')[stringIndex];
-                            string.classList.add('plucked');
-                            setTimeout(() => {
-                                string.classList.remove('plucked');
-                            }, 500);
-                        });
-                    });
-                    
-                    Tone.Transport.start();
-                })
-                .catch(error => {
-                    console.error('Error loading MIDI file:', error);
-                });
-        });
         // 页面导航控制
         const sections = document.querySelectorAll('.section');
         const navItems = document.querySelectorAll('.nav-item');
@@ -1063,64 +908,7 @@
 
     <!-- 引入animejs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.27/build/Midi.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
-        // 音乐可视化功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const visualizer = document.querySelector('.visualizer-container');
-            const guzheng = document.createElement('div');
-            guzheng.className = 'guzheng';
-            visualizer.appendChild(guzheng);
-            
-            // 创建21根弦
-            for (let i = 0; i < 21; i++) {
-                const string = document.createElement('div');
-                string.className = 'string';
-                string.style.left = `${5 + i * 4.5}%`;
-                guzheng.appendChild(string);
-            }
-            
-            // 加载MIDI文件
-            const midiUrl = 'static/svg/pipa.mid';
-            
-            fetch(midiUrl)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => {
-                    const midi = new Midi(arrayBuffer);
-                    const now = Tone.now() + 0.5;
-                    
-                    // 创建合成器
-                    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synth.volume.value = -20;
-                    
-                    // 播放MIDI
-                    midi.tracks.forEach(track => {
-                        track.notes.forEach(note => {
-                            synth.triggerAttackRelease(
-                                note.name, 
-                                note.duration, 
-                                note.time + now, 
-                                note.velocity
-                            );
-                            
-                            // 可视化效果
-                            const stringIndex = Math.floor(Math.random() * 21);
-                            const string = document.querySelectorAll('.string')[stringIndex];
-                            string.classList.add('plucked');
-                            setTimeout(() => {
-                                string.classList.remove('plucked');
-                            }, 500);
-                        });
-                    });
-                    
-                    Tone.Transport.start();
-                })
-                .catch(error => {
-                    console.error('Error loading MIDI file:', error);
-                });
-        });
         // 弦线动画
         const stringItems = document.querySelectorAll('.string-item');
         const stringLine = document.querySelector('.string-line');
@@ -1201,6 +989,78 @@
                         easing: 'easeOutBack'
                     });
                 }
+            });
+        });
+    </script>
+    <div class="floating-visualizer">
+        <div class="guzheng">
+            <div class="guzheng-body" id="floating-guzheng"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化Tone.js
+        const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.volume.value = -10;
+        
+        // 创建21根弦
+        function createStrings() {
+            const guzheng = document.getElementById('floating-guzheng');
+            guzheng.innerHTML = '';
+            
+            for (let i = 0; i < 21; i++) {
+                const string = document.createElement('div');
+                string.className = 'string';
+                string.style.left = `${(i * 4.5) + 2}%`;
+                string.style.height = `${80 - (i * 2)}px`;
+                string.style.top = `-${80 - (i * 2)}px`;
+                guzheng.appendChild(string);
+            }
+        }
+        
+        // 加载MIDI文件
+        async function loadMIDI() {
+            const response = await fetch('static/svg/pipa.mid');
+            const arrayBuffer = await response.arrayBuffer();
+            const midi = await new Midi(arrayBuffer);
+            
+            // 播放MIDI
+            function playMIDI() {
+                const now = Tone.now();
+                midi.tracks.forEach(track => {
+                    track.notes.forEach(note => {
+                        synth.triggerAttackRelease(
+                            note.name, 
+                            note.duration, 
+                            note.time + now, 
+                            note.velocity
+                        );
+                        
+                        // 可视化效果
+                        const stringIndex = Math.floor(Math.random() * 21);
+                        const strings = document.querySelectorAll('.floating-visualizer .string');
+                        if (strings[stringIndex]) {
+                            strings[stringIndex].classList.add('plucked');
+                            setTimeout(() => {
+                                strings[stringIndex].classList.remove('plucked');
+                            }, 500);
+                        }
+                    });
+                });
+            }
+            
+            return { midi, playMIDI };
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            createStrings();
+            const { playMIDI } = await loadMIDI();
+            
+            // 点击可视化面板播放音乐
+            document.querySelector('.floating-visualizer').addEventListener('click', () => {
+                Tone.start();
+                playMIDI();
             });
         });
     </script>
