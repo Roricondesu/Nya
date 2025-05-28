@@ -149,7 +149,7 @@
         
         .string-line {
             position: absolute;
-            bottom: 40px;
+            bottom: 3%;
             width: 100%;
             height: 2px;
             background: linear-gradient(90deg, transparent, #e6c77d, transparent);
@@ -188,11 +188,45 @@
             animation: stringVibration 1s infinite alternate;
         }
         
-        /* 音乐可视化样式 */
+        @keyframes stringVibration {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+        
+        .section {
+            display: none;
+            width: 100%;
+        }
+        
+        .section.active {
+            display: flex;
+        }
+        
+        /* 可视化样式 */
+        .visualizer-container {
+            position: relative;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .guzheng {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+        }
+        
         .guzheng-body {
             width: 90%;
             height: 60px;
-            background: url(https://cdn.pixabay.com/photo/2016/10/27/15/09/wood-1775986_1280.jpg);
+            background: url('https://cdn.pixabay.com/photo/2016/10/27/15/09/wood-1775986_1280.jpg');
             background-size: cover;
             border-radius: 10px;
             position: relative;
@@ -209,15 +243,6 @@
             box-shadow: 0 0 10px #C0C0C0;
             transition: box-shadow 0.2s;
             cursor: pointer;
-        }
-        
-        .string-name {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.8rem;
-            color: #8B4513;
         }
         
         .string.plucked {
@@ -240,22 +265,6 @@
             border-radius: 50%;
             background: #FFD700;
             box-shadow: 0 0 15px #FFD700;
-            z-index: 10;
-            opacity: 0;
-        }
-        
-        @keyframes stringVibration {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-5px); }
-        }
-        
-        .section {
-            display: none;
-            width: 100%;
-        }
-        
-        .section.active {
-            display: flex;
         }
         
         /* 响应式设计 */
@@ -472,6 +481,20 @@
                     </div>
                 </div>
                 
+                <div class="visualizer-container">
+                    <div class="guzheng">
+                        <div class="guzheng-body">
+                            <div class="string" data-note="60"></div>
+                            <div class="string" data-note="62"></div>
+                            <div class="string" data-note="64"></div>
+                            <div class="string" data-note="65"></div>
+                            <div class="string" data-note="67"></div>
+                            <div class="string" data-note="69"></div>
+                            <div class="string" data-note="71"></div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="info-box" style="width: 80%;">
                     <h3>乐器结构与特点</h3>
                     <p>中国传统弦乐器在形制、音色、演奏技法等方面各具特色，反映了中国古人对音乐美学的独特理解和追求。</p>
@@ -500,64 +523,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.27/build/Midi.min.js"></script>
     <script>
-        // 音乐可视化悬浮窗口
-        const visualizerWindow = document.createElement('div');
-        visualizerWindow.id = 'visualizer-window';
-        visualizerWindow.style.position = 'fixed';
-        visualizerWindow.style.bottom = '20px';
-        visualizerWindow.style.right = '20px';
-        visualizerWindow.style.width = '400px';
-        visualizerWindow.style.height = '300px';
-        visualizerWindow.style.backgroundColor = 'rgba(26, 10, 46, 0.9)';
-        visualizerWindow.style.border = '1px solid #e6c77d';
-        visualizerWindow.style.borderRadius = '15px';
-        visualizerWindow.style.zIndex = '1000';
-        visualizerWindow.style.overflow = 'hidden';
-        visualizerWindow.style.boxShadow = '0 0 20px rgba(230, 199, 125, 0.5)';
-        
-        // 添加标题栏
-        const windowHeader = document.createElement('div');
-        windowHeader.style.padding = '10px';
-        windowHeader.style.backgroundColor = 'rgba(230, 199, 125, 0.2)';
-        windowHeader.style.borderBottom = '1px solid #e6c77d';
-        windowHeader.style.display = 'flex';
-        windowHeader.style.justifyContent = 'space-between';
-        windowHeader.style.alignItems = 'center';
-        
-        const windowTitle = document.createElement('h3');
-        windowTitle.textContent = '琵琶演奏可视化';
-        windowTitle.style.color = '#e6c77d';
-        windowTitle.style.margin = '0';
-        
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = '×';
-        closeBtn.style.background = 'none';
-        closeBtn.style.border = 'none';
-        closeBtn.style.color = '#e6c77d';
-        closeBtn.style.fontSize = '1.5rem';
-        closeBtn.style.cursor = 'pointer';
-        closeBtn.addEventListener('click', () => {
-            visualizerWindow.style.display = 'none';
-        });
-        
-        windowHeader.appendChild(windowTitle);
-        windowHeader.appendChild(closeBtn);
-        visualizerWindow.appendChild(windowHeader);
-        
-        // 添加可视化容器
-        const visualizerContainer = document.createElement('div');
-        visualizerContainer.id = 'visualizer-container';
-        visualizerContainer.style.height = '250px';
-        visualizerContainer.style.position = 'relative';
-        visualizerContainer.style.overflow = 'hidden';
-        visualizerWindow.appendChild(visualizerContainer);
-        
-        document.body.appendChild(visualizerWindow);
-        
         // 页面导航控制
         const sections = document.querySelectorAll('.section');
         const navItems = document.querySelectorAll('.nav-item');
         let currentSection = 0;
+        let isScrolling = false;
+        
+        // 可视化相关变量
+        let guzhengSynth;
+        let player;
+        let midiData;
+        let scheduledNotes = [];
         
         // 初始化导航栏位置
         function initNav() {
@@ -644,23 +620,22 @@
             });
         });
         
-        // 触摸事件支持 - 修复主页下滑bug
+        // 触摸事件支持
         let touchStartY = 0;
-        let touchStartTime = 0;
-        
         window.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
         }, { passive: true });
         
         window.addEventListener('touchend', (e) => {
+            if (isScrolling) return;
+            
             const touchEndY = e.changedTouches[0].clientY;
             const diff = touchStartY - touchEndY;
             const count = sections.length;
-            const duration = Date.now() - touchStartTime;
             
-            // 只有当滑动距离大于50px且时间小于500ms时才触发页面切换
-            if (Math.abs(diff) > 50 && duration < 500) {
+            if (Math.abs(diff) > 50) {
+                isScrolling = true;
+                
                 if (diff > 0) {
                     // 向上滑动
                     goToSection((currentSection + 1) % count);
@@ -668,152 +643,26 @@
                     // 向下滑动
                     goToSection((currentSection - 1 + count) % count);
                 }
+                
+                setTimeout(() => isScrolling = false, 1000);
             }
         }, { passive: true });
         
-        // 初始化音乐可视化
-        function initMusicVisualizer() {
-            // 创建古筝弦
-            function createGuzhengStrings() {
-                const guzhengBody = document.createElement('div');
-                guzhengBody.id = 'guzheng-body';
-                guzhengBody.className = 'guzheng-body';
-                guzhengBody.style.width = '90%';
-                guzhengBody.style.height = '60px';
-                guzhengBody.style.background = 'url(https://cdn.pixabay.com/photo/2016/10/27/15/09/wood-1775986_1280.jpg)';
-                guzhengBody.style.backgroundSize = 'cover';
-                guzhengBody.style.borderRadius = '10px';
-                guzhengBody.style.position = 'relative';
-                guzhengBody.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
-                
-                const stringCount = 38;
-                const strings = [];
-                const bodyWidth = guzhengBody.offsetWidth;
-                const spacing = bodyWidth / (stringCount - 1);
-                
-                for (let i = 0; i < stringCount; i++) {
-                    const string = document.createElement('div');
-                    string.className = 'string';
-                    string.style.left = `${i * spacing}px`;
-                    const midiNote = 50 + i;
-                    string.dataset.note = midiNote;
-                    
-                    // 添加音名标签
-                    const note = Tone.Midi(midiNote).toNote();
-                    if (!note.includes('#') && !note.includes('b')) {
-                        const stringName = document.createElement('div');
-                        stringName.className = 'string-name';
-                        stringName.textContent = note;
-                        string.appendChild(stringName);
-                    }
-                    
-                    guzhengBody.appendChild(string);
-                    strings.push(string);
-                }
-                
-                visualizerContainer.appendChild(guzhengBody);
-                return strings;
+        // 鼠标滚轮事件
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            
+            isScrolling = true;
+            const count = sections.length;
+            
+            if (e.deltaY > 0) {
+                goToSection((currentSection + 1) % count);
+            } else {
+                goToSection((currentSection - 1 + count) % count);
             }
             
-            // 初始化音频
-            async function initAudio() {
-                await Tone.start();
-                
-                // 创建古筝音色合成器
-                const guzhengSynth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: {
-                        type: "fatcustom",
-                        partials: [0.1, 1, 0.5, 0.3, 0.2, 0.1, 0.05],
-                        count: 5,
-                        spread: 20
-                    },
-                    envelope: {
-                        attack: 0.0005,
-                        decay: 0.3,
-                        sustain: 0.05,
-                        release: 0.8
-                    }
-                }).toDestination();
-                
-                return guzhengSynth;
-            }
-            
-            // 加载MIDI文件
-            function loadMidiFile(file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        const midiData = e.target.result;
-                        // 解析MIDI文件
-                        const midiArray = new Uint8Array(midiData);
-                        const player = new Midi(midiArray);
-                        
-                        // 播放MIDI
-                        playMidi(player);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                };
-                
-                reader.readAsArrayBuffer(file);
-            }
-            
-            // 播放MIDI
-            async function playMidi(player) {
-                const synth = await initAudio();
-                const strings = createGuzhengStrings();
-                
-                // 调度所有音符
-                player.tracks.forEach(track => {
-                    track.notes.forEach(note => {
-                        // 创建下落球体
-                        const ball = document.createElement('div');
-                        ball.className = 'note-ball';
-                        ball.style.left = `${Math.random() * 80 + 10}%`;
-                        ball.style.backgroundColor = getNoteColor(note.midi);
-                        ball.style.boxShadow = `0 0 15px ${getNoteColor(note.midi)}`;
-                        ball.style.opacity = 0;
-                        ball.style.width = `${5 + (note.velocity * 20)}px`;
-                        ball.style.height = `${5 + (note.velocity * 20)}px`;
-                        visualizerContainer.appendChild(ball);
-                        
-                        // 播放音符
-                        synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
-                        
-                        // 触发弦动画
-                        const closestString = strings.find(s => parseInt(s.dataset.note) === note.midi);
-                        if (closestString) {
-                            closestString.classList.add('plucked');
-                            setTimeout(() => {
-                                closestString.classList.remove('plucked');
-                            }, 200);
-                            
-                            ball.style.left = closestString.style.left;
-                        }
-                        
-                        // 下落动画
-                        anime({
-                            targets: ball,
-                            top: [0, visualizerContainer.offsetHeight - 50],
-                            opacity: [0, 1],
-                            duration: 1000,
-                            easing: 'linear',
-                            complete: () => ball.remove()
-                        });
-                    });
-                });
-            }
-            
-            // 获取音符颜色
-            function getNoteColor(midiNote) {
-                const hue = (midiNote * 10) % 360;
-                return `hsl(${hue}, 80%, 60%)`;
-            }
-            
-            // 初始化
-            initAudio();
-        }
+            setTimeout(() => isScrolling = false, 1000);
+        }, { passive: true });
         
         // 初始化图表
         function initCharts() {
@@ -1107,8 +956,162 @@
         document.addEventListener('DOMContentLoaded', () => {
             initNav();
             initCharts();
-        initMusicVisualizer();
+            initVisualizer();
+            
+            // 初始化音频
+            Tone.start().then(() => {
+                console.log('音频引擎已就绪');
+            });
         });
+        
+        // 初始化可视化
+        function initVisualizer() {
+            // 创建古筝弦
+            const guzhengBody = document.querySelector('.guzheng-body');
+            const stringCount = 7;
+            const stringWidth = 3;
+            const stringSpacing = (100 - stringCount * stringWidth) / (stringCount - 1);
+            
+            for (let i = 0; i < stringCount; i++) {
+                const string = document.createElement('div');
+                string.className = 'string';
+                string.style.left = `${i * (stringWidth + stringSpacing)}%`;
+                string.style.width = `${stringWidth}%`;
+                string.dataset.note = 60 + i * 2;
+                guzhengBody.appendChild(string);
+            }
+        }
+        
+        // 获取音符颜色
+        function getNoteColor(note) {
+            const colors = ['#FF5733', '#33FF57', '#5733FF', '#FF33E0', '#33FFE0', '#E0FF33', '#FF336E'];
+            return colors[note % colors.length];
+        }
+        
+        // 找到最接近的音符弦
+        function findClosestString(note) {
+            const strings = document.querySelectorAll('.string');
+            let closestString = null;
+            let minDiff = Infinity;
+            
+            strings.forEach(string => {
+                const stringNote = parseInt(string.dataset.note);
+                const diff = Math.abs(note - stringNote);
+                
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestString = string;
+                }
+            });
+            
+            return closestString;
+        }
+        
+        // 初始化音频
+        async function initAudio() {
+            if (guzhengSynth) return guzhengSynth;
+            
+            // 创建古筝音色合成器
+            guzhengSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: {
+                    type: "fatcustom",
+                    partials: [0.1, 1, 0.5, 0.3, 0.2, 0.1, 0.05],
+                    count: 5,
+                    spread: 20
+                },
+                envelope: {
+                    attack: 0.0005,
+                    decay: 0.3,
+                    sustain: 0.05,
+                    release: 0.8
+                }
+            }).toDestination();
+            
+            return guzhengSynth;
+        }
+        
+        // 播放MIDI
+        async function playMidi() {
+            if (!player) return;
+            
+            const synth = await initAudio();
+            
+            // 清除之前的调度
+            Tone.Transport.cancel();
+            
+            // 重置所有状态
+            scheduledNotes.forEach(note => {
+                if (note.animation) note.animation.pause();
+                if (note.element) note.element.remove();
+            });
+            scheduledNotes = [];
+            
+            // 调度所有音符
+            player.tracks.forEach(track => {
+                track.notes.forEach(note => {
+                    // 创建下落球体
+                    const ball = document.createElement('div');
+                    ball.className = 'note-ball';
+                    ball.style.left = `${Math.random() * 80 + 10}%`;
+                    ball.style.backgroundColor = getNoteColor(note.midi);
+                    ball.style.boxShadow = `0 0 15px ${getNoteColor(note.midi)}`;
+                    ball.style.opacity = 0;
+                    
+                    // 根据音符的音量调整球的大小
+                    const ballSize = 5 + (note.velocity * 20);
+                    ball.style.width = `${ballSize}px`;
+                    ball.style.height = `${ballSize}px`;
+                    
+                    document.querySelector('.visualizer-container').appendChild(ball);
+                    
+                    // 动画
+                    const animation = anime({
+                        targets: ball,
+                        top: [0, '100%'],
+                        opacity: [0, 1],
+                        duration: 2000,
+                        easing: 'linear',
+                        autoplay: false
+                    });
+                    
+                    // 调度播放和动画
+                    Tone.Transport.schedule(time => {
+                        // 播放音符
+                        synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+                        
+                        // 找到最近的弦
+                        const closestString = findClosestString(note.midi);
+                        if (closestString) {
+                            // 触发弦动画
+                            closestString.classList.add('plucked');
+                            setTimeout(() => {
+                                closestString.classList.remove('plucked');
+                            }, 200);
+                            
+                            // 设置球体最终位置
+                            ball.style.left = closestString.style.left;
+                        }
+                        
+                        // 开始下落动画
+                        animation.play();
+                        
+                        // 动画结束后移除球体
+                        animation.finished.then(() => {
+                            ball.remove();
+                        });
+                    }, note.time - 2);
+                    
+                    // 存储以便清理
+                    scheduledNotes.push({
+                        element: ball,
+                        animation: animation
+                    });
+                });
+            });
+            
+            // 开始播放
+            Tone.Transport.start();
+        }
     </script>
     <!-- 弦线导航栏 -->
     <div class="string-nav">
@@ -1129,7 +1132,7 @@
         // 初始化弦线动画
         anime({
             targets: stringLine,
-            scaleY: [0.5, 1.5],
+            scaleY: [0.5, 2],
             duration: 2000,
             loop: true,
             direction: 'alternate',
