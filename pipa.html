@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>织谱·天弦 - 中国传统弦乐可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fontsapi.zeoseven.com/309/main/result.css');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(to bottom, #1a0b4d, #4b0082);
+            color: #d4af37;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: "KingHwa_OldSong", serif;
+            font-weight: normal;
+        }
+        
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 标题样式 */
+        .main-title {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-family: "KingHwa_OldSong", serif;
+            font-size: 3rem;
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            z-index: 100;
+        }
+        }
+        
+        .main-title span {
+            display: block;
+            line-height: 1;
+        }
+        
+        .main-title .dot {
+            color: #ff6b6b;
+            font-size: 4rem;
+            line-height: 0.8;
+        }
+        
+        /* 导航时间线 */
+        .timeline-nav {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 900;
+            width: 120px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 40px;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: rgba(212, 175, 55, 0.3);
+            z-index: -1;
+            border-radius: 2px;
+        }
+        
+        .timeline-wave {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: -2;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            cursor: pointer;
+            color: rgba(212, 175, 55, 0.7);
+            transition: all 0.3s ease;
+            font-family: "KingHwa_OldSong", serif;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+            opacity: 0.7;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 36px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg); /* 旋转 22.5 度使八边形正立 */
+            width: 12px;
+            height: 12px;
+            background: #d4af37;
+            transition: all 0.3s ease;
+            clip-path: polygon(29.29% 0%, 70.71% 0%, 100% 29.29%, 100% 70.71%, 70.71% 100%, 29.29% 100%, 0% 70.71%, 0% 29.29%); /* 使用 clip-path 创建正八边形 */
+        }
+        
+        .timeline-item.active {
+            opacity: 1;
+            color: #d4af37;
+            transform: scale(1.05);
+        }
+        
+        .timeline-item.active::before {
+            background: #ffe26e;
+            box-shadow: 0 0 10px #ff6b6b;
+            transform: translateY(-50%) scale(1.3);
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            margin-left: 180px;
+            padding: 100px 50px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        /* 三栏布局 */
+        .page-section {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        .left-column, .right-column {
+            width: 25%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        .center-column {
+            width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 信息图表样式 */
+        .info-vis {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .vis-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #d4af37;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        /* 主视觉图片 */
+        .main-visual {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .instrument-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+            transition: all 0.3s ease;
+        }
+        
+        .instrument-img:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.8));
+        }
+        
+        /* 五音特效 */
+        .music-note {
+            position: fixed;
+            bottom: -50px;
+            font-size: 2rem;
+            opacity: 0.1;
+            z-index: -1;
+            font-family: "KingHwa_OldSong", serif;
+            animation: floatUp 15s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .left-column, .right-column {
+                width: 30%;
+            }
+            .center-column {
+                width: 40%;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                margin-left: 0;
+                padding-left: 150px;
+            }
+            
+            .timeline-nav {
+                width: 100px;
+            }
+            
+            .timeline-item {
+                padding-left: 40px;
+                font-size: 0.9rem;
+            }
+            
+            .timeline-item::before {
+                left: 26px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-section {
+                flex-direction: column;
+            }
+            
+            .left-column, .center-column, .right-column {
+                width: 100%;
+            }
+            
+            .main-visual {
+                flex-direction: column;
+            }
+            
+            .timeline-nav {
+                display: none;
+            }
+            
+            .main-content {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 标题 -->
+    <div class="main-title">
+        <span>织谱·天弦</span>
+    </div>
+    <svg id="sine-wave" width="14%" height="60" style="position: fixed; top: 4%; left: 1.4%; z-index: 9999;">
+        <path id="sine-path" d="" fill="none" stroke="#e6c77d" stroke-width="1" stroke-opacity="0.5" />
+
+    </svg>
+    
+
+
+    </svg>
+    <script>
+        // 定义正弦波动画函数
+        function animateSineWave() {
+            const svg = document.getElementById('sine-wave');
+            const path = document.getElementById('sine-path');
+            // 确保在 SVG 加载完成后获取正确的宽度和高度
+            const width = svg.getBoundingClientRect().width;
+            const height = svg.getBoundingClientRect().height;
+            const amplitude = 10;
+            const frequency = 0.02;
+            const phase = 0;
+            let time = 0;
+
+            function updateWave() {
+                const points = [];
+                for (let x = 0; x <= width; x++) {
+                    // 减小时间的增长系数，使动画变慢
+                    const y = height / 2 + amplitude * Math.sin((x * frequency) + (time * 0.01)); 
+                    points.push(`${x},${y}`);
+                }
+                path.setAttribute('d', `M${points.join('L')}`);
+                time++;
+                requestAnimationFrame(updateWave);
+            }
+
+            updateWave();
+        }
+        // 页面加载完成后启动动画
+        window.addEventListener('load', animateSineWave);
+    </script>
+    
+    <!-- 导航时间线 -->
+    <div class="timeline-nav">
+        <div class="timeline-line"></div>
+        <div class="timeline-item active" data-section="history">弦歌<br>不辍</div>
+        <div class="timeline-item" data-section="overview">钟鼓<br>馔玉</div>
+        <div class="timeline-item" data-section="comparison">丝竹<br>之辨</div>
+        <div class="timeline-item" data-section="masterpieces">雅乐<br>品鉴</div>
+        <div class="timeline-item" data-section="epilogue">余音<br>绕梁</div>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 历史发展部分 -->
+        <section id="history" class="page-section">
+            <div class="left-column">
+                <div class="info-vis" id="history-timeline">
+                    <h3 class="vis-title">中国弦乐发展时间轴</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="dynasty-distribution">
+                    <h3 class="vis-title">各朝代弦乐发展程度</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="famous-musicians">
+                    <h3 class="vis-title">历代著名弦乐演奏家</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="initInstrumentOrigins">
+                    <h3 class="vis-title">弦乐传播路线图</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="historical-records">
+                    <h3 class="vis-title">古籍记载统计</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <h2>历史发展</h2>
+                <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
+                
+                <div class="main-visual">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
+                </div>
+                
+                <div class="history-content">
+                    <p>早在《诗经》中就有"琴瑟友之"的记载，周代已有琴、瑟等弦乐器。汉代张骞通西域后，琵琶类乐器传入中原，经本土化改造形成中国特色的琵琶。唐宋时期，弦乐器发展达到高峰，不仅种类增多，演奏技法也日趋成熟。</p>
+                    <p>明清时期，随着戏曲艺术的繁荣，二胡、京胡等拉弦乐器得到广泛应用。近代以来，传统弦乐器在保持原有特色的基础上不断革新，既传承了古典韵味，又适应了现代音乐表现的需要。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-vis" id="instrument-origins">
+                    <h3 class="vis-title">乐器起源关系图</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="dynasty-comparison">
+                    <h3 class="vis-title">朝代间弦乐交流</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="historical-events">
+                    <h3 class="vis-title">中国弦乐分类</h3>
+                    <div id="classification-vis"></div>
+                </div>
+                
+                <div class="info-vis" id="technique-evolution">
+                    <h3 class="vis-title">演奏技法演变</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="material-changes">
+                    <h3 class="vis-title">制作材料变迁</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 弦乐概览部分 -->
+        <section id="overview" class="page-section">
+            <div class="left-column">
+                <div class="info-vis" id="instrument-family">
+                    <h3 class="vis-title">弦乐器家族分类</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="regional-distribution">
+                    <h3 class="vis-title">地域分布特征</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="tuning-systems">
+                    <h3 class="vis-title">调弦系统比较</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="playing-positions">
+                    <h3 class="vis-title">演奏姿势分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="sound-characteristics">
+                    <h3 class="vis-title">音色特征雷达图</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <h2>弦乐概览</h2>
+                <p>中国传统弦乐器种类繁多，按演奏方式可分为弹拨、拉弦和击弦三大类，各具特色又相互影响。</p>
+                
+                <div class="main-visual">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
+                </div>
+                
+                <div class="overview-content">
+                    <p>弹拨类以琵琶、古筝、古琴为代表，音色清脆明亮，技法丰富多变。拉弦类以二胡、高胡、中胡为代表，音色柔美悠扬，表现力极强。击弦类以扬琴为代表，兼具旋律与和声功能。</p>
+                    <p>中国传统弦乐器不仅注重音色的美感，更强调"以音传情"的艺术境界。演奏时讲究"气韵生动"，通过左手的吟、揉、滑、打等技法，使音乐充满人声般的歌唱性。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-vis" id="repertoire-analysis">
+                    <h3 class="vis-title">曲目类型分布</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="cultural-significance">
+                    <h3 class="vis-title">文化意义权重</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="construction-parts">
+                    <h3 class="vis-title">乐器构造分解</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="acoustic-principles">
+                    <h3 class="vis-title">声学原理可视化</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="performance-contexts">
+                    <h3 class="vis-title">演奏场合分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 乐器对比部分 -->
+        <section id="comparison" class="page-section">
+            <div class="left-column">
+                <div class="info-vis" id="pipa-structure">
+                    <h3 class="vis-title">琵琶构造解析</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="erhu-structure">
+                    <h3 class="vis-title">二胡构造解析</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="playing-techniques">
+                    <h3 class="vis-title">演奏技法对比</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="sound-spectrum">
+                    <h3 class="vis-title">频谱特征比较</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="repertoire-overlap">
+                    <h3 class="vis-title">曲目重叠分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <h2>乐器对比</h2>
+                <p>琵琶与二胡作为中国传统弦乐器的两大代表，各具特色又相互补充，共同构成了中国器乐艺术的重要支柱。</p>
+                
+                <div class="main-visual">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
+                </div>
+                
+                <div class="comparison-content">
+                    <p>琵琶是弹拨乐器的代表，有四根弦、二十四个品，音域宽广，技法丰富，既能表现金戈铁马的雄壮，又能演绎小桥流水的婉约。二胡是拉弦乐器的代表，仅两根弦却能奏出极富表现力的音色，擅长模仿人声，表达细腻情感。</p>
+                    <p>在传统合奏中，琵琶常担任旋律和节奏的主导，二胡则负责情感的渲染。两者配合，刚柔相济，形成独特的音响效果。现代演奏中，两种乐器都突破了传统局限，发展出更多创新技法，拓展了表现空间。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-vis" id="historical-roles">
+                    <h3 class="vis-title">历史角色演变</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="cultural-associations">
+                    <h3 class="vis-title">文化意象关联</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="modern-innovations">
+                    <h3 class="vis-title">现代创新对比</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="learning-curves">
+                    <h3 class="vis-title">学习难度分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="global-influence">
+                    <h3 class="vis-title">国际影响力比较</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 名曲鉴赏部分 -->
+        <section id="masterpieces" class="page-section">
+            <div class="left-column">
+                <div class="info-vis" id="pipa-masterpieces">
+                    <h3 class="vis-title">琵琶名曲情感图谱</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="erhu-masterpieces">
+                    <h3 class="vis-title">二胡名曲情感图谱</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="composition-periods">
+                    <h3 class="vis-title">创作年代分布</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="thematic-analysis">
+                    <h3 class="vis-title">主题内容分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="structural-patterns">
+                    <h3 class="vis-title">结构模式可视化</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <h2>名曲鉴赏</h2>
+                <p>中国传统弦乐名曲凝聚了千百年来的艺术智慧，既有描绘自然风光的写景之作，也有抒发人生感悟的抒情之篇。</p>
+                
+                <div class="main-visual">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
+                </div>
+                
+                <div class="masterpieces-content">
+                    <p>琵琶名曲《十面埋伏》以丰富的技法描绘楚汉相争的激烈战场，《阳春白雪》则表现了冬去春来的自然景象。二胡名曲《二泉映月》借无锡惠山泉水月影抒发人生感慨，《赛马》则生动表现了草原赛马的欢快场景。</p>
+                    <p>这些名曲不仅技术精湛，更蕴含深厚的文化内涵。演奏时讲究"意在音先"，通过音色的变化、节奏的处理和气息的掌控，将中国美学中的虚实相生、动静结合等理念表现得淋漓尽致。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-vis" id="emotional-journey">
+                    <h3 class="vis-title">情感历程可视化</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="performance-versions">
+                    <h3 class="vis-title">演奏版本比较</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="cultural-references">
+                    <h3 class="vis-title">文化典故关联</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="rhythm-patterns">
+                    <h3 class="vis-title">节奏模式分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="modern-adaptations">
+                    <h3 class="vis-title">现代改编情况</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 尾声部分 -->
+        <section id="epilogue" class="page-section">
+            <div class="left-column">
+                <div class="info-vis" id="modern-developments">
+                    <h3 class="vis-title">现代发展轨迹</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
+                
+                <div class="info-vis" id="global-spread">
+                    <h3 class="vis-title">全球传播路径</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="education-growth">
+                    <h3 class="vis-title">教育发展统计</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="innovation-trends">
+                    <h3 class="vis-title">创新趋势分析</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="cultural-impact">
+                    <h3 class="vis-title">文化影响力评估</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+            
+            <div class="center-column">
+                <h2>尾声</h2>
+                <p>中国传统弦乐作为中华文化的重要载体，在新时代焕发出新的生命力，既坚守传统精髓，又拥抱创新发展。</p>
+                
+                <div class="main-visual">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
+                </div>
+                
+                <div class="epilogue-content">
+                    <p>近年来，中国传统弦乐在国际舞台大放异彩，众多演奏家将中国乐器与西方音乐形式相结合，创作出许多跨界作品。同时，传统弦乐教育日益普及，越来越多的年轻人开始学习这些古老乐器。</p>
+                    <p>展望未来，中国传统弦乐将继续在保持民族特色的基础上创新发展，用独特的音乐语言讲述中国故事，促进中外文化交流。这些历经千年沉淀的艺术瑰宝，必将在新时代奏响更加动人的乐章。</p>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="info-vis" id="future-projections">
+                    <h3 class="vis-title">未来发展趋势</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="cross-cultural">
+                    <h3 class="vis-title">跨文化合作案例</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="digital-innovations">
+                    <h3 class="vis-title">数字化创新应用</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="youth-engagement">
+                    <h3 class="vis-title">青年参与度调查</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="preservation-efforts">
+                    <h3 class="vis-title">保护传承措施</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- 五音特效 -->
+    <div id="music-notes-container"></div>
+    
+    <script>
+        // 五音特效生成
+        function createMusicNotes() {
+            const notes = ['宫', '商', '角', '徵', '羽'];
+            const container = document.getElementById('music-notes-container');
+            
+            for (let i = 0; i < 20; i++) {
+                const note = document.createElement('div');
+                note.className = 'music-note';
+                note.textContent = notes[Math.floor(Math.random() * notes.length)];
+                
+                // 随机位置和动画延迟
+                const left = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = 10 + Math.random() * 10;
+                const size = 1 + Math.random() * 2;
+                
+                note.style.left = `${left}%`;
+                note.style.animationDelay = `${delay}s`;
+                note.style.animationDuration = `${duration}s`;
+                note.style.fontSize = `${size}rem`;
+                note.style.opacity = 0.1 + Math.random() * 0.2;
+                
+                container.appendChild(note);
+            }
+        }
+        
+        // 时间线导航动画
+        function setupTimelineNav() {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const sections = document.querySelectorAll('.page-section');
+            const timelineLine = document.querySelector('.timeline-line');
+            
+            // 创建波形动画
+            const wavePath = document.querySelector('.timeline-wave path');
+            anime({
+                targets: wavePath,
+                d: [
+                    {value: 'M0,0 C20,50 30,100 50,150 C70,200 80,250 100,300 L100,500 L0,500 Z'},
+                    {value: 'M0,0 C20,70 40,120 50,170 C60,220 80,270 100,320 L100,500 L0,500 Z'},
+                    {value: 'M0,0 C10,40 30,90 50,140 C70,190 90,240 100,290 L100,500 L0,500 Z'}
+                ],
+                easing: 'easeInOutSine',
+                duration: 8000,
+                direction: 'alternate',
+                loop: true
+            });
+            
+            // 滚动检测
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                
+                // 更新时间线指示器位置
+                const lineHeight = Math.min(70, (scrollPosition / document.body.scrollHeight) * 70);
+                timelineLine.style.height = `${lineHeight}vh`;
+                
+                // 检查当前所在部分
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        timelineItems.forEach(item => item.classList.remove('active'));
+                        timelineItems[index].classList.add('active');
+                    }
+                });
+            });
+            
+            // 点击导航
+            timelineItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const sectionId = item.getAttribute('data-section');
+                    const section = document.getElementById(sectionId);
+                    
+                    window.scrollTo({
+                        top: section.offsetTop,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 点击动画
+                    anime({
+                        targets: item,
+                        scale: [1, 1.3, 1],
+                        duration: 600,
+                        easing: 'easeOutElastic'
+                    });
+                });
+            });
+        }
+        
+        // 初始化所有可视化图表
+        function initAllVisualizations() {
+            // 历史发展部分图表
+            initHistoryTimeline();
+            initDynastyDistribution();
+            initFamousMusicians();
+            initEvolutionMap();
+            initHistoricalRecords();
+            initInstrumentOrigins();
+            initDynastyComparison();
+            initHistoricalEvents();
+            initTechniqueEvolution();
+            initMaterialChanges();
+            
+            // 弦乐概览部分图表
+            initInstrumentFamily();
+            initRegionalDistribution();
+            initTuningSystems();
+            initPlayingPositions();
+            initSoundCharacteristics();
+            initRepertoireAnalysis();
+            initCulturalSignificance();
+            initConstructionParts();
+            initAcousticPrinciples();
+            initPerformanceContexts();
+            
+            // 乐器对比部分图表
+            initPipaStructure();
+            initErhuStructure();
+            initPlayingTechniques();
+            initSoundSpectrum();
+            initRepertoireOverlap();
+            initHistoricalRoles();
+            initCulturalAssociations();
+            initModernInnovations();
+            initLearningCurves();
+            initGlobalInfluence();
+            
+            // 名曲鉴赏部分图表
+            initPipaMasterpieces();
+            initErhuMasterpieces();
+            initCompositionPeriods();
+            initThematicAnalysis();
+            initStructuralPatterns();
+            initEmotionalJourney();
+            initPerformanceVersions();
+            initCulturalReferences();
+            initRhythmPatterns();
+            initModernAdaptations();
+            
+            // 尾声部分图表
+            initModernDevelopments();
+            initGlobalSpread();
+            initEducationGrowth();
+            initInnovationTrends();
+            initCulturalImpact();
+            initFutureProjections();
+            initCrossCultural();
+            initDigitalInnovations();
+            initYouthEngagement();
+            initPreservationEfforts();
+        }
+// 监听 DOM 加载完成事件
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. 中国弦乐发展时间轴 - 时间轴图
+    const timelineData = [
+        {year: "商周", events: ["琴瑟出现"], color: "#8B4513"},
+        {year: "秦汉", events: ["琵琶传入"], color: "#4B0082"},
+        {year: "唐宋", events: ["弦乐鼎盛"], color: "#DAA520"},
+        {year: "明清", events: ["二胡普及"], color: "#CD5C5C"},
+        {year: "现代", events: ["创新发展"], color: "#4682B4"}
+    ];
+    
+    const timelineSvg = d3.select("#history-timeline svg");
+    const timelineWidth = timelineSvg.node().getBoundingClientRect().width;
+    
+    timelineSvg.attr("viewBox", `0 0 ${timelineWidth} 300`)
+        .append("g")
+        .attr("transform", "translate(50, 150)")
+        .selectAll("circle")
+        .data(timelineData)
+        .enter()
+        .append("circle")
+        .attr("cx", (d, i) => i * (timelineWidth - 100) / (timelineData.length - 1))
+        .attr("cy", 0)
+        .attr("r", 10)
+        .attr("fill", d => d.color);
+    
+    // 2. 各朝代弦乐发展程度 - 旭日图
+    const dynastyData = {
+        name: "朝代",
+        children: [
+            {name: "商周", value: 5, color: "#8B4513"},
+            {name: "秦汉", value: 15, color: "#4B0082"},
+            {name: "唐宋", value: 40, color: "#DAA520"},
+            {name: "明清", value: 25, color: "#CD5C5C"},
+            {name: "现代", value: 15, color: "#4682B4"}
+        ]
+    };
+    
+    const dynastySvg = d3.select("#dynasty-distribution svg");
+    const dynastyWidth = dynastySvg.node().getBoundingClientRect().width;
+    const radius = Math.min(dynastyWidth, 250) / 2;
+    
+    const partition = data => d3.partition()
+        .size([2 * Math.PI, radius])
+        (d3.hierarchy(data)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value));
+    
+    const arc = d3.arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .innerRadius(d => d.y0)
+        .outerRadius(d => d.y1);
+    
+    dynastySvg.attr("viewBox", `${-radius} ${-radius} ${2 * radius} ${2 * radius}`)
+        .append("g")
+        .selectAll("path")
+        .data(partition(dynastyData).descendants())
+        .enter()
+        .append("path")
+        .attr("d", arc)
+        .attr("fill", d => d.data.color || "#ccc");
+    
+    // 3. 历代著名弦乐演奏家 - 关系图
+    const musiciansData = {
+        nodes: [
+            {id: "李延年", group: 1},
+            {id: "阮咸", group: 1},
+            {id: "白居易", group: 2},
+            {id: "刘天华", group: 3},
+            {id: "阿炳", group: 3}
+        ],
+        links: [
+            {source: "李延年", target: "阮咸", value: 5},
+            {source: "阮咸", target: "白居易", value: 3},
+            {source: "白居易", target: "刘天华", value: 2},
+            {source: "刘天华", target: "阿炳", value: 4}
+        ]
+    };
+    
+    const musicianSvg = d3.select("#famous-musicians svg");
+    const musicianWidth = musicianSvg.node().getBoundingClientRect().width;
+    
+    const simulation = d3.forceSimulation(musiciansData.nodes)
+        .force("link", d3.forceLink(musiciansData.links).id(d => d.id).distance(100))
+        .force("charge", d3.forceManyBody().strength(-100))
+        .force("center", d3.forceCenter(musicianWidth / 2, 150));
+    
+    const link = musicianSvg.append("g")
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", 0.6)
+        .selectAll("line")
+        .data(musiciansData.links)
+        .enter()
+        .append("line")
+        .attr("stroke-width", d => Math.sqrt(d.value));
+    
+    const node = musicianSvg.append("g")
+        .selectAll("circle")
+        .data(musiciansData.nodes)
+        .enter()
+        .append("circle")
+        .attr("r", 10)
+        .attr("fill", d => ["#8B4513", "#4B0082", "#DAA520"][d.group - 1]);
+    
+    simulation.on("tick", () => {
+        link.attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+        
+        node.attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+    });
+    
+    // 4. 弦乐传播路线图 - 桑基图
+    const originData = {
+        nodes: [
+            {name: "西域"},
+            {name: "波斯"},
+            {name: "印度"},
+            {name: "中原"},
+            {name: "江南"}
+        ],
+        links: [
+            {source: 0, target: 3, value: 10},
+            {source: 1, target: 3, value: 5},
+            {source: 2, target: 3, value: 8},
+            {source: 3, target: 4, value: 15}
+        ]
+    };
+    
+    const originSvg = d3.select("#initInstrumentOrigins svg");
+    const originWidth = originSvg.node().getBoundingClientRect().width;
+    
+    const sankey = d3.sankey()
+        .nodeWidth(15)
+        .nodePadding(10)
+        .extent([[10, 10], [originWidth - 10, 240]]);
+    
+    const {nodes, links} = sankey(originData);
+    
+    originSvg.append("g")
+        .selectAll("rect")
+        .data(nodes)
+        .enter()
+        .append("rect")
+        .attr("x", d => d.x0)
+        .attr("y", d => d.y0)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("width", d => d.x1 - d.x0)
+        .attr("fill", "#8B4513");
+    
+    originSvg.append("g")
+        .selectAll("path")
+        .data(links)
+        .enter()
+        .append("path")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke", d => d3.interpolateRgb("#8B4513", "#DAA520")(d.value / 15))
+        .attr("stroke-width", d => Math.max(1, d.width));
+    
+    // 5. 古籍记载统计 - 点状图
+    const recordsData = [
+        {name: "诗经", count: 25, color: "#8B4513"},
+        {name: "史记", count: 18, color: "#4B0082"},
+        {name: "乐府诗集", count: 32, color: "#DAA520"},
+        {name: "梦溪笔谈", count: 12, color: "#CD5C5C"},
+        {name: "琵琶录", count: 8, color: "#4682B4"}
+    ];
+    
+    const recordsSvg = d3.select("#historical-records svg");
+    const recordsWidth = recordsSvg.node().getBoundingClientRect().width;
+    
+    recordsSvg.attr("viewBox", `0 0 ${recordsWidth} 250`)
+        .append("g")
+        .attr("transform", "translate(50, 50)")
+        .selectAll("circle")
+        .data(recordsData)
+        .enter()
+        .append("circle")
+        .attr("cx", (d, i) => i * (recordsWidth - 100) / (recordsData.length - 1))
+        .attr("cy", d => 150 - d.count * 3)
+        .attr("r", d => Math.sqrt(d.count) * 2)
+        .attr("fill", d => d.color);
+    
+    // 6. 乐器起源关系图 - 力导向图
+    const instrumentOriginData = {
+        nodes: [
+            {id: "琵琶", group: 1},
+            {id: "阮", group: 1},
+            {id: "月琴", group: 1},
+            {id: "三弦", group: 1},
+            {id: "古筝", group: 2},
+            {id: "古琴", group: 2},
+            {id: "瑟", group: 2}
+        ],
+        links: [
+            {source: "琵琶", target: "阮", value: 5},
+            {source: "琵琶", target: "月琴", value: 4},
+            {source: "阮", target: "三弦", value: 3},
+            {source: "古筝", target: "古琴", value: 5},
+            {source: "古琴", target: "瑟", value: 4}
+        ]
+    };
+    
+    const instrumentOriginSvg = d3.select("#instrument-origins svg");
+    const instrumentOriginWidth = instrumentOriginSvg.node().getBoundingClientRect().width;
+    
+    const originSimulation = d3.forceSimulation(instrumentOriginData.nodes)
+        .force("link", d3.forceLink(instrumentOriginData.links).id(d => d.id).distance(80))
+        .force("charge", d3.forceManyBody().strength(-100))
+        .force("center", d3.forceCenter(instrumentOriginWidth / 2, 150));
+    
+    const originLink = instrumentOriginSvg.append("g")
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", 0.6)
+        .selectAll("line")
+        .data(instrumentOriginData.links)
+        .enter()
+        .append("line")
+        .attr("stroke-width", d => Math.sqrt(d.value));
+    
+    const originNode = instrumentOriginSvg.append("g")
+        .selectAll("circle")
+        .data(instrumentOriginData.nodes)
+        .enter()
+        .append("circle")
+        .attr("r", 10)
+        .attr("fill", d => ["#8B4513", "#4B0082"][d.group - 1]);
+    
+    originSimulation.on("tick", () => {
+        originLink.attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+        
+        originNode.attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+    });
+    
+    // 7. 朝代间弦乐交流 - 弦图
+    const dynastyComparisonData = [
+        [0, 10, 5, 2, 0], // 商周
+        [8, 0, 15, 5, 0], // 秦汉
+        [5, 12, 0, 20, 5], // 唐宋
+        [2, 5, 18, 0, 10], // 明清
+        [0, 0, 5, 8, 0]  // 现代
+    ];
+    
+    const dynastyComparisonSvg = d3.select("#dynasty-comparison svg");
+    const dynastyComparisonWidth = dynastyComparisonSvg.node().getBoundingClientRect().width;
+    
+    const chord = d3.chord()
+        .padAngle(0.05)
+        .sortSubgroups(d3.descending);
+    
+    const chords = chord(dynastyComparisonData);
+    
+    const arc2 = d3.arc()
+        .innerRadius(100)
+        .outerRadius(110);
+    
+    const ribbon = d3.ribbon()
+        .radius(100);
+    
+    const groupColors = ["#8B4513", "#4B0082", "#DAA520", "#CD5C5C", "#4682B4"];
+    
+    dynastyComparisonSvg.attr("viewBox", `${-dynastyComparisonWidth / 2} ${-dynastyComparisonWidth / 2} ${dynastyComparisonWidth} ${dynastyComparisonWidth}`)
+        .append("g")
+        .selectAll("g")
+        .data(chords.groups)
+        .enter()
+        .append("path")
+        .attr("d", arc2)
+        .attr("fill", d => groupColors[d.index]);
+    
+    dynastyComparisonSvg.append("g")
+        .selectAll("path")
+        .data(chords)
+        .enter()
+        .append("path")
+        .attr("d", ribbon)
+        .attr("fill", d => d3.interpolateRgb(groupColors[d.source.index], groupColors[d.target.index])(0.5));
+    
+    // 8. 中国弦乐分类 - 树状图
+    const classificationData = {
+        name: "弦乐器",
+        children: [
+            {
+                name: "弹拨类",
+                children: [
+                    {name: "琵琶", value: 10},
+                    {name: "古筝", value: 8},
+                    {name: "古琴", value: 7}
+                ]
+            },
+            {
+                name: "拉弦类",
+                children: [
+                    {name: "二胡", value: 9},
+                    {name: "高胡", value: 5},
+                    {name: "中胡", value: 4}
+                ]
+            },
+            {
+                name: "击弦类",
+                children: [
+                    {name: "扬琴", value: 6}
+                ]
+            }
+        ]
+    };
+    
+    const classificationDiv = document.getElementById("classification-vis");
+    const classificationWidth = classificationDiv.clientWidth;
+    
+    const treeLayout = d3.tree().size([classificationWidth, 150]);
+    const root = d3.hierarchy(classificationData);
+    treeLayout(root);
+    
+    const classificationSvg = d3.select("#classification-vis")
+        .append("svg")
+        .attr("width", classificationWidth)
+        .attr("height", 200)
+        .append("g")
+        .attr("transform", "translate(0, 20)");
+    
+    classificationSvg.selectAll(".link")
+        .data(root.links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal()
+            .x(d => d.y)
+            .y(d => d.x));
+    
+    classificationSvg.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .append("circle")
+        .attr("r", d => d.data.value ? Math.sqrt(d.data.value) * 2 : 5)
+        .attr("fill", d => {
+            if (d.data.name === "弹拨类") return "#8B4513";
+            if (d.data.name === "拉弦类") return "#4B0082";
+            if (d.data.name === "击弦类") return "#DAA520";
+            return "#CD5C5C";
+        });
+    
+    // 9. 演奏技法演变 - 折线图
+    const techniqueData = [
+        {era: "商周", techniques: 3},
+        {era: "秦汉", techniques: 8},
+        {era: "唐宋", techniques: 25},
+        {era: "明清", techniques: 30},
+        {era: "现代", techniques: 45}
+    ];
+    
+    const techniqueSvg = d3.select("#technique-evolution svg");
+    const techniqueWidth = techniqueSvg.node().getBoundingClientRect().width;
+    
+    const x = d3.scalePoint()
+        .domain(techniqueData.map(d => d.era))
+        .range([50, techniqueWidth - 50]);
+    
+    const y = d3.scaleLinear()
+        .domain([0, 50])
+        .range([200, 50]);
+    
+    const line = d3.line()
+        .x(d => x(d.era))
+        .y(d => y(d.techniques));
+    
+    techniqueSvg.append("path")
+        .datum(techniqueData)
+        .attr("d", line)
+        .attr("fill", "none")
+        .attr("stroke", "#8B4513")
+        .attr("stroke-width", 2);
+    
+    techniqueSvg.selectAll("circle")
+        .data(techniqueData)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.era))
+        .attr("cy", d => y(d.techniques))
+        .attr("r", 5)
+        .attr("fill", "#4B0082");
+    
+    // 此处代码被截断，可根据完整数据补充 10. 制作材料变迁 - 堆叠面积图 的代码
+});
+        function initHistoryTimeline() {
+            const data = [
+                {year: "商周", event: "琴瑟出现", importance: 3},
+                {year: "秦汉", event: "琵琶传入", importance: 5},
+                {year: "魏晋", event: "阮咸定型", importance: 4},
+                {year: "隋唐", event: "琵琶鼎盛", importance: 8},
+                {year: "宋元", event: "三弦兴起", importance: 6},
+                {year: "明清", event: "胡琴普及", importance: 7},
+                {year: "近代", event: "二胡革新", importance: 6}
+            ];
+            
+            const svg = d3.select("#history-timeline svg");
+            const width = svg.node().getBoundingClientRect().width;
+            const height = 300;
+            
+            svg.attr("height", height);
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.year))
+                .range([0, width])
+                .padding(0.2);
+            
+            const y = d3.scaleLinear()
+                .domain([0, 10])
+                .range([height - 30, 30]);
+            
+            // 添加时间线
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "#d4af37")
+                .attr("stroke-width", 2)
+                .attr("d", d3.line()
+                    .x(d => x(d.year) + x.bandwidth() / 2)
+                    .y(d => y(d.importance))
+                );
+            
+            // 添加节点
+            svg.selectAll(".event-circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", d => x(d.year) + x.bandwidth() / 2)
+                .attr("cy", d => y(d.importance))
+                .attr("r", d => d.importance / 2)
+                .attr("fill", "#d4af37")
+                .attr("opacity", 0.7)
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#ff6b6b");
+                    
+                    // 显示工具提示
+                    svg.append("text")
+                        .attr("class", "event-tooltip")
+                        .attr("x", x(d.year) + x.bandwidth() / 2)
+                        .attr("y", y(d.importance) - 15)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "white")
+                        .text(d.event);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#d4af37");
+                    svg.selectAll(".event-tooltip").remove();
+                });
+            
+            // 添加年份标签
+            svg.append("g")
+                .attr("transform", `translate(0,${height - 10})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("fill", "#d4af37")
+                .style("font-family", "KingHwa_OldSong");
+        }
+        
+        function initInstrumentOrigins() {
+            const data = [
+                {name: "琵琶", origin: "波斯", dynasty: "秦汉", route: "丝绸之路", features: ["梨形音箱", "四弦", "拨奏"]},
+                {name: "古琴", origin: "中国", dynasty: "商周", route: "本土发展", features: ["七弦", "面板音箱", "指弹"]},
+                {name: "二胡", origin: "中国", dynasty: "唐宋", route: "北方游牧民族", features: ["二弦", "弓奏", "膜面音箱"]},
+                {name: "古筝", origin: "中国", dynasty: "战国", route: "本土发展", features: ["21弦", "面板音箱", "拨奏"]},
+                {name: "阮咸", origin: "中国", dynasty: "魏晋", route: "本土发展", features: ["圆形音箱", "四弦", "拨奏"]}
+            ];
+            
+            const svg = d3.select("#instrument-origins svg");
+            // 这里将添加具体的可视化代码
+        }
+        
+        function initDynastyComparison() {
+            const data = [
+                {dynasty: "商周", instruments: 2, techniques: 3, repertoire: 5},
+                {dynasty: "秦汉", instruments: 4, techniques: 6, repertoire: 8},
+                {dynasty: "魏晋", instruments: 5, techniques: 7, repertoire: 10},
+                {dynasty: "隋唐", instruments: 8, techniques: 12, repertoire: 15},
+                {dynasty: "宋元", instruments: 10, techniques: 15, repertoire: 20},
+                {dynasty: "明清", instruments: 12, techniques: 18, repertoire: 25},
+                {dynasty: "近代", instruments: 15, techniques: 22, repertoire: 30}
+            ];
+            
+            const svg = d3.select("#dynasty-comparison svg");
+            // 这里将添加具体的可视化代码
+        }
+        
+        function initHistoricalEvents() {
+            const data = [
+                {year: -1046, event: "周礼确立礼乐制度", impact: 8},
+                {year: -221, event: "秦汉统一促进乐器交流", impact: 7},
+                {year: 618, event: "唐代设立教坊", impact: 9},
+                {year: 960, event: "宋代市民音乐兴起", impact: 8},
+                {year: 1368, event: "明代戏曲发展", impact: 7},
+                {year: 1912, event: "民国时期国乐改进", impact: 6}
+            ];
+            
+            const svg = d3.select("#historical-events svg");
+            // 这里将添加具体的可视化代码
+        }
+        
+        function initTechniqueEvolution() {
+            const data = [
+                {technique: "轮指", origin: "唐代", spread: ["琵琶", "古筝"], complexity: 8},
+                {technique: "泛音", origin: "商周", spread: ["古琴", "琵琶", "古筝"], complexity: 6},
+                {technique: "滑音", origin: "汉代", spread: ["二胡", "琵琶"], complexity: 5},
+                {technique: "颤音", origin: "唐代", spread: ["二胡", "古筝"], complexity: 7},
+                {technique: "扫弦", origin: "宋代", spread: ["琵琶", "古筝"], complexity: 6}
+            ];
+            
+            const svg = d3.select("#technique-evolution svg");
+            // 这里将添加具体的可视化代码
+        }
+        
+        function initMaterialChanges() {
+            const data = [
+                {period: "古代", materials: ["桐木", "丝弦", "竹码"], durability: 5, tone: 7},
+                {period: "中古", materials: ["紫檀", "丝弦", "骨码"], durability: 6, tone: 8},
+                {period: "近古", materials: ["红木", "钢弦", "骨码"], durability: 7, tone: 8},
+                {period: "现代", materials: ["复合材料", "尼龙弦", "塑料码"], durability: 9, tone: 6}
+            ];
+            
+            const svg = d3.select("#material-changes svg");
+            // 这里将添加具体的可视化代码
+        }
+        
+        function initSankeyDiagram() {
+            const data = {
+                nodes: [
+                    {name: "商周"}, {name: "秦汉"}, {name: "魏晋"}, 
+                    {name: "隋唐"}, {name: "宋元"}, {name: "明清"},
+                    {name: "琵琶"}, {name: "古筝"}, {name: "二胡"}, 
+                    {name: "阮"}, {name: "三弦"}
+                ],
+                links: [
+                    {source: 0, target: 6, value: 3}, {source: 1, target: 6, value: 5},
+                    {source: 2, target: 7, value: 4}, {source: 3, target: 7, value: 8},
+                    {source: 4, target: 8, value: 6}, {source: 5, target: 8, value: 7},
+                    {source: 3, target: 9, value: 5}, {source: 4, target: 10, value: 4}
+                ]
+            };
+            
+            const svg = d3.select("#sankey-diagram svg");
+            const width = 800, height = 500;
+            
+            const sankey = d3.sankey()
+                .nodeWidth(36)
+                .nodePadding(40)
+                .size([width, height]);
+                
+            const {nodes, links} = sankey({
+                nodes: data.nodes.map(d => Object.assign({}, d)),
+                links: data.links.map(d => Object.assign({}, d))
+            });
+            
+            svg.attr("width", width)
+               .attr("height", height);
+               
+            // 添加节点
+            svg.append("g")
+                .selectAll("rect")
+                .data(nodes)
+                .join("rect")
+                .attr("x", d => d.x0)
+                .attr("y", d => d.y0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .attr("fill", (d, i) => i < 6 ? "#d4af37" : "#a67c52");
+                
+            // 添加链接
+            svg.append("g")
+                .selectAll("path")
+                .data(links)
+                .join("path")
+                .attr("d", d3.sankeyLinkHorizontal())
+                .attr("stroke", "#8b4513")
+                .attr("stroke-width", d => d.width);
+        }
+        
+        function initBubbleChart() {
+            const data = [
+                {name: "琵琶", period: "隋唐", popularity: 8, size: 30, color: "#d4af37"},
+                {name: "古筝", period: "战国", popularity: 7, size: 25, color: "#a67c52"},
+                {name: "二胡", period: "唐宋", popularity: 9, size: 35, color: "#8b4513"},
+                {name: "阮", period: "魏晋", popularity: 6, size: 15, color: "#cd7f32"},
+                {name: "三弦", period: "宋元", popularity: 5, size: 10, color: "#b87333"}
+            ];
+            
+            const svg = d3.select("#bubble-chart svg");
+            const width = 600, height = 400;
+            
+            svg.attr("width", width)
+               .attr("height", height);
+               
+            const x = d3.scaleLinear()
+                .domain([0, 10])
+                .range([50, width - 50]);
+                
+            const y = d3.scaleLinear()
+                .domain([0, 10])
+                .range([height - 50, 50]);
+                
+            const size = d3.scaleSqrt()
+                .domain([0, 10])
+                .range([5, 35]);
+                
+            svg.selectAll("circle")
+                .data(data)
+                .join("circle")
+                .attr("cx", d => x(d.popularity))
+                .attr("cy", d => y(d.difficulty))
+                .attr("r", d => size(d.size))
+                .attr("fill", d => d.color)
+                .attr("stroke", "#000")
+                .attr("stroke-width", 1);
+        }
+        
+        function initForceDirectedGraph() {
+            const data = {
+                nodes: [
+                    {id: "琵琶", group: 1, size: 15},
+                    {id: "古筝", group: 1, size: 12},
+                    {id: "二胡", group: 2, size: 10},
+                    {id: "阮", group: 1, size: 8},
+                    {id: "三弦", group: 1, size: 6},
+                    {id: "轮指", group: 3, size: 5},
+                    {id: "泛音", group: 3, size: 5},
+                    {id: "滑音", group: 3, size: 5}
+                ],
+                links: [
+                    {source: "琵琶", target: "轮指", value: 5},
+                    {source: "琵琶", target: "泛音", value: 3},
+                    {source: "古筝", target: "泛音", value: 4},
+                    {source: "二胡", target: "滑音", value: 6},
+                    {source: "阮", target: "轮指", value: 2}
+                ]
+            };
+            
+            const svg = d3.select("#force-graph svg");
+            const width = 600, height = 400;
+            
+            svg.attr("width", width)
+               .attr("height", height);
+               
+            const simulation = d3.forceSimulation(data.nodes)
+                .force("link", d3.forceLink(data.links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+                
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(data.links)
+                .join("line")
+                .attr("stroke", "#999")
+                .attr("stroke-width", d => Math.sqrt(d.value));
+                
+            const node = svg.append("g")
+                .selectAll("circle")
+                .data(data.nodes)
+                .join("circle")
+                .attr("r", d => d.size)
+                .attr("fill", d => d.group === 1 ? "#d4af37" : d.group === 2 ? "#a67c52" : "#8b4513")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+                    
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+            });
+        }
+        
+        function initRadarChart() {
+            const data = [
+                {instrument: "琵琶", technique: 8, tone: 7, difficulty: 9, popularity: 8},
+                {instrument: "古筝", technique: 7, tone: 8, difficulty: 7, popularity: 7},
+                {instrument: "二胡", technique: 9, tone: 6, difficulty: 8, popularity: 9},
+                {instrument: "阮", technique: 6, tone: 7, difficulty: 6, popularity: 5},
+                {instrument: "三弦", technique: 5, tone: 6, difficulty: 7, popularity: 4}
+            ];
+            
+            const svg = d3.select("#radar-chart svg");
+            const width = 600, height = 400;
+            const radius = Math.min(width, height) / 2;
+            
+            svg.attr("width", width)
+               .attr("height", height)
+               .append("g")
+               .attr("transform", `translate(${width/2},${height/2})`);
+               
+            const axes = ["technique", "tone", "difficulty", "popularity"];
+            const maxValues = {
+                technique: 10, tone: 10, difficulty: 10, popularity: 10
+            };
+            
+            const radarChart = d3.radialLine()
+                .angle((d, i) => i * 2 * Math.PI / axes.length)
+                .radius(d => radius * d.value / maxValues[d.axis]);
+                
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.instrument))
+                .range(["#d4af37", "#a67c52", "#8b4513", "#cd7f32", "#b87333"]);
+                
+            axes.forEach((axis, i) => {
+                const angle = i * 2 * Math.PI / axes.length;
+                svg.append("line")
+                    .attr("x1", width/2)
+                    .attr("y1", height/2)
+                    .attr("x2", width/2 + radius * Math.sin(angle))
+                    .attr("y2", height/2 - radius * Math.cos(angle))
+                    .attr("stroke", "#999")
+                    .attr("stroke-width", 1);
+                
+                svg.append("text")
+                    .attr("x", width/2 + (radius + 10) * Math.sin(angle))
+                    .attr("y", height/2 - (radius + 10) * Math.cos(angle))
+                    .text(axis)
+                    .style("font-size", "12px");
+            });
+            
+            data.forEach(d => {
+                const points = axes.map(axis => ({
+                    axis: axis,
+                    value: d[axis]
+                }));
+                
+                svg.append("path")
+                    .datum(points)
+                    .attr("d", radarChart)
+                    .attr("fill", color(d.instrument))
+                    .attr("fill-opacity", 0.3)
+                    .attr("stroke", color(d.instrument))
+                    .attr("stroke-width", 2);
+            });
+        }
+        
+        function initChordDiagram() {
+            const matrix = [
+                [0, 5, 3, 2, 1],  // 琵琶
+                [5, 0, 4, 3, 2],  // 古筝
+                [3, 4, 0, 1, 1],  // 二胡
+                [2, 3, 1, 0, 1],  // 阮
+                [1, 2, 1, 1, 0]   // 三弦
+            ];
+            
+            const instruments = ["琵琶", "古筝", "二胡", "阮", "三弦"];
+            
+            const svg = d3.select("#chord-diagram svg");
+            const width = 600, height = 600;
+            const outerRadius = Math.min(width, height) * 0.5 - 40;
+            const innerRadius = outerRadius - 30;
+            
+            svg.attr("width", width)
+               .attr("height", height)
+               .append("g")
+               .attr("transform", `translate(${width/2},${height/2})`);
+               
+            const chord = d3.chord()
+                .padAngle(0.05)
+                .sortSubgroups(d3.descending);
+                
+            const arc = d3.arc()
+                .innerRadius(innerRadius)
+                .outerRadius(outerRadius);
+                
+            const ribbon = d3.ribbon()
+                .radius(innerRadius);
+                
+            const color = d3.scaleOrdinal()
+                .domain(d3.range(instruments.length))
+                .range(["#d4af37", "#a67c52", "#8b4513", "#cd7f32", "#b87333"]);
+                
+            const chords = chord(matrix);
+            
+            svg.append("g")
+                .selectAll("g")
+                .data(chords.groups)
+                .join("g")
+                .append("path")
+                .attr("d", arc)
+                .attr("fill", d => color(d.index))
+                .attr("stroke", "#000");
+                
+            svg.append("g")
+                .selectAll("path")
+                .data(chords)
+                .join("path")
+                .attr("d", ribbon)
+                .attr("fill", d => color(d.source.index))
+                .attr("stroke", "#000")
+                .attr("opacity", 0.7);
+                
+            svg.append("g")
+                .selectAll("g")
+                .data(chords.groups)
+                .join("g")
+                .append("text")
+                .each(d => {
+                    d.angle = (d.startAngle + d.endAngle) / 2;
+                })
+                .attr("dy", ".35em")
+                .attr("transform", d => `
+                    rotate(${d.angle * 180 / Math.PI - 90})
+                    translate(${innerRadius + 26})
+                    ${d.angle > Math.PI ? "rotate(180)" : ""}
+                `)
+                .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
+                .text(d => instruments[d.index]);
+        }
+        
+        function initClassificationVis() {
+            const classificationData = { 
+                name: "中国弦乐", 
+                children: [ 
+                    { 
+                        name: "弹拨类", 
+                        children: [ 
+                            {name: "琵琶", value: 30}, 
+                            {name: "古筝", value: 25}, 
+                            {name: "阮", value: 15}, 
+                            {name: "三弦", value: 10}, 
+                            {name: "月琴", value: 8}, 
+                            {name: "柳琴", value: 7}, 
+                            {name: "其他", value: 5} 
+                        ] 
+                    }, 
+                    { 
+                        name: "拉弦类", 
+                        children: [ 
+                            {name: "二胡", value: 35}, 
+                            {name: "高胡", value: 12}, 
+                            {name: "中胡", value: 10}, 
+                            {name: "板胡", value: 8}, 
+                            {name: "京胡", value: 7}, 
+                            {name: "其他", value: 8} 
+                        ] 
+                    }, 
+                    { 
+                        name: "击弦类", 
+                        children: [ 
+                            {name: "扬琴", value: 20}, 
+                            {name: "筑", value: 5} 
+                        ] 
+                    } 
+                ] 
+            }; 
+            
+            const classificationSvg = d3.select("#classification-vis") 
+                .append("svg") 
+                .attr("width", "100%") 
+                .attr("height", "300"); 
+            
+            const classificationG = classificationSvg.append("g") 
+                .attr("transform", "translate(150, 150)"); 
+            
+            const radius = Math.min(classificationSvg.node().getBoundingClientRect().width, 300) / 2 - 10; 
+            
+            const partition = d3.partition() 
+                .size([2 * Math.PI, radius]); 
+            
+            const root = d3.hierarchy(classificationData) 
+                .sum(d => d.value || 0); 
+            
+            partition(root); 
+            
+            const arc = d3.arc() 
+                .startAngle(d => d.x0) 
+                .endAngle(d => d.x1) 
+                .innerRadius(d => d.y0) 
+                .outerRadius(d => d.y1); 
+            
+            classificationG.selectAll("path") 
+                .data(root.descendants()) 
+                .enter() 
+                .append("path") 
+                .attr("d", arc) 
+                .attr("fill", (d, i) => { 
+                    const hue = i * 30 % 360; 
+                    return `hsla(${hue}, 70%, 50%, 0.6)`; 
+                }) 
+                .attr("stroke", "#2a0845") 
+                .attr("stroke-width", 1) 
+                .on("mouseover", function(event, d) { 
+                    d3.select(this).attr("fill", "rgba(212, 175, 55, 0.8)"); 
+                    
+                    classificationG.append("text") 
+                        .attr("class", "tooltip") 
+                        .attr("x", 0) 
+                        .attr("y", -radius - 10) 
+                        .attr("text-anchor", "middle") 
+                        .text(`${d.data.name}: ${d.value || ""}`) 
+                        .attr("fill", "#e6d5b8"); 
+                }) 
+                .on("mouseout", function() { 
+                    d3.select(this).attr("fill", (d, i) => { 
+                        const hue = i * 30 % 360; 
+                        return `hsla(${hue}, 70%, 50%, 0.6)`; 
+                    }); 
+                    
+                    classificationG.selectAll(".tooltip").remove(); 
+                });
+        }
+        
+        function initDynastyDistribution() {
+            const data = [
+                {dynasty: "商周", instruments: ["琴", "瑟"], development: 3, symbol: "𝄞"},
+                {dynasty: "秦汉", instruments: ["琵琶", "阮"], development: 5, symbol: "𝄢"},
+                {dynasty: "魏晋", instruments: ["阮咸", "古琴"], development: 4, symbol: "𝄡"},
+                {dynasty: "隋唐", instruments: ["琵琶", "古筝", "阮咸"], development: 8, symbol: "𝄠"},
+                {dynasty: "宋元", instruments: ["三弦", "古琴", "琵琶"], development: 6, symbol: "𝄟"},
+                {dynasty: "明清", instruments: ["二胡", "京胡", "琵琶", "古筝"], development: 7, symbol: "𝄤"},
+                {dynasty: "近代", instruments: ["二胡", "琵琶", "古筝", "扬琴"], development: 6, symbol: "𝄥"}
+            ];
+            
+            const svg = d3.select("#dynasty-distribution svg");
+            const width = svg.node().getBoundingClientRect().width;
+            const height = 250;
+            
+            svg.attr("height", height);
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.dynasty))
+                .range([0, width])
+                .padding(0.2);
+            
+            const y = d3.scaleLinear()
+                .domain([0, 10])
+                .range([height, 0]);
+            
+            // 添加弦乐符号散点
+            svg.selectAll(".symbol")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "symbol")
+                .attr("x", d => x(d.dynasty) + x.bandwidth()/2)
+                .attr("y", d => y(d.development))
+                .attr("text-anchor", "middle")
+                .attr("dominant-baseline", "middle")
+                .attr("font-size", d => 20 + d.development * 3)
+                .attr("fill", "#d4af37")
+                .text(d => d.symbol)
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#ff6b6b");
+                    
+                    // 显示详细工具提示
+                    const tooltip = svg.append("g")
+                        .attr("class", "dynasty-tooltip")
+                        .attr("transform", `translate(${x(d.dynasty) + x.bandwidth() / 2},${y(d.development) - 30})`);
+                    
+                    tooltip.append("rect")
+                        .attr("width", 150)
+                        .attr("height", 60)
+                        .attr("x", -75)
+                        .attr("rx", 5)
+                        .attr("ry", 5)
+                        .attr("fill", "rgba(0,0,0,0.8)")
+                        .attr("stroke", "#d4af37");
+                    
+                    tooltip.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#d4af37")
+                        .attr("y", -15)
+                        .text(d.dynasty);
+                    
+                    tooltip.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "white")
+                        .attr("y", 5)
+                        .text(`乐器: ${d.instruments.join(", ")}`);
+                    
+                    tooltip.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "white")
+                        .attr("y", 25)
+                        .text(`发展程度: ${d.development}/10`);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#d4af37");
+                    svg.selectAll(".dynasty-tooltip").remove();
+                });
+            
+            // 添加朝代标签
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("fill", "#d4af37")
+                .style("font-family", "KingHwa_OldSong");
+        }
+        
+        // 其他图表初始化函数...
+        // 由于篇幅限制，这里只实现了一个示例图表
+        // 实际项目中需要为每个图表编写具体实现
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            createMusicNotes();
+            setupTimelineNav();
+            initAllVisualizations();
+            
+            // 标题动画
+            anime({
+                targets: '.main-title .dot',
+                scale: [1, 1.5, 1],
+                duration: 2000,
+                easing: 'easeInOutQuad',
+                loop: true
+            });
+            
+            anime({
+                targets: '.main-title span:not(.dot)',
+                translateY: [10, 0],
+                opacity: [0, 1],
+                duration: 1500,
+                delay: anime.stagger(200),
+                easing: 'easeOutExpo'
+            });
+        });
+    </script>
+    <!-- 音乐播放器和频谱可视化 -->
+    <div id="audio-visualizer" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 150px; background: rgba(0,0,0,0.7); z-index: 1000;">
+        <audio id="pipa-audio" src="static/img/pipa.mp3" autoplay loop></audio>
+        <canvas id="spectrum-canvas" width="100%" height="150"></canvas>
+    </div>
+
+    <script>
+        // 音频上下文和频谱分析
+        const audio = document.getElementById('pipa-audio');
+        const canvas = document.getElementById('spectrum-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置音频分析器
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        // 频谱数据数组
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        // 绘制频谱
+        function drawSpectrum() {
+            requestAnimationFrame(drawSpectrum);
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+            
+            for(let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i] / 2;
+                
+                ctx.fillStyle = `hsl(${i * 2}, 100%, 50%)`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
+            }
+        }
+        
+        // 开始播放和绘制
+        audio.addEventListener('play', () => {
+            audioContext.resume();
+            drawSpectrum();
+        });
+    </script>
+</body>
+</html>
