@@ -3132,7 +3132,7 @@
             您的浏览器不支持音频元素。
         </audio>
         <div class="audio-controls">
-            <button id="playPauseBtn" class="control-btn">暂停</button>
+            <button id="playPauseBtn" class="control-btn">⏸</button>
             <div class="volume-control">
                 <span>音量:</span>
                 <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
@@ -3144,28 +3144,26 @@
     <style>
         .audio-player-container {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
-            padding: 15px 0;
+            bottom: -30px;
+            left: 20px;
+            width: auto;
             z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+            pointer-events: none; /* 不影响点击 */
         }
         
         .audio-controls {
             display: flex;
-            justify-content: center;
             align-items: center;
             margin-bottom: 10px;
+            pointer-events: auto; /* 控件可以点击 */
         }
         
         .control-btn {
-            background: #d4af37;
+            background: rgba(212, 175, 55, 0.5);
             color: #000;
             border: none;
             padding: 5px 15px;
-            margin: 0 10px;
+            margin-right: 10px;
             border-radius: 20px;
             cursor: pointer;
             font-family: 'KingHwa_OldSong', serif;
@@ -3173,7 +3171,7 @@
         }
         
         .control-btn:hover {
-            background: #f5d76e;
+            background: rgba(245, 215, 110, 0.9);
             transform: scale(1.05);
         }
         
@@ -3182,6 +3180,7 @@
             align-items: center;
             color: #d4af37;
             font-family: 'KingHwa_OldSong', serif;
+            pointer-events: auto; /* 控件可以点击 */
         }
         
         .volume-control span {
@@ -3189,23 +3188,24 @@
         }
         
         #volumeSlider {
-            width: 100px;
+            width: 80px;
             accent-color: #d4af37;
         }
         
         #audio-visualizer {
             height: 60px;
+            width: 200px;
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            padding: 0 20px;
+            pointer-events: none; /* 不影响点击 */
         }
         
         .visualizer-bar {
-            width: 5px;
+            width: 3px;
             height: 5px;
-            background: linear-gradient(to top, #d4af37, #f5d76e);
-            margin: 0 2px;
+            background: linear-gradient(to top, rgba(212, 175, 55, 0.7), rgba(245, 215, 110, 0.7));
+            margin: 0 1px;
             border-radius: 2px 2px 0 0;
             transition: height 0.1s ease;
         }
