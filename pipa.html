@@ -1945,19 +1945,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const barWidth = (canvas.width / bufferLength) * 2.5;
+            // 增加 barWidth 的系数，使频谱图变宽
+            const barWidth = (canvas.width / bufferLength) * 5; 
             let x = 0;
             
+            // 创建金色渐变
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#FFD700'); // 金色
+            gradient.addColorStop(1, '#D4AF37'); // 深金色
+
             for(let i = 0; i < bufferLength; i++) {
                 const barHeight = dataArray[i] / 2;
                 
-                ctx.fillStyle = `hsl(${i * 2}, 100%, 50%)`;
+                ctx.fillStyle = gradient;
                 ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
                 
                 x += barWidth + 1;
             }
         }
-        
         // 开始播放和绘制
         audio.addEventListener('play', () => {
             audioContext.resume();
