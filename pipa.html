@@ -1910,53 +1910,71 @@ document.addEventListener('DOMContentLoaded', function() {
                 delay: anime.stagger(200),
                 easing: 'easeOutExpo'
             });
-
-            // 音乐频谱可视化
-            const audio = new Audio('static/img/pipa.mp3');
-            const canvas = document.createElement('canvas');
-            canvas.style.position = 'fixed';
-            canvas.style.bottom = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100%';
-            canvas.style.height = '100px';
-            canvas.style.zIndex = '10';
-            canvas.style.pointerEvents = 'none';
-            document.body.appendChild(canvas);
-
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = 100;
-
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
-            const source = audioCtx.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            function draw() {
-                requestAnimationFrame(draw);
-                analyser.getByteFrequencyData(dataArray);
-
-                ctx.fillStyle = 'rgba(26, 11, 77, 0.2)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let x = 0;
-
-                for(let i = 0; i < bufferLength; i++) {
-                    const barHeight = dataArray[i] / 2;
-                    ctx.fillStyle = `hsl(${200 + dataArray[i]}, 100%, 50%)`;
-                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
+        });
+    </script>
+    
+    <!-- 音乐频谱可视化 -->
+    <div id="audio-visualizer" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 100px; background: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+        <canvas id="visualizer" width="100%" height="100"></canvas>
+        <audio id="audio-player" src="static/img/pipa.mp3" autoplay loop></audio>
+    </div>
+    
+    <script>
+        // 音频上下文和频谱分析器
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        // 获取音频元素和画布
+        const audioElement = document.getElementById('audio-player');
+        const canvas = document.getElementById('visualizer');
+        const canvasCtx = canvas.getContext('2d');
+        
+        // 连接音频节点
+        const source = audioContext.createMediaElementSource(audioElement);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        // 频谱数据数组
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        // 绘制频谱
+        function draw() {
+            requestAnimationFrame(draw);
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+            
+            for(let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i] / 2;
+                
+                // 使用金色渐变
+                const gradient = canvasCtx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+                gradient.addColorStop(0, 'rgba(212, 175, 55, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 107, 107, 0.8)');
+                
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
             }
-
-            audio.play();
+        }
+        
+        // 开始播放和绘制
+        audioElement.addEventListener('play', () => {
+            audioContext.resume();
             draw();
+        });
+        
+        // 自动开始播放
+        document.addEventListener('DOMContentLoaded', () => {
+            audioElement.play().catch(e => console.log('自动播放被阻止:', e));
         });
     </script>
 </body>
