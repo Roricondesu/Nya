@@ -47,6 +47,8 @@
             color: #d4af37;
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
             z-index: 100;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: translateY(-20px); /* 初始位置向上偏移 */
         }
         }
         
@@ -141,6 +143,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
+            opacity: 0; /* 初始状态为不可见 */
         }
         
         /* 三栏布局 */
@@ -150,6 +153,8 @@
             display: flex;
             margin-bottom: 50px;
             position: relative;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: translateY(30px); /* 初始位置向下偏移 */
         }
         
         .left-column, .right-column {
@@ -158,6 +163,8 @@
             display: flex;
             flex-direction: column;
             gap: 40px;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: translateX(-30px); /* 初始位置向左偏移 */
         }
         
         .center-column {
@@ -167,6 +174,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: translateY(30px); /* 初始位置向下偏移 */
         }
         
         /* 信息图表样式 */
@@ -174,6 +183,8 @@
             height: fit-content;
             width: fit-content;
             min-width: 100%;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: scale(0.9); /* 初始大小缩小 */
         }
         
         .vis-title {
@@ -183,6 +194,7 @@
             text-align: center;
             border-bottom: 1px solid rgba(212, 175, 55, 0.3);
             padding-bottom: 10px;
+            opacity: 0; /* 初始状态为不可见 */
         }
         
         /* 主视觉图片 */
@@ -193,6 +205,7 @@
             align-items: center;
             gap: 30px;
             margin: 40px 0;
+            opacity: 0; /* 初始状态为不可见 */
         }
         
         .instrument-img {
@@ -201,6 +214,8 @@
             object-fit: contain;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
             transition: all 0.3s ease;
+            opacity: 0; /* 初始状态为不可见 */
+            transform: scale(0.8) rotate(-5deg); /* 初始大小缩小且旋转 */
         }
         
         .instrument-img:hover {
@@ -230,6 +245,95 @@
             100% {
                 transform: translateY(-100vh) rotate(360deg);
                 opacity: 0;
+            }
+        }
+        
+        /* 进入动画相关样式 */
+        .fade-in {
+            animation: fadeIn 1.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .slide-in-left {
+            animation: slideInLeft 1.2s ease forwards;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 1.2s ease forwards;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .slide-in-up {
+            animation: slideInUp 1.2s ease forwards;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scale-in {
+            animation: scaleIn 1.2s ease forwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .rotate-in {
+            animation: rotateIn 1.5s ease forwards;
+        }
+        
+        @keyframes rotateIn {
+            from {
+                opacity: 0;
+                transform: rotate(-15deg) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: rotate(0) scale(1);
             }
         }
         
@@ -674,6 +778,120 @@
             }
         }
         
+        // 初始化进入动画
+        function initEntranceAnimations() {
+            // 标题动画
+            anime({
+                targets: '.main-title',
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                easing: 'easeOutExpo',
+                duration: 1500,
+                delay: 300
+            });
+            
+            // 主内容区域动画
+            anime({
+                targets: '.main-content',
+                opacity: [0, 1],
+                easing: 'easeOutExpo',
+                duration: 1500,
+                delay: 500
+            });
+            
+            // 页面部分动画
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach((section, index) => {
+                // 只对当前可见的部分应用动画
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // 页面部分淡入
+                            anime({
+                                targets: section,
+                                opacity: [0, 1],
+                                translateY: [30, 0],
+                                easing: 'easeOutExpo',
+                                duration: 1200,
+                                complete: function() {
+                                    // 左右列动画
+                                    anime({
+                                        targets: section.querySelector('.left-column'),
+                                        opacity: [0, 1],
+                                        translateX: [-30, 0],
+                                        easing: 'easeOutExpo',
+                                        duration: 1000
+                                    });
+                                    
+                                    anime({
+                                        targets: section.querySelector('.right-column'),
+                                        opacity: [0, 1],
+                                        translateX: [30, 0],
+                                        easing: 'easeOutExpo',
+                                        duration: 1000
+                                    });
+                                    
+                                    // 中间列动画
+                                    anime({
+                                        targets: section.querySelector('.center-column'),
+                                        opacity: [0, 1],
+                                        translateY: [30, 0],
+                                        easing: 'easeOutExpo',
+                                        duration: 1000,
+                                        delay: 200
+                                    });
+                                    
+                                    // 信息图表动画
+                                    anime({
+                                        targets: section.querySelectorAll('.info-vis'),
+                                        opacity: [0, 1],
+                                        scale: [0.9, 1],
+                                        easing: 'easeOutExpo',
+                                        duration: 1200,
+                                        delay: anime.stagger(100)
+                                    });
+                                    
+                                    // 图表标题动画
+                                    anime({
+                                        targets: section.querySelectorAll('.vis-title'),
+                                        opacity: [0, 1],
+                                        easing: 'easeOutExpo',
+                                        duration: 1000,
+                                        delay: anime.stagger(100, {start: 200})
+                                    });
+                                    
+                                    // 主视觉图片容器动画
+                                    anime({
+                                        targets: section.querySelector('.main-visual'),
+                                        opacity: [0, 1],
+                                        easing: 'easeOutExpo',
+                                        duration: 1000,
+                                        delay: 400
+                                    });
+                                    
+                                    // 乐器图片动画
+                                    anime({
+                                        targets: section.querySelectorAll('.instrument-img'),
+                                        opacity: [0, 1],
+                                        scale: [0.8, 1],
+                                        rotate: [-5, 0],
+                                        easing: 'easeOutElastic(1, .6)',
+                                        duration: 1500,
+                                        delay: anime.stagger(200, {start: 600})
+                                    });
+                                }
+                            });
+                            
+                            // 观察到后取消观察
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {threshold: 0.1});
+                
+                observer.observe(section);
+            });
+        }
+        
         // 时间线导航动画
         function setupTimelineNav() {
             const timelineItems = document.querySelectorAll('.timeline-item');
@@ -1116,7 +1334,7 @@
             
             const svg = d3.select("#history-timeline svg");
             const width = svg.node().getBoundingClientRect().width;
-            const height = 500; // 增加高度以容纳更复杂的可视化
+            const height = 440; // 增加高度以容纳更复杂的可视化
             
             svg.attr("height", height);
             svg.selectAll("*").remove(); // 清除之前的内容
@@ -1130,7 +1348,7 @@
                 .attr("transform", `translate(${margin.left}, ${margin.top})`);
             
             // 创建径向布局
-            const radius = Math.min(innerWidth, innerHeight) / 0.9; // 减小除数以放大整体比例
+            const radius = Math.min(innerWidth, innerHeight) / 1.1; // 减小除数以放大整体比例
             const arcGenerator = d3.arc()
                 .innerRadius(radius * 0.6) // 增加内圆半径
                 .outerRadius(radius * 0.8); // 增加外圆半径
@@ -1368,7 +1586,7 @@
             // 添加交互提示
             svg.append("text")
                 .attr("x", width / 2)
-                .attr("y", height - 60)  // 将y坐标从height-10改为height-20,使文字上移
+                .attr("y", height - 10)  // 将y坐标从height-10改为height-20,使文字上移
                 .attr("text-anchor", "middle")
                 .attr("fill", "#e6d5b8")
                 .attr("font-family", "KingHwa_OldSong")
@@ -2896,29 +3114,147 @@
         // 由于篇幅限制，这里只实现了一个示例图表
         // 实际项目中需要为每个图表编写具体实现
         
-        // 页面加载完成后初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            createMusicNotes();
-            setupTimelineNav();
-            initAllVisualizations();
+        // 初始化进入动画函数
+        function initEntranceAnimations() {
+            // 主标题动画
+            anime({
+                targets: '.main-title',
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                duration: 1200,
+                easing: 'easeOutExpo'
+            });
             
-            // 标题动画
+            // 标题点动画
             anime({
                 targets: '.main-title .dot',
                 scale: [1, 1.5, 1],
                 duration: 2000,
                 easing: 'easeInOutQuad',
-                loop: true
+                loop: true,
+                delay: 1000
             });
             
+            // 标题文字动画
             anime({
                 targets: '.main-title span:not(.dot)',
                 translateY: [10, 0],
                 opacity: [0, 1],
                 duration: 1500,
-                delay: anime.stagger(200),
+                delay: anime.stagger(200, {start: 800}),
                 easing: 'easeOutExpo'
             });
+            
+
+            
+            // 主内容区域动画
+            anime({
+                targets: '.main-content',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 1200,
+                easing: 'easeOutQuad',
+                delay: 1200
+            });
+            
+            // 创建交叉观察器，用于滚动时触发动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // 获取目标元素
+                        const target = entry.target;
+                        
+                        // 根据元素类型应用不同的动画
+                        if (target.classList.contains('page-section')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                translateY: [50, 0],
+                                duration: 800,
+                                easing: 'easeOutQuad'
+                            });
+                        } else if (target.classList.contains('left-column')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                translateX: [-50, 0],
+                                duration: 800,
+                                easing: 'easeOutQuad'
+                            });
+                        } else if (target.classList.contains('right-column')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                translateX: [50, 0],
+                                duration: 800,
+                                easing: 'easeOutQuad'
+                            });
+                        } else if (target.classList.contains('center-column')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                scale: [0.9, 1],
+                                duration: 800,
+                                easing: 'easeOutQuad'
+                            });
+                        } else if (target.classList.contains('info-vis')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                scale: [0.8, 1],
+                                duration: 1000,
+                                easing: 'easeOutElastic(1, .5)'
+                            });
+                        } else if (target.classList.contains('vis-title')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                translateY: [-20, 0],
+                                duration: 800,
+                                easing: 'easeOutQuad'
+                            });
+                        } else if (target.classList.contains('main-visual')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                scale: [0.8, 1],
+                                duration: 1200,
+                                easing: 'easeOutElastic(1, .5)'
+                            });
+                        } else if (target.classList.contains('instrument-img')) {
+                            anime({
+                                targets: target,
+                                opacity: [0, 1],
+                                rotate: [-10, 0],
+                                translateX: [-30, 0],
+                                duration: 1000,
+                                easing: 'easeOutQuad'
+                            });
+                        }
+                        
+                        // 动画完成后，取消观察
+                        observer.unobserve(target);
+                    }
+                });
+            }, {
+                threshold: 0.1 // 当元素10%可见时触发
+            });
+            
+            // 观察所有需要动画的元素
+            document.querySelectorAll('.page-section, .left-column, .right-column, .center-column, .info-vis, .vis-title, .main-visual, .instrument-img').forEach(el => {
+                observer.observe(el);
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 先执行进入动画
+            initEntranceAnimations();
+            
+            // 然后执行其他初始化
+            createMusicNotes();
+            setupTimelineNav();
+            initAllVisualizations();
             
             // 初始化音频播放器和可视化
             initAudioPlayer();
