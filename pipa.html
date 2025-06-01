@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>织谱·天弦 - 中国传统弦乐可视化</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script src="https://unpkg.com/d3-milestones/build/d3-milestones.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/d3-milestones/build/d3-milestones.css">
     <style>
         @import url('https://fontsapi.zeoseven.com/309/main/result.css');
         
@@ -344,29 +347,21 @@
         <section id="history" class="page-section">
             <div class="left-column">
                 <div class="info-vis" id="history-timeline">
-                    <h3 class="vis-title">中国弦乐发展时间轴</h3>
-                    <svg width="100%" height="300"></svg>
+                    <h3 class="vis-title">中国弦乐发展</h3>
+                    <svg width="100%" height="200"></svg>
                 </div>
                 
                 <div class="info-vis" id="dynasty-distribution">
                     <h3 class="vis-title">各朝代弦乐发展程度</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="famous-musicians">
-                    <h3 class="vis-title">历代著名弦乐演奏家</h3>
-                    <svg width="100%" height="300"></svg>
+                    <svg width="100%" height="100"></svg>
                 </div>
                 
                 <div class="info-vis" id="initInstrumentOrigins">
-                    <h3 class="vis-title">弦乐传播路线图</h3>
+                    <h3 class="vis-title">弦乐传播路线</h3>
                     <svg width="100%" height="250"></svg>
                 </div>
                 
-                <div class="info-vis" id="historical-records">
-                    <h3 class="vis-title">古籍记载统计</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+
             </div>
             
             <div class="center-column">
@@ -405,15 +400,9 @@
                     <div id="classification-vis"></div>
                 </div>
                 
-                <div class="info-vis" id="technique-evolution">
-                    <h3 class="vis-title">演奏技法演变</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+
                 
-                <div class="info-vis" id="material-changes">
-                    <h3 class="vis-title">制作材料变迁</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+
             </div>
         </section>
         
@@ -428,16 +417,6 @@
                 <div class="info-vis" id="regional-distribution">
                     <h3 class="vis-title">地域分布特征</h3>
                     <svg width="100%" height="300"></svg>
-                </div>
-                
-                <div class="info-vis" id="tuning-systems">
-                    <h3 class="vis-title">调弦系统比较</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="playing-positions">
-                    <h3 class="vis-title">演奏姿势分析</h3>
-                    <svg width="100%" height="250"></svg>
                 </div>
                 
                 <div class="info-vis" id="sound-characteristics">
@@ -482,10 +461,6 @@
                     <svg width="100%" height="250"></svg>
                 </div>
                 
-                <div class="info-vis" id="performance-contexts">
-                    <h3 class="vis-title">演奏场合分析</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
             </div>
         </section>
         
@@ -512,10 +487,6 @@
                     <svg width="100%" height="250"></svg>
                 </div>
                 
-                <div class="info-vis" id="repertoire-overlap">
-                    <h3 class="vis-title">曲目重叠分析</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
             </div>
             
             <div class="center-column">
@@ -539,20 +510,6 @@
                     <svg width="100%" height="300"></svg>
                 </div>
                 
-                <div class="info-vis" id="cultural-associations">
-                    <h3 class="vis-title">文化意象关联</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="force-graph">
-                    <h3 class="vis-title">乐器与演奏技法关联</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
-                
-                <div class="info-vis" id="modern-innovations">
-                    <h3 class="vis-title">现代创新对比</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
                 
                 <div class="info-vis" id="learning-curves">
                     <h3 class="vis-title">学习难度分析</h3>
@@ -583,16 +540,7 @@
                     <h3 class="vis-title">创作年代分布</h3>
                     <svg width="100%" height="250"></svg>
                 </div>
-                
-                <div class="info-vis" id="thematic-analysis">
-                    <h3 class="vis-title">主题内容分析</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="structural-patterns">
-                    <h3 class="vis-title">结构模式可视化</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+            
             </div>
             
             <div class="center-column">
@@ -613,16 +561,6 @@
             <div class="right-column">
                 <div class="info-vis" id="emotional-journey">
                     <h3 class="vis-title">情感历程可视化</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
-                
-                <div class="info-vis" id="performance-versions">
-                    <h3 class="vis-title">演奏版本比较</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="cultural-references">
-                    <h3 class="vis-title">文化典故关联</h3>
                     <svg width="100%" height="300"></svg>
                 </div>
                 
@@ -649,16 +587,6 @@
                 <div class="info-vis" id="global-spread">
                     <h3 class="vis-title">全球传播路径</h3>
                     <svg width="100%" height="300"></svg>
-                </div>
-                
-                <div class="info-vis" id="education-growth">
-                    <h3 class="vis-title">教育发展统计</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
-                
-                <div class="info-vis" id="innovation-trends">
-                    <h3 class="vis-title">创新趋势分析</h3>
-                    <svg width="100%" height="250"></svg>
                 </div>
                 
                 <div class="info-vis" id="cultural-impact">
@@ -995,8 +923,8 @@
             initInstrumentOrigins();
             initDynastyComparison();
             initHistoricalEvents();
-            initTechniqueEvolution();
-            initMaterialChanges();
+            // initTechniqueEvolution(); // 已删除
+            // initMaterialChanges(); // 已删除
             initSankeyDiagram();
             initBubbleChart();
             initForceDirectedGraph();
@@ -1013,9 +941,7 @@
             console.log("initFamousMusicians 函数尚未实现");
         }
         
-        function initHistoricalRecords() {
-            console.log("initHistoricalRecords 函数尚未实现");
-        }
+
         
         function initInstrumentFamily() {
             console.log("initInstrumentFamily 函数尚未实现");
@@ -1179,75 +1105,275 @@
 // 注意：所有图表初始化已移至 initAllVisualizations 函数中，避免重复初始化
         function initHistoryTimeline() {
             const data = [
-                {year: "商周", event: "琴瑟出现", importance: 3},
-                {year: "秦汉", event: "琵琶传入", importance: 5},
-                {year: "魏晋", event: "阮咸定型", importance: 4},
-                {year: "隋唐", event: "琵琶鼎盛", importance: 8},
-                {year: "宋元", event: "三弦兴起", importance: 6},
-                {year: "明清", event: "胡琴普及", importance: 7},
-                {year: "近代", event: "二胡革新", importance: 6}
+                {year: "商周", event: "琴瑟出现", importance: 3, details: "商周时期，琴瑟等弦乐器已经在礼乐制度中占据重要地位，主要用于祭祀和宫廷场合。", startYear: "-1046", endYear: "-221", color: "#8B4513", instruments: ["琴", "瑟"]},
+                {year: "秦汉", event: "琵琶传入", importance: 5, details: "秦汉时期，随着丝绸之路的开通，西域琵琶传入中原，并逐渐与中国本土文化融合。", startYear: "-221", endYear: "220", color: "#DAA520", instruments: ["琵琶", "阮"]},
+                {year: "魏晋", event: "阮咸定型", importance: 4, details: "魏晋南北朝时期，阮咸等弦乐器的形制逐渐定型，文人雅士开始广泛使用弦乐器抒发情感。", startYear: "220", endYear: "581", color: "#4B0082", instruments: ["阮咸", "古琴"]},
+                {year: "隋唐", event: "琵琶鼎盛", importance: 8, details: "隋唐时期是中国弦乐发展的黄金时代，特别是琵琶艺术达到了前所未有的高度，出现了许多著名的琵琶曲。", startYear: "581", endYear: "907", color: "#CD5C5C", instruments: ["琵琶", "古筝", "阮咸"]},
+                {year: "宋元", event: "三弦兴起", importance: 6, details: "宋元时期，三弦等新型弦乐器兴起，弦乐艺术在民间得到广泛传播，出现了许多民间艺人。", startYear: "960", endYear: "1368", color: "#4682B4", instruments: ["三弦", "古琴", "琵琶"]},
+                {year: "明清", event: "胡琴普及", importance: 7, details: "明清时期，胡琴类乐器得到普及和发展，戏曲音乐中的弦乐伴奏技巧日益成熟。", startYear: "1368", endYear: "1912", color: "#2E8B57", instruments: ["二胡", "京胡", "琵琶", "古筝"]},
+                {year: "近代", event: "二胡革新", importance: 6, details: "近现代时期，二胡等传统弦乐器经历了革新，融入了西方音乐元素，创作了大量新曲目。", startYear: "1912", endYear: "2023", color: "#B22222", instruments: ["二胡", "琵琶", "古筝", "扬琴"]}
             ];
             
             const svg = d3.select("#history-timeline svg");
             const width = svg.node().getBoundingClientRect().width;
-            const height = 300;
+            const height = 500; // 增加高度以容纳更复杂的可视化
             
             svg.attr("height", height);
+            svg.selectAll("*").remove(); // 清除之前的内容
             
-            const x = d3.scaleBand()
-                .domain(data.map(d => d.year))
-                .range([0, width])
-                .padding(0.2);
+            const margin = {top: 60, right: 100, bottom: 80, left: 100};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
             
-            const y = d3.scaleLinear()
-                .domain([0, 10])
-                .range([height - 30, 30]);
+            // 创建主图表容器
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
             
-            // 添加时间线
-            svg.append("path")
-                .datum(data)
-                .attr("fill", "none")
+            // 创建径向布局
+            const radius = Math.min(innerWidth, innerHeight) / 0.9; // 减小除数以放大整体比例
+            const arcGenerator = d3.arc()
+                .innerRadius(radius * 0.6) // 增加内圆半径
+                .outerRadius(radius * 0.8); // 增加外圆半径
+            
+            // 创建饼图布局
+            const pie = d3.pie()
+                .value(d => d.importance)
+                .sort(null); // 不排序，保持数据原有顺序
+            
+            // 设置中心点
+            const center = g.append("g")
+                .attr("transform", `translate(${innerWidth / 3}, ${innerHeight / 2})`);
+            
+            // 添加背景圆环
+            center.append("circle")
+                .attr("r", radius * 0.6)
+                .attr("fill", "#2a0845")
                 .attr("stroke", "#d4af37")
-                .attr("stroke-width", 2)
-                .attr("d", d3.line()
-                    .x(d => x(d.year) + x.bandwidth() / 2)
-                    .y(d => y(d.importance))
-                );
+                .attr("stroke-width", 1);
             
-            // 添加节点
-            svg.selectAll(".event-circle")
-                .data(data)
-                .enter()
-                .append("circle")
-                .attr("cx", d => x(d.year) + x.bandwidth() / 2)
-                .attr("cy", d => y(d.importance))
-                .attr("r", d => d.importance / 2)
+            // 添加中心文字
+            center.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", "-0.2em")
                 .attr("fill", "#d4af37")
-                .attr("opacity", 0.7)
+                .attr("font-family", "KingHwa_OldSong")
+                .attr("font-size", 16)
+                .text("中国弦乐");
+            
+            center.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", "1em")
+                .attr("fill", "#d4af37")
+                .attr("font-family", "KingHwa_OldSong")
+                .attr("font-size", 16)
+                .text("发展历程");
+            
+            // 创建弧形路径
+            const arcs = center.selectAll(".arc")
+                .data(pie(data))
+                .enter()
+                .append("g")
+                .attr("class", "arc");
+            
+            // 添加弧形
+            arcs.append("path")
+                .attr("d", arcGenerator.outerRadius(radius * 0.7)) // 增加弧形半径到原来的1.2倍
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "#2a0845") 
+                .attr("stroke-width", 5)
+                .attr("opacity", 2)
                 .on("mouseover", function(event, d) {
-                    d3.select(this).attr("fill", "#ff6b6b");
+                    // 高亮当前弧形
+                    d3.select(this)
+                        .attr("opacity", 1)
+                        .attr("stroke-width", 3);
                     
-                    // 显示工具提示
-                    svg.append("text")
-                        .attr("class", "event-tooltip")
-                        .attr("x", x(d.year) + x.bandwidth() / 2)
-                        .attr("y", y(d.importance) - 15)
+                    // 显示详细信息面板,设置最高层级
+                    const infoPanel = svg.append("g")
+                        .attr("class", "info-panel")
+                        .attr("transform", `translate(${width/2 - 140}, ${margin.top - 70})`) // 水平居中并向上偏移20px,140为面板宽度的一半
+                        .raise(); // 确保信息面板显示在最上层
+                    infoPanel.append("rect")
+                        .attr("width", 1)
+                        .attr("height", 160)
+                        .attr("rx", 20)
+                        .attr("ry", 20)
+                        .attr("fill", "rgba(42, 8, 69, 0.9)")
+                        .attr("stroke", d.data.color)
+                        .attr("stroke-width", 2);
+                    
+                    infoPanel.append("text")
+                        .attr("x", 140)
+                        .attr("y", 30)
                         .attr("text-anchor", "middle")
-                        .attr("fill", "white")
-                        .text(d.event);
+                        .attr("fill", d.data.color)
+                        .attr("font-family", "KingHwa_OldSong")
+                        .attr("font-size", 18)
+                        .text(d.data.year + "时期");
+                    
+                    infoPanel.append("text")
+                        .attr("x", 140)
+                        .attr("y", 55)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#d4af37")
+                        .attr("font-family", "KingHwa_OldSong")
+                        .attr("font-size", 14)
+                        .text(`${d.data.startYear} 至 ${d.data.endYear}`);
+                    
+                    infoPanel.append("text")
+                        .attr("x", 140)
+                        .attr("y", 80)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#d4af37")
+                        .attr("font-family", "KingHwa_OldSong")
+                        .attr("font-size", 16)
+                        .text(d.data.event);
+                    
+                    infoPanel.append("text")
+                        .attr("x", 15)
+                        .attr("y", 105)
+                        .attr("fill", "#e6d5b8")
+                        .attr("font-family", "KingHwa_OldSong")
+                        .attr("font-size", 14)
+                        .text("代表乐器：" + d.data.instruments.join("、"));
+                    
+                    // 使用foreignObject添加详细描述，支持文本换行
+                    const fo = infoPanel.append("foreignObject")
+                        .attr("x", 15)
+                        .attr("y", 115)
+                        .attr("width", 250)
+                        .attr("height", 80);
+                    
+                    fo.append("xhtml:div")
+                        .style("color", "#e6d5b8")
+                        .style("font-family", "KingHwa_OldSong")
+                        .style("font-size", "12px")
+                        .style("line-height", "1.4")
+                        .html(d.data.details);
+                    
+                    // 添加乐器图标
+                    const instrumentIcons = center.append("g")
+                        .attr("class", "instrument-icons");
+                    
+                    d.data.instruments.forEach((inst, i) => {
+                        const angle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                        const x = Math.cos(angle) * (radius * 0.85);
+                        const y = Math.sin(angle) * (radius * 0.85);
+                        
+                        instrumentIcons.append("circle")
+                            .attr("cx", x + i * 20 - (d.data.instruments.length - 1) * 10)
+                            .attr("cy", y)
+                            .attr("r", 8)
+                            .attr("fill", d.data.color)
+                            .attr("stroke", "#2a0845")
+                            .attr("stroke-width", 1);
+                        
+                        instrumentIcons.append("text")
+                            .attr("x", x + i * 20 - (d.data.instruments.length - 1) * 10)
+                            .attr("y", y)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .attr("fill", "#2a0845")
+                            .attr("font-family", "KingHwa_OldSong")
+                            .attr("font-size", 10)
+                            .text(inst.substring(0, 1));
+                    });
                 })
                 .on("mouseout", function() {
-                    d3.select(this).attr("fill", "#d4af37");
-                    svg.selectAll(".event-tooltip").remove();
+                    // 恢复弧形样式
+                    d3.select(this)
+                        .attr("opacity", 0.8)
+                        .attr("stroke-width", 2);
+                    
+                    // 移除信息面板和乐器图标
+                    svg.selectAll(".info-panel").remove();
+                    center.selectAll(".instrument-icons").remove();
                 });
             
-            // 添加年份标签
-            svg.append("g")
-                .attr("transform", `translate(0,${height - 10})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("fill", "#d4af37")
-                .style("font-family", "KingHwa_OldSong");
+            // 添加连接线和标签
+            arcs.append("line")
+                .attr("x1", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    return Math.cos(angle) * (radius * 0.7);
+                })
+                .attr("y1", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    return Math.sin(angle) * (radius * 0.7);
+                })
+                .attr("x2", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    return Math.cos(angle) * (radius * 0.9);
+                })
+                .attr("y2", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    return Math.sin(angle) * (radius * 0.9);
+                })
+                .attr("stroke", d => d.data.color)
+                .attr("stroke-width", 2);
+            
+            arcs.append("text")
+                .attr("transform", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    const x = Math.cos(angle) * (radius * 0.95);
+                    const y = Math.sin(angle) * (radius * 0.95);
+                    return `translate(${x}, ${y})`;
+                })
+                .attr("text-anchor", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    return Math.cos(angle) > 0 ? "start" : "end";
+                })
+                .attr("dy", "0.35em")
+                .attr("fill", d => d.data.color)
+                .attr("font-family", "KingHwa_OldSong")
+                .attr("font-size", 14)
+                .attr("font-weight", "bold")
+                .text(d => d.data.year);
+            
+            // 添加事件标记
+            arcs.append("circle")
+                .attr("transform", d => {
+                    const angle = (d.startAngle + d.endAngle) / 2;
+                    const x = Math.cos(angle) * (radius * 0.5);
+                    const y = Math.sin(angle) * (radius * 0.5);
+                    return `translate(${x}, ${y})`;
+                })
+                .attr("r", d => 5 + d.data.importance)
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "#2a0845")
+                .attr("stroke-width", 1.5)
+                .attr("opacity", 0.9);
+            
+            // 添加图例
+            const legend = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${height - margin.bottom - 30})`);
+            
+            data.forEach((d, i) => {
+                const legendRow = legend.append("g")
+                    .attr("transform", `translate(${i * (innerWidth / data.length)}, 0)`);
+                
+                legendRow.append("rect")
+                    .attr("width", 5)
+                    .attr("height", 15)
+                    .attr("fill", d.color);
+                
+                legendRow.append("text")
+                    .attr("x", 1)
+                    .attr("y", -7)
+                    .attr("fill", "#d4af37")
+                    .attr("font-family", "KingHwa_OldSong")
+                    .attr("font-size", 7)
+                    .text(d.year);
+            });
+            
+            // 添加交互提示
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height - 60)  // 将y坐标从height-10改为height-20,使文字上移
+                .attr("text-anchor", "middle")
+                .attr("fill", "#e6d5b8")
+                .attr("font-family", "KingHwa_OldSong")
+                .attr("font-size", 12)
+                .text("鼠标悬停在时间段上可查看详细信息");
         }
         
         function initInstrumentOrigins() {
@@ -1829,293 +1955,7 @@
             });
         }
         
-        function initTechniqueEvolution() {
-            const data = [
-                {technique: "轮指", origin: "唐代", spread: ["琵琶", "古筝"], complexity: 8},
-                {technique: "泛音", origin: "商周", spread: ["古琴", "琵琶", "古筝"], complexity: 6},
-                {technique: "滑音", origin: "汉代", spread: ["二胡", "琵琶"], complexity: 5},
-                {technique: "颤音", origin: "唐代", spread: ["二胡", "古筝"], complexity: 7},
-                {technique: "扫弦", origin: "宋代", spread: ["琵琶", "古筝"], complexity: 6}
-            ];
-            
-            const svg = d3.select("#technique-evolution svg");
-            const width = svg.node().getBoundingClientRect().width;
-            const height = 400;
-            
-            svg.attr("height", height);
-            
-            // 创建力导向图数据结构
-            const nodes = [];
-            const links = [];
-            
-            // 添加技法节点
-            data.forEach(d => {
-                nodes.push({
-                    id: d.technique,
-                    type: "technique",
-                    origin: d.origin,
-                    complexity: d.complexity
-                });
-                
-                // 添加乐器节点和连接
-                d.spread.forEach(instrument => {
-                    // 检查乐器节点是否已存在
-                    if (!nodes.some(node => node.id === instrument)) {
-                        nodes.push({
-                            id: instrument,
-                            type: "instrument"
-                        });
-                    }
-                    
-                    // 添加连接
-                    links.push({
-                        source: d.technique,
-                        target: instrument,
-                        value: d.complexity
-                    });
-                });
-            });
-            
-            // 创建力导向模拟
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                .force("charge", d3.forceManyBody().strength(-200))
-                .force("center", d3.forceCenter(width / 2, height / 2));
-            
-            // 创建连接线
-            const link = svg.append("g")
-                .attr("class", "links")
-                .selectAll("line")
-                .data(links)
-                .enter().append("line")
-                .attr("stroke", "#d4af37")
-                .attr("stroke-opacity", 0.6)
-                .attr("stroke-width", d => Math.sqrt(d.value));
-            
-            // 创建节点
-            const node = svg.append("g")
-                .attr("class", "nodes")
-                .selectAll("g")
-                .data(nodes)
-                .enter().append("g")
-                .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended));
-            
-            // 添加节点圆圈
-            node.append("circle")
-                .attr("r", d => {
-                    if (d.type === "technique") {
-                        return 10 + d.complexity * 1.5; // 技法节点大小根据复杂度调整
-                    } else {
-                        return 15; // 乐器节点固定大小
-                    }
-                })
-                .attr("fill", d => {
-                    if (d.type === "technique") {
-                        // 根据起源朝代分配颜色
-                        if (d.origin === "商周") return "#8B4513";
-                        if (d.origin === "汉代") return "#4B0082";
-                        if (d.origin === "唐代") return "#CD5C5C";
-                        if (d.origin === "宋代") return "#4682B4";
-                        return "#2E8B57";
-                    } else {
-                        return "#2a0845"; // 乐器节点颜色
-                    }
-                })
-                .attr("stroke", "#e6d5b8")
-                .attr("stroke-width", 2);
-            
-            // 添加节点文本
-            node.append("text")
-                .attr("dx", d => d.type === "technique" ? -20 : 20)
-                .attr("dy", ".35em")
-                .attr("text-anchor", d => d.type === "technique" ? "end" : "start")
-                .attr("fill", "#d4af37")
-                .attr("font-family", "KingHwa_OldSong")
-                .attr("font-size", 14)
-                .text(d => d.id);
-            
-            // 添加图表标题
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", 30)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#d4af37")
-                .attr("font-family", "KingHwa_OldSong")
-                .attr("font-size", 18)
-                .text("演奏技法演变与传播");
-            
-            // 添加图例
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width - 150}, 60)`);
-            
-            const origins = [{name: "商周", color: "#8B4513"}, {name: "汉代", color: "#4B0082"}, 
-                           {name: "唐代", color: "#CD5C5C"}, {name: "宋代", color: "#4682B4"}];
-            
-            origins.forEach((origin, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 20})`);
-                
-                legendRow.append("circle")
-                    .attr("r", 6)
-                    .attr("fill", origin.color);
-                
-                legendRow.append("text")
-                    .attr("x", 15)
-                    .attr("y", 4)
-                    .attr("fill", "#d4af37")
-                    .attr("font-family", "KingHwa_OldSong")
-                    .attr("font-size", 12)
-                    .text(origin.name);
-            });
-            
-            // 添加乐器图例
-            const instrumentLegend = legend.append("g")
-                .attr("transform", `translate(0, ${origins.length * 20 + 10})`);
-            
-            instrumentLegend.append("circle")
-                .attr("r", 6)
-                .attr("fill", "#2a0845");
-            
-            instrumentLegend.append("text")
-                .attr("x", 15)
-                .attr("y", 4)
-                .attr("fill", "#d4af37")
-                .attr("font-family", "KingHwa_OldSong")
-                .attr("font-size", 12)
-                .text("乐器");
-            
-            // 添加交互效果
-            node.on("mouseover", function(event, d) {
-                // 高亮当前节点
-                d3.select(this).select("circle")
-                    .attr("fill", "#ff6b6b");
-                
-                // 高亮相关连接和节点
-                link.attr("stroke-opacity", l => {
-                    if (l.source.id === d.id || l.target.id === d.id) {
-                        return 1;
-                    } else {
-                        return 0.2;
-                    }
-                });
-                
-                node.select("circle")
-                    .attr("opacity", n => {
-                        // 检查是否有连接到当前节点
-                        const connected = links.some(l => 
-                            (l.source.id === d.id && l.target.id === n.id) || 
-                            (l.target.id === d.id && l.source.id === n.id));
-                        
-                        return n.id === d.id || connected ? 1 : 0.3;
-                    });
-                
-                node.select("text")
-                    .attr("opacity", n => {
-                        const connected = links.some(l => 
-                            (l.source.id === d.id && l.target.id === n.id) || 
-                            (l.target.id === d.id && l.source.id === n.id));
-                        
-                        return n.id === d.id || connected ? 1 : 0.3;
-                    });
-                
-                // 添加提示框
-                if (d.type === "technique") {
-                    const tooltip = svg.append("g")
-                        .attr("class", "technique-tooltip")
-                        .attr("transform", `translate(${event.x}, ${event.y - 60})`);
-                    
-                    tooltip.append("rect")
-                        .attr("width", 160)
-                        .attr("height", 70)
-                        .attr("x", -80)
-                        .attr("y", -35)
-                        .attr("rx", 5)
-                        .attr("ry", 5)
-                        .attr("fill", "rgba(42, 8, 69, 0.9)")
-                        .attr("stroke", "#d4af37");
-                    
-                    tooltip.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("y", -15)
-                        .attr("fill", "#d4af37")
-                        .attr("font-family", "KingHwa_OldSong")
-                        .attr("font-size", 14)
-                        .text(d.id);
-                    
-                    tooltip.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("y", 5)
-                        .attr("fill", "#e6d5b8")
-                        .attr("font-family", "KingHwa_OldSong")
-                        .attr("font-size", 12)
-                        .text(`起源: ${d.origin}`);
-                    
-                    tooltip.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("y", 25)
-                        .attr("fill", "#e6d5b8")
-                        .attr("font-family", "KingHwa_OldSong")
-                        .attr("font-size", 12)
-                        .text(`复杂度: ${d.complexity}/10`);
-                }
-            })
-            .on("mouseout", function(event, d) {
-                // 恢复节点颜色
-                d3.select(this).select("circle")
-                    .attr("fill", d => {
-                        if (d.type === "technique") {
-                            if (d.origin === "商周") return "#8B4513";
-                            if (d.origin === "汉代") return "#4B0082";
-                            if (d.origin === "唐代") return "#CD5C5C";
-                            if (d.origin === "宋代") return "#4682B4";
-                            return "#2E8B57";
-                        } else {
-                            return "#2a0845";
-                        }
-                    });
-                
-                // 恢复所有连接和节点的透明度
-                link.attr("stroke-opacity", 0.6);
-                node.select("circle").attr("opacity", 1);
-                node.select("text").attr("opacity", 1);
-                
-                // 移除提示框
-                svg.selectAll(".technique-tooltip").remove();
-            });
-            
-            // 力导向图更新函数
-            simulation.on("tick", () => {
-                link
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
-                
-                node
-                    .attr("transform", d => `translate(${d.x}, ${d.y})`);
-            });
-            
-            // 拖拽函数
-            function dragstarted(event, d) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
-            }
-            
-            function dragged(event, d) {
-                d.fx = event.x;
-                d.fy = event.y;
-            }
-            
-            function dragended(event, d) {
-                if (!event.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-            }
-        }
+        // function initTechniqueEvolution() - 已删除
         
         function initMaterialChanges() {
             const data = [
@@ -2947,20 +2787,49 @@
             const svg = d3.select("#dynasty-distribution svg");
             const width = svg.node().getBoundingClientRect().width;
             const height = 250;
+            const margin = {top: 20, right: 20, bottom: 30, left: 40};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
             
             svg.attr("height", height);
             
+            // 创建主图层
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
             const x = d3.scaleBand()
                 .domain(data.map(d => d.dynasty))
-                .range([0, width])
+                .range([0, innerWidth])
                 .padding(0.2);
             
             const y = d3.scaleLinear()
                 .domain([0, 10])
-                .range([height, 0]);
+                .range([innerHeight, 0]);
+            
+            // 添加图例
+            const legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width - 120}, 10)`);
+            
+            
+            legend.append("text")
+                .attr("x", 55)
+                .attr("y", 20)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#d4af37")
+                .style("font-family", "KingHwa_OldSong")
+                .text("符号大小表示");
+            
+            legend.append("text")
+                .attr("x", 55)
+                .attr("y", 40)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#d4af37")
+                .style("font-family", "KingHwa_OldSong")
+                .text("发展程度");
             
             // 添加弦乐符号散点
-            svg.selectAll(".symbol")
+            g.selectAll(".symbol")
                 .data(data)
                 .enter()
                 .append("text")
@@ -2976,13 +2845,12 @@
                     d3.select(this).attr("fill", "#ff6b6b");
                     
                     // 显示详细工具提示
-                    const tooltip = svg.append("g")
+                    const tooltip = g.append("g")
                         .attr("class", "dynasty-tooltip")
-                        .attr("transform", `translate(${x(d.dynasty) + x.bandwidth() / 2},${y(d.development) - 30})`);
-                    
+                        .attr("transform", `translate(${x(d.dynasty) + x.bandwidth() / 2},${y(d.development) - 40})`);
                     tooltip.append("rect")
-                        .attr("width", 150)
-                        .attr("height", 60)
+                        .attr("width", 1)
+                        .attr("height", 30)
                         .attr("x", -75)
                         .attr("rx", 5)
                         .attr("ry", 5)
@@ -2993,28 +2861,31 @@
                         .attr("text-anchor", "middle")
                         .attr("fill", "#d4af37")
                         .attr("y", -15)
+                        .attr("font-family", "KingHwa_OldSong")
                         .text(d.dynasty);
                     
                     tooltip.append("text")
                         .attr("text-anchor", "middle")
                         .attr("fill", "white")
                         .attr("y", 5)
+                        .attr("font-family", "KingHwa_OldSong")
                         .text(`乐器: ${d.instruments.join(", ")}`);
                     
                     tooltip.append("text")
                         .attr("text-anchor", "middle")
                         .attr("fill", "white")
                         .attr("y", 25)
+                        .attr("font-family", "KingHwa_OldSong")
                         .text(`发展程度: ${d.development}/10`);
                 })
                 .on("mouseout", function() {
                     d3.select(this).attr("fill", "#d4af37");
-                    svg.selectAll(".dynasty-tooltip").remove();
+                    g.selectAll(".dynasty-tooltip").remove();
                 });
             
             // 添加朝代标签
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
+            g.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
                 .call(d3.axisBottom(x))
                 .selectAll("text")
                 .attr("fill", "#d4af37")
@@ -3171,14 +3042,14 @@
         }
         
         .control-btn:hover {
-            background: rgba(245, 215, 110, 0.9);
+            background: rgba(245, 215, 110, 0.5);
             transform: scale(1.05);
         }
         
         .volume-control {
             display: flex;
             align-items: center;
-            color: #d4af37;
+            color: rgba(245, 215, 110, 0.5);
             font-family: 'KingHwa_OldSong', serif;
             pointer-events: auto; /* 控件可以点击 */
         }
@@ -3189,7 +3060,7 @@
         
         #volumeSlider {
             width: 80px;
-            accent-color: #d4af37;
+            accent-color: rgba(245, 215, 110, 0.5);
         }
         
         #audio-visualizer {
@@ -3204,7 +3075,7 @@
         .visualizer-bar {
             width: 3px;
             height: 5px;
-            background: linear-gradient(to top, rgba(212, 175, 55, 0.7), rgba(245, 215, 110, 0.7));
+            background: linear-gradient(to top, rgba(212, 175, 55, 0.3), rgba(245, 215, 110, 0.5));
             margin: 0 1px;
             border-radius: 2px 2px 0 0;
             transition: height 0.1s ease;
