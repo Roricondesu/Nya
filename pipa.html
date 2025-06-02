@@ -3522,43 +3522,77 @@ window.addEventListener('load', initFamilyTree);
             const volumeSlider = document.getElementById('volumeSlider');
             const visualizer = document.getElementById('audio-visualizer');
             
-            // 创建音频上下文和分析器
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
+            let audioContext = null;
+            let analyser = null;
+            let source = null;
             
-            // 连接音频节点
-            const source = audioContext.createMediaElementSource(audioPlayer);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
+            // 监听鼠标移动事件来初始化和播放音频
+            document.addEventListener('mousemove', initAudioOnFirstMove);
+            
+            function initAudioOnFirstMove() {
+                if (!audioContext) {
+                    // 创建音频上下文和分析器
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    source = audioContext.createMediaElementSource(audioPlayer);
+                    source.connect(analyser);
+                    analyser.connect(audioContext.destination);
+                    
+                    // 设置初始音量并开始播放
+                    audioPlayer.volume = volumeSlider.value;
+                    audioPlayer.play().then(() => {
+                        // 开始可视化
+                        createVisualizer();
+                        updateVisualizer();
+                    }).catch(error => {
+                        console.log('播放失败:', error);
+                    });
+                    
+                    // 移除监听器，避免重复初始化
+                    document.removeEventListener('mousemove', initAudioOnFirstMove);
+                }
+            }
             
             // 创建可视化条
-            for (let i = 0; i < 60; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'visualizer-bar';
-                visualizer.appendChild(bar);
+            function createVisualizer() {
+                visualizer.innerHTML = ''; // 清空现有的可视化条
+                for (let i = 0; i < 60; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'visualizer-bar';
+                    visualizer.appendChild(bar);
+                }
             }
             
             // 更新可视化
             function updateVisualizer() {
-                requestAnimationFrame(updateVisualizer);
+                if (!analyser) return;
                 
-                analyser.getByteFrequencyData(dataArray);
-                const bars = document.querySelectorAll('.visualizer-bar');
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
                 
-                bars.forEach((bar, i) => {
-                    const index = Math.floor(i * bufferLength / bars.length);
-                    const value = dataArray[index] / 255;
-                    const height = value * 50;
-                    bar.style.height = `${height}px`;
-                    bar.style.opacity = 0.3 + value * 0.7;
-                });
+                function draw() {
+                    requestAnimationFrame(draw);
+                    
+                    analyser.getByteFrequencyData(dataArray);
+                    const bars = document.querySelectorAll('.visualizer-bar');
+                    
+                    bars.forEach((bar, i) => {
+                        const index = Math.floor(i * bufferLength / bars.length);
+                        const value = dataArray[index] / 255;
+                        const height = value * 50;
+                        bar.style.height = `${height}px`;
+                        bar.style.opacity = 0.3 + value * 0.7;
+                    });
+                }
+                
+                draw();
             }
             
             // 播放/暂停控制
             playPauseBtn.addEventListener('click', () => {
+                if (!audioContext) return;
+                
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
@@ -3574,17 +3608,10 @@ window.addEventListener('load', initFamilyTree);
             
             // 音量控制
             volumeSlider.addEventListener('input', () => {
-                audioPlayer.volume = volumeSlider.value;
+                if (audioPlayer) {
+                    audioPlayer.volume = volumeSlider.value;
+                }
             });
-            
-            // 自动播放
-            audioPlayer.volume = volumeSlider.value;
-            audioPlayer.play().catch(error => {
-                console.log('自动播放失败，需要用户交互:', error);
-            });
-            
-            // 开始可视化
-            updateVisualizer();
         }
     </script>
     
@@ -3595,7 +3622,6 @@ window.addEventListener('load', initFamilyTree);
             您的浏览器不支持音频元素。
         </audio>
         <div class="audio-controls">
-            <button id="playPauseBtn" class="control-btn">⏸</button>
             <div class="volume-control">
                 <span>音量:</span>
                 <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
@@ -3611,14 +3637,14 @@ window.addEventListener('load', initFamilyTree);
             left: 20px;
             width: auto;
             z-index: 1000;
-            pointer-events: none; /* 不影响点击 */
+            pointer-events: none;
         }
         
         .audio-controls {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
-            pointer-events: auto; /* 控件可以点击 */
+            pointer-events: auto;
         }
         
         .control-btn {
@@ -3643,7 +3669,7 @@ window.addEventListener('load', initFamilyTree);
             align-items: center;
             color: rgba(245, 215, 110, 0.5);
             font-family: 'KingHwa_OldSong', serif;
-            pointer-events: auto; /* 控件可以点击 */
+            pointer-events: auto;
         }
         
         .volume-control span {
@@ -3661,7 +3687,7 @@ window.addEventListener('load', initFamilyTree);
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            pointer-events: none; /* 不影响点击 */
+            pointer-events: none;
         }
         
         .visualizer-bar {
