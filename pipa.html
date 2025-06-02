@@ -26,9 +26,16 @@
             scroll-behavior: smooth;
         }
         
-        h1, h2, h3, h4 {
+        h1, h3, h4 {
             font-family: "KingHwa_OldSong", serif;
             font-weight: normal;
+        }
+        
+        h2 {
+            font-family: "KingHwa_OldSong", serif;
+            font-weight: normal;
+            font-size: 3rem; /* 放大h2字号 */
+            transform: translateY(-50px); /* 向上移动10% */
         }
         
         .container {
@@ -473,7 +480,8 @@
                 <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
                 
                 <div class="main-visual">
-                    <img src="static/img/pipa1.svg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Pipa-CHN_51-2_2010.jpg/320px-Pipa-CHN_51-2_2010.jpg" alt="琵琶" class="instrument-img">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Erhu_in_the_hand.jpg/320px-Erhu_in_the_hand.jpg" alt="二胡" class="instrument-img">
                 </div>
                 
                 <div class="history-content">
@@ -729,7 +737,20 @@
                     <svg width="100%" height="300"></svg>
                 </div>
                 
-
+                <div class="info-vis" id="digital-innovations">
+                    <h3 class="vis-title">数字化创新应用</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="youth-engagement">
+                    <h3 class="vis-title">青年参与度调查</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="preservation-efforts">
+                    <h3 class="vis-title">保护传承措施</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
             </div>
         </section>
     </div>
@@ -1295,7 +1316,17 @@
             console.log("initCrossCultural 函数尚未实现");
         }
         
-
+        function initDigitalInnovations() {
+            console.log("initDigitalInnovations 函数尚未实现");
+        }
+        
+        function initYouthEngagement() {
+            console.log("initYouthEngagement 函数尚未实现");
+        }
+        
+        function initPreservationEfforts() {
+            console.log("initPreservationEfforts 函数尚未实现");
+        }
 // 注意：所有图表初始化已移至 initAllVisualizations 函数中，避免重复初始化
         function initHistoryTimeline() {
             const data = [
