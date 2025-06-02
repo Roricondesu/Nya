@@ -36,6 +36,20 @@
             font-weight: normal;
             font-size: 3rem; /* 放大h2字号 */
             transform: translateY(-50px); /* 向上移动10% */
+            animation: floatText 3s ease-in-out infinite; /* 添加浮动动画 */
+        }
+
+        /* 定义浮动动画 */
+        @keyframes floatText {
+            0% {
+                transform: translateY(-50px);
+            }
+            50% {
+                transform: translateY(-40px);
+            }
+            100% {
+                transform: translateY(-50px);
+            }
         }
          
         .container {
@@ -476,7 +490,7 @@
             </div>
             
             <div class="center-column">
-                <h2>历史发展</h2>
+                <h2>弦歌不辍</h2>
                 <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
                 
                 <div class="main-visual">
@@ -500,15 +514,138 @@
                     <svg width="100%" height="250"></svg>
                 </div>
                 
-                <div class="info-vis" id="sankey-diagram">
-                    <h3 class="vis-title">中国弦乐器历史发展关系图</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
+<div class="info-vis" id="lishifazhan">
+    <h3 class="vis-title">中国弦乐器历史发展关系图</h3>
+    <svg width="100%" height="300"></svg>
+</div>
+
+<script>
+// 历史发展关系图数据
+const historyData = {
+    nodes: [
+        { id: "古琴", group: 1, year: "前2000", link: "guqin.html" },
+        { id: "瑟", group: 1, year: "前1500", link: "se.html" },
+        { id: "琵琶", group: 2, year: "前200", link: "pipa.html" },
+        { id: "阮", group: 2, year: "200", link: "ruan.html" },
+        { id: "箜篌", group: 3, year: "300", link: "konghou.html" },
+        { id: "筝", group: 3, year: "400", link: "zheng.html" },
+        { id: "二胡", group: 4, year: "900", link: "erhu.html" },
+        { id: "胡琴", group: 4, year: "600", link: "huqin.html" },
+        { id: "月琴", group: 2, year: "800", link: "yueqin.html" },
+        { id: "三弦", group: 2, year: "1000", link: "sanxian.html" },
+        { id: "扬琴", group: 3, year: "1100", link: "yangqin.html" },
+        { id: "京胡", group: 4, year: "1800", link: "jinghu.html" },
+        { id: "板胡", group: 4, year: "1600", link: "banhu.html" },
+        { id: "高胡", group: 4, year: "1900", link: "gaohu.html" },
+        { id: "中胡", group: 4, year: "1950", link: "zhonghu.html" }
+    ],
+    links: [
+        { source: "古琴", target: "瑟", value: 5, period: "先秦" },
+        { source: "琵琶", target: "阮", value: 3, period: "汉代" },
+        { source: "箜篌", target: "筝", value: 4, period: "魏晋" },
+        { source: "胡琴", target: "二胡", value: 4, period: "唐代" },
+        { source: "古琴", target: "琵琶", value: 2, period: "隋唐" },
+        { source: "瑟", target: "筝", value: 3, period: "宋代" },
+        { source: "琵琶", target: "月琴", value: 3, period: "唐代" },
+        { source: "月琴", target: "三弦", value: 2, period: "宋代" },
+        { source: "胡琴", target: "京胡", value: 3, period: "清代" },
+        { source: "胡琴", target: "板胡", value: 3, period: "明代" },
+        { source: "二胡", target: "高胡", value: 2, period: "民国" },
+        { source: "二胡", target: "中胡", value: 2, period: "现代" },
+        { source: "筝", target: "扬琴", value: 3, period: "宋代" },
+        // 添加二胡和琵琶的连接
+        { source: "琵琶", target: "二胡", value: 4, period: "唐代" }
+    ]
+};
+
+// 初始化力导向图
+function initHistoryGraph() {
+    const svg = d3.select("#lishifazhan svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+
+    // 创建力导向模拟
+    const simulation = d3.forceSimulation(historyData.nodes)
+        .force("link", d3.forceLink(historyData.links).id(d => d.id))
+        .force("charge", d3.forceManyBody().strength(-100))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+    // 绘制连线
+    const link = svg.append("g")
+        .selectAll("line")
+        .data(historyData.links)
+        .enter().append("line")
+        .attr("stroke", "#d4af37")
+        .attr("stroke-opacity", 0.6)
+        .attr("stroke-width", d => Math.sqrt(d.value));
+
+    // 绘制节点
+    const node = svg.append("g")
+        .selectAll("circle")
+        .data(historyData.nodes)
+        .enter().append("circle")
+        .attr("r", 8)
+        .attr("fill", d => d3.schemeCategory10[d.group-1])
+        .call(drag(simulation));
+
+    // 添加文字标签
+    const text = svg.append("g")
+        .selectAll("text")
+        .data(historyData.nodes)
+        .enter().append("text")
+        .text(d => d.id)
+        .attr("font-size", "12px")
+        .attr("dx", 12)
+        .attr("dy", 4)
+        .style("fill", "#d4af37");
+
+    // 更新位置
+    simulation.on("tick", () => {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+
+        text
+            .attr("x", d => d.x)
+            .attr("y", d => d.y);
+    });
+
+    // 拖拽功能
+    function drag(simulation) {
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+        
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    }
+}
+
+// 页面加载完成后初始化图表
+document.addEventListener('DOMContentLoaded', initHistoryGraph);
+</script>
                 
-                <div class="info-vis" id="historical-events">
-                    <h3 class="vis-title">中国弦乐分类</h3>
-                    <div id="classification-vis"></div>
-                </div>
                 
 
                 
@@ -2496,7 +2633,7 @@
             };
             
             // 创建SVG容器
-            const svg = d3.select("#sankey-diagram svg");
+// 删除sankey-diagram相关代码
             const width = 800, height = 500;
             const margin = {top: 20, right: 20, bottom: 20, left: 20};
             const innerWidth = width - margin.left - margin.right;
