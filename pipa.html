@@ -3541,12 +3541,21 @@ window.addEventListener('load', initFamilyTree);
                     
                     // 设置初始音量并开始播放
                     audioPlayer.volume = volumeSlider.value;
-                    audioPlayer.play().then(() => {
-                        // 开始可视化
-                        createVisualizer();
-                        updateVisualizer();
+                    // 检查音频文件是否存在
+                    fetch('static/img/pipa.mp3').then(response => {
+                        if (!response.ok) throw new Error('音频文件未找到');
+                        
+                        audioPlayer.play().then(() => {
+                            // 开始可视化
+                            createVisualizer();
+                            updateVisualizer();
+                        }).catch(error => {
+                            console.log('播放失败:', error);
+                            alert('音频播放失败: ' + error.message);
+                        });
                     }).catch(error => {
-                        console.log('播放失败:', error);
+                        console.log('音频文件加载失败:', error);
+                        alert('音频文件加载失败: ' + error.message);
                     });
                     
                     // 移除监听器，避免重复初始化
