@@ -665,7 +665,7 @@ document.addEventListener('DOMContentLoaded', initHistoryGraph);
 <script>
 // 弦乐器家族分类数据
 const familyData = {
-    name: "中国弦乐器",
+    name: "-",
     children: [
         {
             name: "弹拨乐器",
@@ -698,10 +698,9 @@ const familyData = {
 // 初始化树形图
 function initFamilyTree() {
     const svg = d3.select("#instfam svg");
-    const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height;
-    const margin = {top: 30, right: 30, bottom: 30, left: 30};
-    
+    const width = svg.node().getBoundingClientRect().width * 1; // 缩小宽度到80%
+    const height = svg.node().getBoundingClientRect().height * 1; // 缩小高度到80%
+    const margin = {top: 15, right: 15, bottom: 15, left: 15}; // 缩小边距
     // 创建分层布局
     const root = d3.hierarchy(familyData)
         .sum(d => d.value ? d.value : 0);
@@ -760,7 +759,6 @@ function initFamilyTree() {
         .attr("stroke", "#d4af37")
         .attr("stroke-width", 2)
         .attr("filter", "url(#glow)");
-        
     
     // 添加文字标签
     nodes.append("text")
