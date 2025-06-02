@@ -657,10 +657,126 @@ document.addEventListener('DOMContentLoaded', initHistoryGraph);
         <!-- 弦乐概览部分 -->
         <section id="overview" class="page-section">
             <div class="left-column">
-                <div class="info-vis" id="instrument-family">
-                    <h3 class="vis-title">弦乐器家族分类</h3>
-                    <svg width="100%" height="350"></svg>
-                </div>
+<div class="info-vis" id="instfam">
+    <h3 class="vis-title">弦乐器家族分类</h3>
+    <svg width="100%" height="350"></svg>
+</div>
+
+<script>
+// 弦乐器家族分类数据
+const familyData = {
+    name: "中国弦乐器",
+    children: [
+        {
+            name: "弹拨乐器",
+            children: [
+                {name: "琵琶", value: 30},
+                {name: "古琴", value: 25}, 
+                {name: "古筝", value: 28},
+                {name: "阮", value: 15}
+            ]
+        },
+        {
+            name: "拉弦乐器", 
+            children: [
+                {name: "二胡", value: 35},
+                {name: "板胡", value: 20},
+                {name: "京胡", value: 18},
+                {name: "高胡", value: 15}
+            ]
+        },
+        {
+            name: "击弦乐器",
+            children: [
+                {name: "扬琴", value: 25},
+                {name: "古筝击弦", value: 15}
+            ]
+        }
+    ]
+};
+
+// 初始化树形图
+function initFamilyTree() {
+    const svg = d3.select("#instfam svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    const margin = {top: 30, right: 30, bottom: 30, left: 30};
+    
+    // 创建分层布局
+    const root = d3.hierarchy(familyData)
+        .sum(d => d.value ? d.value : 0);
+        
+    // 使用树形图布局
+    const treeLayout = d3.tree()
+        .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
+    
+    treeLayout(root);
+    
+    // 创建连接线生成器
+    const linkGenerator = d3.linkHorizontal()
+        .x(d => d.y)
+        .y(d => d.x);
+    
+    // 添加渐变效果
+    const gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", "linkGradient")
+        .attr("gradientUnits", "userSpaceOnUse");
+    
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#d4af37")
+        .attr("stop-opacity", 0.8);
+    
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#ffe26e")
+        .attr("stop-opacity", 0.4);
+    
+    // 绘制连接线
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`)
+        .selectAll("path")
+        .data(root.links())
+        .join("path")
+        .attr("d", linkGenerator)
+        .attr("fill", "none")
+        .attr("stroke", "url(#linkGradient)")
+        .attr("stroke-width", 2)
+        .attr("stroke-linecap", "round");
+    
+    // 绘制节点组
+    const nodes = svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`)
+        .selectAll("g")
+        .data(root.descendants())
+        .join("g")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+    
+    // 添加节点装饰圆环
+    nodes.append("circle")
+        .attr("r", d => d.data.value ? 8 : 5)
+        .attr("fill", "#1a0b4d")
+        .attr("stroke", "#d4af37")
+        .attr("stroke-width", 2)
+        .attr("filter", "url(#glow)");
+        
+    
+    // 添加文字标签
+    nodes.append("text")
+        .attr("dy", "0.31em")
+        .attr("x", d => d.children ? -12 : 12)
+        .attr("text-anchor", d => d.children ? "end" : "start")
+        .attr("font-family", "KingHwa_OldSong, serif")
+        .text(d => d.data.name)
+        .attr("fill", "#d4af37")
+        .attr("font-size", d => d.depth === 0 ? "16px" : "14px")
+        .attr("filter", "url(#glow)");
+}
+
+// 页面加载完成后初始化图表
+window.addEventListener('load', initFamilyTree);
+</script>
                 
                 <div class="info-vis" id="regional-distribution">
                     <h3 class="vis-title">地域分布特征</h3>
