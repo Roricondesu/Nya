@@ -3525,73 +3525,88 @@ window.addEventListener('load', initFamilyTree);
             let audioContext = null;
             let analyser = null;
             let source = null;
+            let isPlaying = false;
             
-            // 监听鼠标移动事件来初始化和播放音频
-            document.addEventListener('mousemove', initAudioOnFirstMove);
-            
-            function initAudioOnFirstMove() {
+            // 立即初始化音频上下文
+            function initAudioContext() {
                 if (!audioContext) {
-                    // 创建音频上下文和分析器
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = 256;
-                    source = audioContext.createMediaElementSource(audioPlayer);
-                    source.connect(analyser);
-                    analyser.connect(audioContext.destination);
-                    
-                    // 设置初始音量并开始播放
-                    audioPlayer.volume = volumeSlider.value;
-                    // 检查音频文件是否存在
-                    fetch('static/img/pipa.mp3').then(response => {
-                        if (!response.ok) throw new Error('音频文件未找到');
+                    try {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 512;
+                        source = audioContext.createMediaElementSource(audioPlayer);
+                        source.connect(analyser);
+                        analyser.connect(audioContext.destination);
                         
+                        // 设置初始音量
+                        audioPlayer.volume = volumeSlider.value;
+                        
+                        // 创建更丰富的可视化效果
+                        createEnhancedVisualizer();
+                        
+                        // 开始播放
                         audioPlayer.play().then(() => {
-                            // 开始可视化
-                            createVisualizer();
+                            isPlaying = true;
+                            playPauseBtn.textContent = '暂停';
                             updateVisualizer();
                         }).catch(error => {
-                            console.log('播放失败:', error);
-                            alert('音频播放失败: ' + error.message);
+                            console.error('播放失败:', error);
+                            // 自动重试一次
+                            setTimeout(() => audioPlayer.play(), 500);
                         });
-                    }).catch(error => {
-                        console.log('音频文件加载失败:', error);
-                        alert('音频文件加载失败: ' + error.message);
-                    });
-                    
-                    // 移除监听器，避免重复初始化
-                    document.removeEventListener('mousemove', initAudioOnFirstMove);
+                    } catch (error) {
+                        console.error('音频初始化失败:', error);
+                    }
                 }
             }
             
-            // 创建可视化条
-            function createVisualizer() {
-                visualizer.innerHTML = ''; // 清空现有的可视化条
-                for (let i = 0; i < 60; i++) {
+            // 创建增强版可视化条
+            function createEnhancedVisualizer() {
+                visualizer.innerHTML = '';
+                for (let i = 0; i < 120; i++) {
                     const bar = document.createElement('div');
                     bar.className = 'visualizer-bar';
+                    
+                    // 添加随机颜色变化
+                    const hue = (i * 3) % 360;
+                    bar.style.background = `linear-gradient(to top, hsla(${hue}, 100%, 50%, 0.3), hsla(${hue + 30}, 100%, 70%, 0.7))`;
+                    
                     visualizer.appendChild(bar);
                 }
             }
             
             // 更新可视化
             function updateVisualizer() {
-                if (!analyser) return;
+                if (!analyser || !isPlaying) return;
                 
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
                 
                 function draw() {
-                    requestAnimationFrame(draw);
+                    if (!isPlaying) return;
                     
+                    requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
+                    
                     const bars = document.querySelectorAll('.visualizer-bar');
+                    const maxHeight = 100;
                     
                     bars.forEach((bar, i) => {
                         const index = Math.floor(i * bufferLength / bars.length);
                         const value = dataArray[index] / 255;
-                        const height = value * 50;
+                        
+                        // 更动态的高度变化
+                        const height = Math.pow(value, 2) * maxHeight;
+                        
+                        // 添加平滑动画
                         bar.style.height = `${height}px`;
-                        bar.style.opacity = 0.3 + value * 0.7;
+                        bar.style.opacity = 0.5 + value * 0.5;
+                        
+                        // 添加旋转效果
+                        bar.style.transform = `rotate(${value * 10}deg)`;
+                        
+                        // 添加宽度变化
+                        bar.style.width = `${3 + value * 5}px`;
                     });
                 }
                 
