@@ -457,13 +457,13 @@
     </script>
     
     <!-- 导航时间线 -->
-    <div class="timeline-nav">
-        <div class="timeline-line"></div>
-        <div class="timeline-item active" data-section="history">弦歌<br>不辍</div>
-        <div class="timeline-item" data-section="overview">钟鼓<br>馔玉</div>
-        <div class="timeline-item" data-section="comparison">丝竹<br>之辨</div>
-        <div class="timeline-item" data-section="masterpieces">千古<br>绝响</div>
-        <div class="timeline-item" data-section="epilogue">弦音<br>永续</div>
+    <div class="timedev-nav">
+        <div class="timedev-line"></div>
+        <div class="timedev-item active" data-section="history">弦歌<br>不辍</div>
+        <div class="timedev-item" data-section="overview">钟鼓<br>馔玉</div>
+        <div class="timedev-item" data-section="comparison">丝竹<br>之辨</div>
+        <div class="timedev-item" data-section="masterpieces">千古<br>绝响</div>
+        <div class="timedev-item" data-section="epilogue">弦音<br>永续</div>
     </div>
     
     <!-- 主内容区域 -->
@@ -471,7 +471,7 @@
         <!-- 历史发展部分 -->
         <section id="history" class="page-section">
             <div class="left-column">
-                <div class="info-vis" id="history-timeline">
+                <div class="info-vis" id="history-timedev">
                     <h3 class="vis-title">中国弦乐发展</h3>
                     <div class="flourish-embed flourish-map" data-src="visualisation/23568531"><script src="https://public.flourish.studio/resources/embed.js"></script><noscript><img src="https://public.flourish.studio/visualisation/23568531/thumbnail" width="100%" alt="map visualization" /></noscript></div>
                     <svg width="100%" height="200"></svg>
@@ -496,35 +496,35 @@
                 <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
                 
                 <div class="main-visual">
-<img src="static/img/pipa01.svg" alt="琵琶" class="instrument-img" onclick="openTimelineModal()">
+<img src="static/img/pipa01.svg" alt="琵琶" class="instrument-img" onclick="openTimedevModal()">
 
 <!-- 时间轴模态框 -->
-<div id="timelineModal" class="modal">
+<div id="timedevModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2></h2>
-        <div class="timeline-container">
-            <div class="timeline-item">
+        <div class="timedev-container">
+            <div class="timedev-item">
                 <div class="time">商周时期</div>
                 <div class="content">出现最早的弦乐器雏形,以琴瑟为代表</div>
             </div>
-            <div class="timeline-item">
+            <div class="timedev-item">
                 <div class="time">秦汉时期</div>
                 <div class="content">琵琶传入,并逐渐本土化</div>
             </div>
-            <div class="timeline-item">
+            <div class="timedev-item">
                 <div class="time">魏晋南北朝</div>
                 <div class="content">箜篌、筝等乐器发展成熟</div>
             </div>
-            <div class="timeline-item">
+            <div class="timedev-item">
                 <div class="time">隋唐时期</div>
                 <div class="content">弦乐发展黄金时期,各类乐器齐放异彩</div>
             </div>
-            <div class="timeline-item">
+            <div class="timedev-item">
                 <div class="time">宋元时期</div>
                 <div class="content">民间音乐兴起,胡琴类乐器发展</div>
             </div>
-            <div class="timeline-item">
+            <div class="timedev-item">
                 <div class="time">明清时期</div>
                 <div class="content">戏曲音乐繁荣,京胡等新品种出现</div>
             </div>
@@ -571,26 +571,25 @@
 }
 
 /* 时间轴样式 */
-.timeline-container {
+.timedev-container {
     margin-top: 30px;
-    left: -20%;
     padding: 20px;
     position: relative;
 }
 
-.timeline-container::before {
+.timedev-container::before {
     content: '';
     position: absolute;
-    left: 40%;
+    left: 20%;
     top: 0;
     bottom: 0;
     width: 2px;
     background: #d4af37;
 }
 
-.timeline-item {
+.timedev-item {
     margin: 30px 0;
-    left: 9%;
+    left: 20%;
     position: relative;
     display: flex;
     justify-content: center;
@@ -598,14 +597,14 @@
     flex-direction: column;
 }
 
-.timeline-item::before {
+.timedev-item::before {
     content: '';
     position: absolute;
     width: 12px;
     height: 12px;
     background: #d4af37;
     border-radius: 50%;
-    left: calc(30% - 6px);
+    left: calc(40% - 6px);
     top: -20px;
 }
 .time {
@@ -625,19 +624,19 @@
 
 <script>
 // 模态框控制
-function openTimelineModal() {
-    document.getElementById("timelineModal").style.display = "block";
+function openTimedevModal() {
+    document.getElementById("timedevModal").style.display = "block";
 }
 
 // 点击关闭按钮关闭模态框
 document.querySelector(".close").onclick = function() {
-    document.getElementById("timelineModal").style.display = "none";
+    document.getElementById("timedevModal").style.display = "none";
 }
 
 // 点击模态框外部关闭模态框
 window.onclick = function(event) {
     if (event.target == document.getElementById("timelineModal")) {
-        document.getElementById("timelineModal").style.display = "none";
+        document.getElementById("timedevModal").style.display = "none";
     }
 }
 </script>
@@ -2188,16 +2187,28 @@ window.addEventListener('load', initCraftsmanshipVis);
         <!-- 尾声部分 -->
         <section id="epilogue" class="page-section">
             <div class="left-column">
+                <div class="info-vis" id="modern-developments">
+                    <h3 class="vis-title">现代发展轨迹</h3>
+                    <svg width="100%" height="350"></svg>
+                </div>
                 
                 <div class="info-vis" id="global-spread">
                     <h3 class="vis-title">全球传播路径</h3>
                     <svg width="100%" height="300"></svg>
                 </div>
                 
+                <div class="info-vis" id="cultural-impact">
+                    <h3 class="vis-title">文化影响力评估</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
 
+                <div class="info-vis" id="youth-engagement">
+                    <h3 class="vis-title">青年参与度调查</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
             </div>
             
-            <div class="center-column"style="width: 300% !important;">
+            <div class="center-column"style="width: 200% !important;">
                 <h2>尾声</h2>
                 <p>中国传统弦乐作为中华文化的重要载体，在新时代焕发出新的生命力，既坚守传统精髓，又拥抱创新发展。</p>
                 
@@ -2226,7 +2237,20 @@ window.addEventListener('load', initCraftsmanshipVis);
                     <svg width="100%" height="300"></svg>
                 </div>
                 
-
+                <div class="info-vis" id="cross-cultural">
+                    <h3 class="vis-title">跨文化合作案例</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
+                
+                <div class="info-vis" id="digital-innovations">
+                    <h3 class="vis-title">数字化创新应用</h3>
+                    <svg width="100%" height="300"></svg>
+                </div>
+                
+                <div class="info-vis" id="preservation-efforts">
+                    <h3 class="vis-title">保护传承措施</h3>
+                    <svg width="100%" height="250"></svg>
+                </div>
             </div>
         </section>
     </div>
