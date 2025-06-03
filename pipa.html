@@ -1052,7 +1052,7 @@ window.addEventListener('load', initRadarChart);
                 <p>中国传统弦乐器种类繁多，按演奏方式可分为弹拨、拉弦和击弦三大类，各具特色又相互影响。</p>
                 
                 <div class="main-visual">
-                    <img src="static/img/pipa01.svg" alt="琵琶" class="instrument-img">
+                    <img src="static/img/pipa02.svg" alt="乐器" class="instrument-img">
                 </div>
                 
                 <div class="overview-content">
@@ -1613,13 +1613,226 @@ window.addEventListener('load', initCraftsmanshipVis);
                 <div class="info-vis" id="sound-spectrum">
                     <h3 class="vis-title">频谱特征比较</h3>
                     <svg width="100%" height="250"></svg>
+                    <div class="chart-tooltip" style="position: absolute; display: none; background: rgba(0,0,0,0.8); color: #fff; padding: 8px; border-radius: 4px;"></div>
                 </div>
+                <script>
+                    // 初始化频谱特征比较图表
+                    function initSoundSpectrum() {
+                        // 模拟频谱数据
+                        const data = [
+                            { frequency: "20Hz", amplitude: 0.2, instrument: "琵琶" },
+                            { frequency: "100Hz", amplitude: 0.5, instrument: "琵琶" },
+                            { frequency: "500Hz", amplitude: 0.8, instrument: "琵琶" },
+                            { frequency: "1000Hz", amplitude: 0.6, instrument: "琵琶" },
+                            { frequency: "5000Hz", amplitude: 0.4, instrument: "琵琶" },
+                            { frequency: "20Hz", amplitude: 0.3, instrument: "二胡" },
+                            { frequency: "100Hz", amplitude: 0.4, instrument: "二胡" },
+                            { frequency: "500Hz", amplitude: 0.7, instrument: "二胡" },
+                            { frequency: "1000Hz", amplitude: 0.5, instrument: "二胡" },
+                            { frequency: "5000Hz", amplitude: 0.2, instrument: "二胡" },
+                            { frequency: "20Hz", amplitude: 0.3, instrument: "古筝" }, // 新增古筝的数据点
+                            { frequency: "100Hz", amplitude: 0.6, instrument: "古筝" },
+                            { frequency: "500Hz", amplitude: 0.9, instrument: "古筝" },
+                            { frequency: "1000Hz", amplitude: 0.7, instrument: "古筝" },
+                            { frequency: "5000Hz", amplitude: 0.4, instrument: "古筝" }
+                        ];
+
+                        const svg = d3.select("#sound-spectrum svg");
+                        const width = svg.node().getBoundingClientRect().width;
+                        const height = svg.node().getBoundingClientRect().height;
+                        const margin = { top: 20, right: 30, bottom: 30, left: 50 };
+                        const innerWidth = width - margin.left - margin.right;
+                        const innerHeight = height - margin.top - margin.bottom;
+
+                        // 定义比例尺
+                        const xScale = d3.scaleBand()
+                            .domain(data.map(d => d.frequency))
+                            .range([0, innerWidth])
+                            .padding(0.2);
+
+                        const yScale = d3.scaleLinear()
+                            .domain([0, d3.max(data, d => d.amplitude)])
+                            .range([innerHeight, 0]);
+
+                        const colorScale = d3.scaleOrdinal()
+                            .domain(["琵琶", "二胡", "古筝"])
+                            .range(["#d4af37", "#ff6b6b", "#00ff00"]);
+
+                        // 创建主图层
+                        const g = svg.append("g")
+                            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                        // 添加渐变效果
+                        const gradient = svg.append("defs").append("linearGradient")
+                            .attr("id", "spectrum-gradient")
+                            .attr("x1", "0%")
+                            .attr("y1", "0%")
+                            .attr("x2", "0%")
+                            .attr("y2", "100%");
+
+                        gradient.append("stop")
+                            .attr("offset", "0%")
+                            .attr("stop-color", "#d4af37");
+
+                        gradient.append("stop")
+                            .attr("offset", "100%")
+                            .attr("stop-color", "#ff6b6b");
+
+                        // 绘制频谱曲线，使用曲线插值让线条更平滑
+                        const line = d3.line()
+                            .x(d => xScale(d.frequency) + xScale.bandwidth() / 2)
+                            .y(d => yScale(d.amplitude))
+                            .curve(d3.curveCatmullRom.alpha(0.5)); // 使用 Catmull-Rom 曲线插值
+
+                        const instruments = ["琵琶", "二胡"];
+                        instruments.forEach(instrument => {
+                            const instrumentData = data.filter(d => d.instrument === instrument);
+                            g.append("path")
+                                .datum(instrumentData)
+                                .attr("fill", "none")
+                                .attr("stroke", colorScale(instrument))
+                                .attr("stroke-width", 2)
+                                .attr("d", line);
+                        });
+
+                        // 移除添加数据点的代码，以去掉中间小点
+
+                        // 添加坐标轴
+                        g.append("g")
+                            .attr("transform", `translate(0,${innerHeight})`)
+                            .call(d3.axisBottom(xScale))
+                            .selectAll("text")
+                            .attr("fill", "#d4af37")
+                            .style("font-family", "KingHwa_OldSong");
+
+                        g.append("g")
+                            .call(d3.axisLeft(yScale))
+                            .selectAll("text")
+                            .attr("fill", "#d4af37")
+                            .style("font-family", "KingHwa_OldSong");
+
+                        // 添加图例
+                        const legend = svg.append("g")
+                            .attr("class", "legend")
+                            // 往右边移动 20 个单位
+                            .attr("transform", `translate(${width - 100}, 10)`);
+
+                        instruments.forEach((instrument, index) => {
+                            legend.append("circle")
+                                .attr("cx", 0)
+                                .attr("cy", index * 20)
+                                .attr("r", 5)
+                                .attr("fill", colorScale(instrument));
+
+                            legend.append("text")
+                                .attr("x", 15)
+                                .attr("y", index * 20 + 5)
+                                .text(instrument)
+                                .attr("fill", "#d4af37")
+                                .style("font-family", "KingHwa_OldSong");
+                        });
+                    }
+
+                    // 页面加载完成后初始化图表
+                    window.addEventListener('load', initSoundSpectrum);
+                </script>
                 
                 <div class="info-vis" id="historical-roles">
-                    <h3 class="vis-title">历史角色演变</h3>
+                    <h3 class="vis-title">历史角色</h3>
                     <svg width="100%" height="300"></svg>
+                    <div class="chart-tooltip" style="position: absolute; display: none; background: rgba(0,0,0,0.8); color: #fff; padding: 8px; border-radius: 4px;"></div>
                 </div>
-            </div>
+
+                <script>
+                    // 初始化历史角色演变图表
+                    function initHistoricalRolesChart() {
+                        // 模拟历史角色演变数据
+                        const data = [
+                            { role: "宫廷雅乐", time: "先秦 - 唐宋", influence: 8, color: "#8B4513" },
+                            { role: "民间娱乐", time: "秦汉 - 现代", influence: 6, color: "#DAA520" },
+                            { role: "宗教祭祀", time: "魏晋 - 明清", influence: 4, color: "#CD853F" },
+                            { role: "文化交流", time: "唐代 - 现代", influence: 7, color: "#D2691E" },
+                            { role: "教育传承", time: "近代 - 现代", influence: 5, color: "#BC8F8F" },
+                            // 添加新数据，代表"艺术创作"角色
+                            { role: "艺术创作", time: "明清 - 现代", influence: 6, color: "#FF69B4" },
+                            // 添加新数据，代表"影视配乐"角色
+                            { role: "影视配乐", time: "现代", influence: 3, color: "#00BFFF" }
+                        ];
+
+                        const svg = d3.select("#historical-roles svg");
+                        const width = svg.node().getBoundingClientRect().width;
+                        const height = svg.node().getBoundingClientRect().height;
+                        const radius = Math.min(width, height) / 2;
+
+                        const arc = d3.arc()
+                            .innerRadius(radius * 0.4)
+                            .outerRadius(radius * 0.8);
+
+                        const pie = d3.pie()
+                            .value(d => d.influence)
+                            .sort(null);
+
+                        const g = svg.append("g")
+                            .attr("transform", `translate(${width/2},${height/2})`);
+
+                        // 添加渐变效果
+                        const gradient = svg.append("defs").selectAll("radialGradient")
+                            .data(data)
+                            .enter().append("radialGradient")
+                            .attr("id", (d, i) => `gradient-${i}`)
+                            .attr("cx", "50%")
+                            .attr("cy", "50%")
+                            .attr("r", "50%");
+
+                        gradient.append("stop")
+                            .attr("offset", "0%")
+                            .attr("stop-color", (d) => d3.color(d.color).brighter(0.5));
+
+                        gradient.append("stop")
+                            .attr("offset", "100%")
+                            .attr("stop-color", (d) => d3.color(d.color).darker(0.5));
+
+                        // 绘制饼图切片
+                        const slices = g.selectAll(".arc")
+                            .data(pie(data))
+                            .enter().append("path")
+                            .attr("class", "arc")
+                            .attr("d", arc)
+                            .attr("fill", (d, i) => `url(#gradient-${i})`)
+                            .on("mouseover", function(event, d) {
+                                d3.select(this).transition()
+                                    .duration(200)
+                                    .attr("transform", "scale(1.05)");
+                                const tooltip = d3.select(".chart-tooltip");
+                                tooltip.style("display", "block")
+                                    .style("left", (event.pageX + 10) + "px")
+                                    .style("top", (event.pageY - 20) + "px")
+                                    // 仅显示对应 time
+                                    .html(`时期: ${d.data.time}`);
+                            })
+                            .on("mouseout", function() {
+                                d3.select(this).transition()
+                                    .duration(200)
+                                    .attr("transform", "scale(1)");
+                                d3.select(".chart-tooltip").style("display", "none");
+                            });
+
+                        // 添加文本标签
+                        g.selectAll(".label")
+                            .data(pie(data))
+                            .enter().append("text")
+                            .attr("class", "label")
+                            .attr("transform", d => `translate(${arc.centroid(d)})`)
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "middle")
+                            .style("fill", "#fff")
+                            .text(d => d.data.role);
+                    }
+
+                    // 页面加载完成后初始化图表
+                    window.addEventListener('load', initHistoricalRolesChart);
+                </script>
+                </div>
         </section>
         <!-- 名曲鉴赏部分 -->
         <section id="masterpieces" class="page-section">
