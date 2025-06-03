@@ -1512,10 +1512,103 @@ window.addEventListener('load', initCraftsmanshipVis);
             </div>
             
             <div class="right-column">
-                <div class="info-vis" id="playing-techniques">
+                <div class="info-vis" id="playingtec">
                     <h3 class="vis-title">演奏技法对比</h3>
-                    <svg width="100%" height="250"></svg>
+                    <svg id="technique-comparison" width="100%" height="250"></svg>
                 </div>
+                <script>
+                    // 演奏技法对比图表数据
+                    const techniqueData = [
+                        { instrument: '琵琶', technique: '轮指', score: 8 },
+                        { instrument: '琵琶', technique: '扫弦', score: 7 },
+                        { instrument: '琵琶', technique: '弹挑', score: 7.5 },
+                        { instrument: '二胡', technique: '揉弦', score: 9 },
+                        { instrument: '二胡', technique: '抛弓', score: 7 },
+                        { instrument: '二胡', technique: '连弓', score: 7.8 },
+                        { instrument: '古琴', technique: '打圆', score: 8 },
+                        { instrument: '古琴', technique: '撮音', score: 7 },
+                        { instrument: '古琴', technique: '吟猱', score: 8.8 },
+                    ];
+
+                    // 初始化演奏技法对比图表
+                    function initTechniqueComparisonChart() {
+                        const svg = d3.select("#technique-comparison");
+                        const width = svg.node().getBoundingClientRect().width;
+                        const height = 250;
+                        const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+                        const innerWidth = width - margin.left - margin.right;
+                        const innerHeight = height - margin.top - margin.bottom;
+
+                        const g = svg.append("g")
+                            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                        // 定义 x 比例尺
+                        const xScale = d3.scaleBand()
+                            .domain(techniqueData.map(d => d.technique))
+                            .range([0, innerWidth])
+                            .padding(0.1);
+
+                        // 定义 y 比例尺
+                        const yScale = d3.scaleLinear()
+                            .domain([0, d3.max(techniqueData, d => d.score)])
+                            .range([innerHeight, 0]);
+
+                        // 添加 x 轴
+                        g.append("g")
+                            .attr("transform", `translate(0,${innerHeight})`)
+                            .call(d3.axisBottom(xScale));
+
+                        // 添加 y 轴
+                        g.append("g")
+                            .call(d3.axisLeft(yScale));
+
+                        // 添加柱状图
+                        g.selectAll(".bar")
+                            .data(techniqueData)
+                            .enter().append("rect")
+                            .attr("class", "bar")
+                            .attr("x", d => xScale(d.technique))
+                            .attr("y", d => yScale(d.score))
+                            .attr("width", xScale.bandwidth())
+                            .attr("height", d => innerHeight - yScale(d.score))
+                            .attr("fill", d => {
+                                if (d.instrument === '琵琶') return '#FF6B6B';
+                                if (d.instrument === '二胡') return '#4ECDC4';
+                                if (d.instrument === '古琴') return '#1A535C';
+                            });
+
+                        // 添加图例
+                        const legend = g.append("g")
+                            // 修改字体为标题字体
+                            .attr("font-family", "KingHwa_OldSong, serif") 
+                            .attr("font-size", 10)
+                            .attr("text-anchor", "end")
+                            .attr("fill", "white") // 将字体颜色改为白色
+                            .selectAll("g")
+                            .data(['琵琶', '二胡', '古琴'])
+                            .enter().append("g")
+                            .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+                        legend.append("rect")
+                            .attr("x", innerWidth - 19)
+                            .attr("width", 19)
+                            .attr("height", 19)
+                            .attr("fill", d => {
+                                if (d === '琵琶') return '#FF6B6B';
+                                if (d === '二胡') return '#4ECDC4';
+                                if (d === '古琴') return '#1A535C';
+                            });
+
+                        legend.append("text")
+                            .attr("x", innerWidth - 24)
+                            .attr("y", 9.5)
+                            .attr("dy", "0.32em")
+                            .text(d => d);
+                    }
+
+                    // 页面加载完成后初始化图表
+                    window.addEventListener('load', initTechniqueComparisonChart);
+                </script>
                 
                 <div class="info-vis" id="sound-spectrum">
                     <h3 class="vis-title">频谱特征比较</h3>
