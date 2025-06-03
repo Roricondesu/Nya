@@ -496,7 +496,151 @@
                 <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
                 
                 <div class="main-visual">
-                    <img src="static/img/pipa01.svg" alt="琵琶" class="instrument-img">
+<img src="static/img/pipa01.svg" alt="琵琶" class="instrument-img" onclick="openTimelineModal()">
+
+<!-- 时间轴模态框 -->
+<div id="timelineModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2></h2>
+        <div class="timeline-container">
+            <div class="timeline-item">
+                <div class="time">商周时期</div>
+                <div class="content">出现最早的弦乐器雏形,以琴瑟为代表</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">秦汉时期</div>
+                <div class="content">琵琶传入,并逐渐本土化</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">魏晋南北朝</div>
+                <div class="content">箜篌、筝等乐器发展成熟</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">隋唐时期</div>
+                <div class="content">弦乐发展黄金时期,各类乐器齐放异彩</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">宋元时期</div>
+                <div class="content">民间音乐兴起,胡琴类乐器发展</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">明清时期</div>
+                <div class="content">戏曲音乐繁荣,京胡等新品种出现</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(to bottom, #1a0b4d, #4b0082);
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    color: #d4af37;
+    font-family: "KingHwa_OldSong", serif;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #d4af37;
+}
+
+.close:hover {
+    color: #ffe26e;
+}
+
+/* 时间轴样式 */
+.timeline-container {
+    margin-top: 30px;
+    left: -20%;
+    padding: 20px;
+    position: relative;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 40%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #d4af37;
+}
+
+.timeline-item {
+    margin: 30px 0;
+    left: 9%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #d4af37;
+    border-radius: 50%;
+    left: calc(30% - 6px);
+    top: -20px;
+}
+.time {
+    font-size: 1.2em;
+    color: #ffe26e;
+    margin-bottom: 10px;
+}
+
+.content {
+    text-align: center;
+    padding: 10px;
+    background: rgba(212, 175, 55, 0.0);
+    border-radius: 5px;
+    max-width: 80%;
+}
+</style>
+
+<script>
+// 模态框控制
+function openTimelineModal() {
+    document.getElementById("timelineModal").style.display = "block";
+}
+
+// 点击关闭按钮关闭模态框
+document.querySelector(".close").onclick = function() {
+    document.getElementById("timelineModal").style.display = "none";
+}
+
+// 点击模态框外部关闭模态框
+window.onclick = function(event) {
+    if (event.target == document.getElementById("timelineModal")) {
+        document.getElementById("timelineModal").style.display = "none";
+    }
+}
+</script>
                 </div>
                 
                 <div class="history-content">
