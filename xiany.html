@@ -5142,8 +5142,9 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
     </div>
     
     <!-- 音乐可视化器 -->
-    <div class="visualizer-container" style="opacity: 0.4; transform: scale(1.2); transform-origin: center;"></div>
-        <canvas id="visualizer"></canvas>
+<!-- 设置容器固定在屏幕下方 -->
+<div class="visualizer-container" style="opacity: 0.4; transform: scale(1.2); transform-origin: center; position: fixed; bottom: 0; left: 0; right: 0;"></div>
+<canvas id="visualizer"></canvas>
     </div>
     
     <script>
