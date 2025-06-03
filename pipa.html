@@ -71,7 +71,7 @@
             opacity: 0; /* 初始状态为不可见 */
             transform: translateY(-20px); /* 初始位置向上偏移 */
         }
-        }
+        
         
         .main-title span {
             display: block;
@@ -776,15 +776,275 @@ function initFamilyTree() {
 window.addEventListener('load', initFamilyTree);
 </script>
                 
-                <div class="info-vis" id="regional-distribution">
-                    <h3 class="vis-title">地域分布特征</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
-                
-                <div class="info-vis" id="sound-characteristics">
-                    <h3 class="vis-title">音色特征雷达图</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+<div class="info-vis" id="regdistribution">
+    <h3 class="vis-title">地域分布特征</h3>
+    <svg width="100%" height="300"></svg>
+</div>
+
+<script>
+// 初始化地域分布图
+function initRegionalDistribution() {
+    const width = document.querySelector("#regdistribution svg").clientWidth;
+    const height = 300;
+    const margin = {top: 20, right: 20, bottom: 30, left: 40};
+
+    const svg = d3.select("#regdistribution svg");
+
+    // 地域分布数据
+    const data = [
+        {region: "华北", value: 85, instruments: ["古琴","琵琶","二胡"]},
+        {region: "华东", value: 92, instruments: ["二胡","琵琶","扬琴"]},
+        {region: "华南", value: 78, instruments: ["高胡","阮","筝"]},
+        {region: "西北", value: 65, instruments: ["四胡","三弦"]},
+        {region: "西南", value: 71, instruments: ["月琴","板胡"]},
+        {region: "东北", value: 68, instruments: ["京胡","板胡"]}
+    ];
+
+    // 创建比例尺
+    const x = d3.scaleBand()
+        .domain(data.map(d => d.region))
+        .range([margin.left, width - margin.right])
+        .padding(0.3);
+
+    const y = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height - margin.bottom, margin.top]);
+
+    // 添加渐变
+    const gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", "bar-gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%");
+
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#d4af37");
+
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#8b4513");
+
+    // 绘制柱状图
+    const bars = svg.selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", d => x(d.region))
+        .attr("y", height - margin.bottom)
+        .attr("width", x.bandwidth())
+        .attr("height", 0)
+        .attr("fill", "url(#bar-gradient)")
+        .attr("rx", 5)
+        .attr("ry", 5);
+
+    // 添加动画
+    bars.transition()
+        .duration(1000)
+        .delay((d, i) => i * 100)
+        .attr("y", d => y(d.value))
+        .attr("height", d => height - margin.bottom - y(d.value));
+
+    // 添加坐标轴
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("fill", "#d4af37")
+        .style("font-size", "12px");
+
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y))
+        .selectAll("text")
+        .attr("fill", "#d4af37")
+        .style("font-size", "12px");
+
+    // 添加交互提示
+    const tooltip = d3.select("#regdistribution")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background", "rgba(0,0,0,0.8)")
+        .style("color", "#d4af37")
+        .style("padding", "10px")
+        .style("border-radius", "5px")
+        .style("font-size", "12px");
+
+    bars.on("mouseover", function(event, d) {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("fill", "#ffe26e");
+            
+        tooltip.html(`
+            <strong>${d.region}</strong><br>
+            普及度: ${d.value}%<br>
+            代表乐器: ${d.instruments.join(", ")}
+        `)
+        .style("visibility", "visible")
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px");
+    })
+    .on("mouseout", function() {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("fill", "url(#bar-gradient)");
+            
+        tooltip.style("visibility", "hidden");
+    });
+
+    // 添加标题
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", margin.top)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#d4af37")
+        .style("font-size", "14px")
+        .text("中国各地区传统弦乐普及度");
+}
+
+// 页面加载完成后初始化图表
+document.addEventListener("DOMContentLoaded", initRegionalDistribution);
+</script>
+<div class="info-vis" id="sound-characteristics">
+    <h3 class="vis-title">音色特征雷达图</h3>
+    <svg width="100%" height="400"></svg>
+</div>
+
+<script>
+// 音色特征雷达图数据
+const soundData = {
+    characteristics: ["明亮度", "温暖度", "清澈度", "厚重感", "穿透力"],
+    instruments: [
+        {
+            name: "弹拨",
+            values: [0.9, 0.6, 0.8, 0.5, 0.85]
+        },
+        {
+            name: "拉弦", 
+            values: [0.7, 0.85, 0.75, 0.6, 0.9]
+        },
+    ]
+};
+
+// 初始化雷达图
+function initRadarChart() {
+    const svg = d3.select("#sound-characteristics svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    const radius = Math.min(width, height) / 2 - 40;
+    
+    // 创建比例尺和角度计算
+    const angleScale = d3.scaleLinear()
+        .domain([0, soundData.characteristics.length])
+        .range([0, 2 * Math.PI]);
+        
+    const radiusScale = d3.scaleLinear()
+        .domain([0, 1])
+        .range([0, radius]);
+    
+    // 创建雷达图路径生成器
+    const radarLine = d3.lineRadial()
+        .radius(d => radiusScale(d))
+        .angle((d, i) => angleScale(i));
+    
+    // 添加图形组并移动到中心
+    const g = svg.append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
+    
+    // 绘制背景网格
+    const levels = [0.2, 0.4, 0.6, 0.8, 1];
+    levels.forEach(level => {
+        g.append("path")
+            .datum(new Array(soundData.characteristics.length + 1).fill(level))
+            .attr("d", radarLine)
+            .attr("fill", "none")
+            .attr("stroke", "#d4af37")
+            .attr("stroke-width", 0.5)
+            .attr("opacity", 0.3);
+    });
+    
+    // 绘制轴线
+    soundData.characteristics.forEach((char, i) => {
+        const angle = angleScale(i);
+        const x = radius * Math.cos(angle - Math.PI/2);
+        const y = radius * Math.sin(angle - Math.PI/2);
+        
+        g.append("line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", x)
+            .attr("y2", y)
+            .attr("stroke", "#d4af37")
+            .attr("stroke-width", 0.5)
+            .attr("opacity", 0.3);
+            
+        // 添加特征标签
+        g.append("text")
+            .attr("x", x * 1.1)
+            .attr("y", y * 1.1)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#d4af37")
+            .attr("font-size", "12px")
+            .text(char);
+    });
+    
+    // 绘制数据路径
+    soundData.instruments.forEach((instrument, idx) => {
+        const color = idx === 0 ? "#ff6b6b" : "#4ecdc4";
+        
+        // 绘制填充区域
+        g.append("path")
+            .datum(instrument.values.concat(instrument.values[0]))
+            .attr("d", radarLine)
+            .attr("fill", color)
+            .attr("fill-opacity", 0.2)
+            .attr("stroke", color)
+            .attr("stroke-width", 2);
+            
+        // 添加数据点
+        instrument.values.forEach((value, i) => {
+            const angle = angleScale(i) - Math.PI/2;
+            const r = radiusScale(value);
+            
+            g.append("circle")
+                .attr("cx", r * Math.cos(angle))
+                .attr("cy", r * Math.sin(angle))
+                .attr("r", 4)
+                .attr("fill", color);
+        });
+    });
+    
+    // 添加图例
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width-100},20)`);
+        
+    soundData.instruments.forEach((instrument, idx) => {
+        const color = idx === 0 ? "#ff6b6b" : "#4ecdc4";
+        
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", idx * 20)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", color);
+            
+        legend.append("text")
+            .attr("x", 20)
+            .attr("y", idx * 20 + 12)
+            .attr("fill", "#d4af37")
+            .attr("font-size", "12px")
+            .text(instrument.name);
+    });
+}
+
+// 页面加载完成后初始化图表
+window.addEventListener('load', initRadarChart);
+</script>
             </div>
             
             <div class="center-column">
@@ -802,25 +1062,427 @@ window.addEventListener('load', initFamilyTree);
             </div>
             
             <div class="right-column">
-                <div class="info-vis" id="repertoire-analysis">
-                    <h3 class="vis-title">曲目类型分布</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
+<div class="info-vis" id="repanalysis">
+    <h3 class="vis-title" style="font-family: 'KingHwa_OldSong', serif; font-size: 1.5em;">曲目类型分布</h3>
+    <svg width="100%" height="300"></svg>
+    <div class="chart-tooltip" style="position: absolute; display: none; background: rgba(0,0,0,0.8); color: #fff; padding: 8px; border-radius: 4px;"></div>
+</div>
+
+<script>
+// 初始化曲目分析图表
+function initRepertoireAnalysis() {
+    const data = [
+        { type: "古典文献", value: 35, color: "#8B4513" }, // 深棕色
+        { type: "民间乐曲", value: 25, color: "#DAA520" }, // 金黄色
+        { type: "戏曲音乐", value: 20, color: "#CD853F" }, // 秋褐色
+        { type: "现代创作", value: 15, color: "#D2691E" }, // 巧克力色
+        { type: "跨界作品", value: 5, color: "#BC8F8F" }  // 玫瑰褐色
+    ];
+
+    const svg = d3.select("#repanalysis svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    const radius = Math.min(width, height) / 2;
+    
+    const arc = d3.arc()
+        .innerRadius(radius * 0.4)
+        .outerRadius(radius * 0.8);
+    
+    const pie = d3.pie()
+        .value(d => d.value)
+        .sort(null);
+    
+    const g = svg.append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
+    
+    // 添加渐变效果
+    const gradient = svg.append("defs").selectAll("radialGradient")
+        .data(data)
+        .enter().append("radialGradient")
+        .attr("id", (d,i) => `gradient-${i}`)
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("cx", "0")
+        .attr("cy", "0")
+        .attr("r", radius);
+        
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", d => d3.rgb(d.color).brighter(0.5));
+        
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", d => d.color);
+
+    // 绘制扇形
+    const path = g.selectAll("path")
+        .data(pie(data))
+        .enter().append("path")
+        .attr("d", arc)
+        .attr("fill", (d,i) => `url(#gradient-${i})`)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 2)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("transform", function(d) {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0] * 0.1},${centroid[1] * 0.1})`;
+                });
                 
-                <div class="info-vis" id="cultural-significance">
-                    <h3 class="vis-title">文化意义权重</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+            const tooltip = d3.select(".chart-tooltip");
+            tooltip.style("display", "block")
+                .html(`${d.data.type}: ${d.data.value}%`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        })
+        .on("mouseout", function() {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(0,0)");
                 
-                <div class="info-vis" id="construction-parts">
-                    <h3 class="vis-title">乐器构造分解</h3>
-                    <svg width="100%" height="300"></svg>
-                </div>
+            d3.select(".chart-tooltip").style("display", "none");
+        });
+
+    // 添加文本标签
+    const text = g.selectAll("text")
+        .data(pie(data))
+        .enter().append("text")
+        .attr("transform", d => `translate(${arc.centroid(d)})`)
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("font-size", "15px") // 增大字体大小
+        .style("font-family", "'KingHwa_OldSong', serif") // 使用标题字体
+        .style("fill", "#fff") // 使用金色
+        .text(d => d.data.type);
+
+    // 添加动画效果
+    path.transition()
+        .duration(1000)
+        .attrTween("d", function(d) {
+            const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+            return function(t) {
+                return arc(interpolate(t));
+            };
+        });
+}
+
+// 页面加载完成后初始化图表
+document.addEventListener("DOMContentLoaded", initRepertoireAnalysis);
+</script>
                 
-                <div class="info-vis" id="acoustic-principles">
-                    <h3 class="vis-title">声学原理可视化</h3>
-                    <svg width="100%" height="250"></svg>
-                </div>
+<div class="info-vis" id="cultural-significance">
+    <h3 class="vis-title" style="font-family: 'KingHwa_OldSong', serif; font-size: 1.5em;">文化意义权重</h3>
+    <svg width="100%" height="250"></svg>
+    <div style="text-align: center; font-size: 12px; color: #d4af37; margin-top: 5px;">拖拽节点查看详细信息</div>
+</div>
+
+<script>
+// 创建力导向图展示文化意义权重关系
+const culturalData = {
+    nodes: [
+        {id: "音乐价值", value: 120, group: 1, color: "#C19875"}, // 唐三彩褐色
+        {id: "历史传承", value: 150, group: 1, color: "#8B634B"}, // 唐三彩深褐色
+        {id: "文学艺术", value: 85, group: 2, color: "#F3D598"}, // 唐三彩黄色
+        {id: "民俗文化", value: 95, group: 2, color: "#E6B422"}, // 唐三彩金黄色
+        {id: "教育意义", value: 65, group: 3, color: "#7FB80E"}, // 唐三彩绿色
+        {id: "社会影响", value: 110, group: 3, color: "#1B813E"}, // 唐三彩深绿色
+        {id: "精神象征", value: 160, group: 4, color: "#2EA9DF"}, // 唐三彩蓝色
+        {id: "美学价值", value: 130, group: 4, color: "#1B5AA5"} // 唐三彩深蓝色
+    ],
+    links: [
+        {source: "音乐价值", target: "历史传承", strength: 0.7},
+        {source: "历史传承", target: "文学艺术", strength: 0.6},
+        {source: "文学艺术", target: "民俗文化", strength: 0.8},
+        {source: "民俗文化", target: "教育意义", strength: 0.5},
+        {source: "教育意义", target: "社会影响", strength: 0.7},
+        {source: "社会影响", target: "精神象征", strength: 0.9},
+        {source: "精神象征", target: "美学价值", strength: 0.8},
+        {source: "美学价值", target: "音乐价值", strength: 0.7}
+    ]
+};
+
+// 初始化力导向图
+const svg = d3.select("#cultural-significance svg");
+const width = svg.node().getBoundingClientRect().width;
+const height = svg.node().getBoundingClientRect().height;
+
+// 创建力导向模拟
+const simulation = d3.forceSimulation(culturalData.nodes)
+    .force("link", d3.forceLink(culturalData.links)
+        .id(d => d.id)
+        .distance(d => (1 - d.strength) * 100))
+    .force("charge", d3.forceManyBody().strength(-200))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collision", d3.forceCollide().radius(30));
+
+// 定义渐变色
+const gradient = svg.append("defs")
+    .selectAll("linearGradient")
+    .data(culturalData.links)
+    .enter()
+    .append("linearGradient")
+    .attr("id", (d,i) => `gradient-${i}`)
+    .attr("gradientUnits", "userSpaceOnUse");
+
+gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#d4af37");
+
+gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#ff6b6b");
+
+// 绘制连线
+const link = svg.append("g")
+    .selectAll("line")
+    .data(culturalData.links)
+    .enter()
+    .append("line")
+    .attr("stroke", (d,i) => `url(#gradient-${i})`)
+    .attr("stroke-width", d => d.strength * 0.1)
+    .attr("stroke-opacity", 0.6);
+
+// 创建节点组
+const node = svg.append("g")
+    .selectAll("g")
+    .data(culturalData.nodes)
+    .enter()
+    .append("g")
+    .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+// 添加节点圆圈
+node.append("circle")
+    .attr("r", d => d.value / 8)
+    .attr("fill", d => d3.schemeCategory10[d.group-1])
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 2);
+
+// 添加文字标签
+node.append("text")
+    .text(d => d.id)
+    .attr("font-family", "'KingHwa_OldSong', serif")
+    .attr("font-size", "12px")
+    .attr("dx", 15)
+    .attr("dy", 4)
+    .style("fill", "#d4af37");
+
+// 添加动画效果
+simulation.on("tick", () => {
+    link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+    node
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+// 拖拽相关函数
+function dragstarted(event) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
+}
+
+function dragged(event) {
+    event.subject.fx = event.x;
+    event.subject.fy = event.y;
+}
+
+function dragended(event) {
+    if (!event.active) simulation.alphaTarget(0);
+    event.subject.fx = null;
+    event.subject.fy = null;
+}
+
+// 添加悬停效果
+node.on("mouseover", function(event, d) {
+    d3.select(this).select("circle")
+        .transition()
+        .duration(300)
+        .attr("r", d => d.value / 6);
+})
+.on("mouseout", function(event, d) {
+    d3.select(this).select("circle")
+        .transition()
+        .duration(300)
+        .attr("r", d => d.value / 8);
+});
+</script>
+                
+<div class="info-vis" id="craftsmanship">
+    <h3 class="vis-title" style="font-family: 'KingHwa_OldSong', serif; font-size: 1.8rem; text-align: center; margin-bottom: 20px; color: #d4af37; text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);">
+        乐器制作工艺
+    </h3>
+    <svg width="100%" height="300" class="craftsmanship-svg"></svg>
+    <div class="tooltip" style="position: absolute; display: none; background: rgba(26, 11, 77, 0.9); border: 1px solid #d4af37; padding: 10px; border-radius: 5px;"></div>
+</div>
+
+<script>
+// 制作工艺数据
+const craftData = {
+    "选材": {
+        "木材": ["桐木", "梧桐", "红木"],
+        "弦材": ["钢丝", "尼龙", "丝弦"],
+        "装饰": ["贝壳", "玉石", "象牙"]
+    },
+    "工序": {
+        "制身": ["开料", "打磨", "抛光"],
+        "装弦": ["定位", "固定", "调音"],
+        "装饰": ["镶嵌", "彩绘", "雕刻"]
+    }
+};
+
+// 初始化交互式工艺图
+function initCraftsmanshipVis() {
+    const svg = d3.select("#craftsmanship .craftsmanship-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    const tooltip = d3.select("#craftsmanship .tooltip");
+    
+    // 创建力导向图布局
+    const simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(d => d.id).distance(50)) // 增加连接距离
+        .force("charge", d3.forceManyBody().strength(50)) // 增加排斥力
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(30)) // 添加碰撞力
+        .force("x", d3.forceX(width / 2).strength(0.1)) // 添加x方向力
+        .force("y", d3.forceY(height / 2).strength(0.1)); // 添加y方向力
+
+    // 转换数据格式
+    const nodes = [];
+    const links = [];
+    
+    Object.entries(craftData).forEach(([category, items]) => {
+        nodes.push({id: category, group: 1, weight: 10}); // 添加权重
+        Object.entries(items).forEach(([step, details]) => {
+            nodes.push({id: step, group: 2, weight: 5});
+            links.push({source: category, target: step, value: 3}); // 添加连接强度
+            details.forEach(detail => {
+                nodes.push({id: detail, group: 3, weight: 2});
+                links.push({source: step, target: detail, value: 2});
+            });
+        });
+    });
+
+    // 绘制连接线
+    const link = svg.append("g")
+        .selectAll("line")
+        .data(links)
+        .enter().append("line")
+        .attr("stroke", "#d4af37")
+        .attr("stroke-opacity", 0.6)
+        .attr("stroke-width", d => Math.sqrt(d.value) * 1); // 根据连接强度设置线宽
+
+    // 绘制节点
+    const node = svg.append("g")
+        .selectAll("circle")
+        .data(nodes)
+        .enter().append("circle")
+        .attr("r", d => d.weight * 2) // 根据权重设置半径
+        .attr("fill", d => d.group === 1 ? "#ff6b6b" : d.group === 2 ? "#d4af37" : "#4b0082")
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    // 添加文字标签
+    const text = svg.append("g")
+        .selectAll("text")
+        .data(nodes)
+        .enter().append("text")
+        .text(d => d.id)
+        .attr("font-family", "'KingHwa_OldSong', serif")
+        .attr("font-size", d => d.group === 1 ? "16px" : "12px") // 增大主要节点文字
+        .attr("fill", "#d4af37")
+        .attr("dx", d => d.weight * 2 + 5) // 根据节点大小调整文字位置
+        .attr("dy", 4);
+
+    // 添加交互效果
+    node.on("mouseover", function(event, d) {
+            // 高亮相关连接
+            link.style("stroke", l => (l.source === d || l.target === d) ? "#ff6b6b" : "#d4af37")
+                .style("stroke-opacity", l => (l.source === d || l.target === d) ? 1 : 0.2);
+            
+            tooltip.style("display", "block")
+                .html(`${d.id}<br>${d.group === 1 ? '工艺类别' : d.group === 2 ? '工序步骤' : '具体细节'}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            // 放大当前节点
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", d.weight * 2.5);
+        })
+        .on("mouseout", function(event, d) {
+            link.style("stroke", "#d4af37")
+                .style("stroke-opacity", 0.6);
+            
+            tooltip.style("display", "none");
+            
+            // 恢复节点大小
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", d.weight * 2);
+        });
+
+    // 更新布局
+    simulation
+        .nodes(nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(links);
+
+    // 定义拖拽行为
+    function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+    }
+
+    function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+    }
+
+    function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+    }
+
+    // 更新位置
+    function ticked() {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+
+        text
+            .attr("x", d => d.x)
+            .attr("y", d => d.y);
+    }
+}
+
+// 页面加载完成后初始化图表
+window.addEventListener('load', initCraftsmanshipVis);
+</script>
+</div>
                 
             </div>
         </section>
@@ -1445,9 +2107,6 @@ window.addEventListener('load', initFamilyTree);
             console.log("initCulturalSignificance 函数尚未实现");
         }
         
-        function initConstructionParts() {
-            console.log("initConstructionParts 函数尚未实现");
-        }
         
         function initAcousticPrinciples() {
             console.log("initAcousticPrinciples 函数尚未实现");
@@ -3512,7 +4171,7 @@ window.addEventListener('load', initFamilyTree);
             setupTimelineNav();
             initAllVisualizations();
             
-            // 初始化音频播放器和可视化
+            // 初始化音频播放器
             initAudioPlayer();
         });
         
@@ -3520,107 +4179,55 @@ window.addEventListener('load', initFamilyTree);
             const audioPlayer = document.getElementById('pipaMusicPlayer');
             const playPauseBtn = document.getElementById('playPauseBtn');
             const volumeSlider = document.getElementById('volumeSlider');
-            const visualizer = document.getElementById('audio-visualizer');
+            const nowPlaying = document.createElement('div');
+            nowPlaying.id = 'now-playing';
+            nowPlaying.textContent = '正在播放: 琵琶语';
+            nowPlaying.style.color = '#fff';
+            nowPlaying.style.fontFamily = '"KingHwa_OldSong", serif';
+            nowPlaying.style.position = 'absolute';
+            nowPlaying.style.bottom = '100%';
+            nowPlaying.style.left = '0';
+            nowPlaying.style.marginBottom = '10px';
+            document.querySelector('.audio-player-container').appendChild(nowPlaying);
             
-            let audioContext = null;
-            let analyser = null;
-            let source = null;
             let isPlaying = false;
             
-            // 立即初始化音频上下文
-            function initAudioContext() {
-                if (!audioContext) {
-                    try {
-                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        analyser = audioContext.createAnalyser();
-                        analyser.fftSize = 512;
-                        source = audioContext.createMediaElementSource(audioPlayer);
-                        source.connect(analyser);
-                        analyser.connect(audioContext.destination);
-                        
-                        // 设置初始音量
-                        audioPlayer.volume = volumeSlider.value;
-                        
-                        // 创建更丰富的可视化效果
-                        createEnhancedVisualizer();
-                        
-                        // 开始播放
-                        audioPlayer.play().then(() => {
-                            isPlaying = true;
-                            playPauseBtn.textContent = '暂停';
-                            updateVisualizer();
-                        }).catch(error => {
-                            console.error('播放失败:', error);
-                            // 自动重试一次
-                            setTimeout(() => audioPlayer.play(), 500);
-                        });
-                    } catch (error) {
-                        console.error('音频初始化失败:', error);
+            // 3秒倒计时后自动播放
+            function startCountdown() {
+                let count = 3;
+                nowPlaying.textContent = `即将播放: 琵琶语 (${count})`;
+                
+                const timer = setInterval(() => {
+                    count--;
+                    if(count > 0) {
+                        nowPlaying.textContent = `即将播放: 琵琶语 (${count})`;
+                    } else {
+                        clearInterval(timer);
+                        startPlaying();
                     }
-                }
+                }, 1000);
             }
             
-            // 创建增强版可视化条
-            function createEnhancedVisualizer() {
-                visualizer.innerHTML = '';
-                for (let i = 0; i < 120; i++) {
-                    const bar = document.createElement('div');
-                    bar.className = 'visualizer-bar';
-                    
-                    // 添加随机颜色变化
-                    const hue = (i * 3) % 360;
-                    bar.style.background = `linear-gradient(to top, hsla(${hue}, 100%, 50%, 0.3), hsla(${hue + 30}, 100%, 70%, 0.7))`;
-                    
-                    visualizer.appendChild(bar);
-                }
+            // 开始播放
+            function startPlaying() {
+                // 设置初始音量
+                audioPlayer.volume = volumeSlider.value;
+                
+                // 开始播放
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    nowPlaying.textContent = '正在播放: 琵琶语';
+                    playPauseBtn.textContent = '暂停';
+                }).catch(error => {
+                    console.error('播放失败:', error);
+                });
             }
             
-            // 更新可视化
-            function updateVisualizer() {
-                if (!analyser || !isPlaying) return;
-                
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                function draw() {
-                    if (!isPlaying) return;
-                    
-                    requestAnimationFrame(draw);
-                    analyser.getByteFrequencyData(dataArray);
-                    
-                    const bars = document.querySelectorAll('.visualizer-bar');
-                    const maxHeight = 100;
-                    
-                    bars.forEach((bar, i) => {
-                        const index = Math.floor(i * bufferLength / bars.length);
-                        const value = dataArray[index] / 255;
-                        
-                        // 更动态的高度变化
-                        const height = Math.pow(value, 2) * maxHeight;
-                        
-                        // 添加平滑动画
-                        bar.style.height = `${height}px`;
-                        bar.style.opacity = 0.5 + value * 0.5;
-                        
-                        // 添加旋转效果
-                        bar.style.transform = `rotate(${value * 10}deg)`;
-                        
-                        // 添加宽度变化
-                        bar.style.width = `${3 + value * 5}px`;
-                    });
-                }
-                
-                draw();
-            }
+            // 启动倒计时
+            startCountdown();
             
             // 播放/暂停控制
             playPauseBtn.addEventListener('click', () => {
-                if (!audioContext) return;
-                
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
                 if (audioPlayer.paused) {
                     audioPlayer.play();
                     playPauseBtn.textContent = '暂停';
@@ -3639,7 +4246,7 @@ window.addEventListener('load', initFamilyTree);
         }
     </script>
     
-    <!-- 音频播放器和可视化 -->
+    <!-- 音频播放器 -->
     <div class="audio-player-container">
         <audio id="pipaMusicPlayer" loop>
             <source src="static/img/pipa.mp3" type="audio/mpeg">
@@ -3651,7 +4258,6 @@ window.addEventListener('load', initFamilyTree);
                 <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
             </div>
         </div>
-        <div id="audio-visualizer"></div>
     </div>
 
     <style>
@@ -3703,24 +4309,6 @@ window.addEventListener('load', initFamilyTree);
         #volumeSlider {
             width: 80px;
             accent-color: rgba(245, 215, 110, 0.5);
-        }
-        
-        #audio-visualizer {
-            height: 60px;
-            width: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            pointer-events: none;
-        }
-        
-        .visualizer-bar {
-            width: 3px;
-            height: 5px;
-            background: linear-gradient(to top, rgba(212, 175, 55, 0.3), rgba(245, 215, 110, 0.5));
-            margin: 0 1px;
-            border-radius: 2px 2px 0 0;
-            transition: height 0.1s ease;
         }
     </style>
 </body>
