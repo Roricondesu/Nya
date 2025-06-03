@@ -18,6 +18,28 @@
             box-sizing: border-box;
         }
         
+        /* 音乐可视化器样式 */
+        .visualizer-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: rgba(26, 11, 77, 0.7);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #visualizer {
+            width: 90%;
+            height: 80px;
+            background: rgba(26, 11, 77, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
         /* 底部按钮样式 */
         .bottom-buttons {
             position: fixed;
@@ -1665,7 +1687,7 @@ window.addEventListener('load', initCraftsmanshipVis);
             <div class="left-column">
                 <div class="info-vis" id="pipa-structure">
                     <h3 class="vis-title">琵琶构造解析</h3>
-                    <svg width="100%" height="350"></svg>
+                    <img src="static/img/pipacg.svg" alt="琵琶" style="width: 100%; height: 350px; object-fit: contain;">
                 </div>
                 
                 <div class="info-vis" id="erhu-structure">
@@ -5132,11 +5154,60 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
         <button class="bottom-btn" id="backToTop" style="font-family: 'KingHwa_OldSong', serif; font-size: 0.8em; color: white;">回到<br>顶部</button>
     </div>
     
+    <!-- 音乐可视化器 -->
+    <div class="visualizer-container">
+        <canvas id="visualizer"></canvas>
+    </div>
+    
     <script>
         // 播放音乐
         const audio = new Audio('static/img/pipa.mp3');
+        
+        // 初始化音频上下文和可视化
+        let audioContext, analyser, dataArray;
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        function initAudioContext() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaElementSource(audio);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+        }
+        
+        function visualize() {
+            requestAnimationFrame(visualize);
+            
+            if (!analyser) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / analyser.frequencyBinCount) * 2.5;
+            let x = 0;
+            
+            for (let i = 0; i < analyser.frequencyBinCount; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height;
+                
+                ctx.fillStyle = `hsl(${200 + (i * 2)}, 100%, 50%)`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
+            }
+        }
+        
         document.getElementById('playMusic').addEventListener('click', () => {
             audio.play();
+            if (!audioContext) {
+                initAudioContext();
+                visualize();
+            }
         });
         
         // 返回顶部
