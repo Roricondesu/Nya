@@ -5087,10 +5087,6 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             您的浏览器不支持音频元素。
         </audio>
         <div class="audio-controls">
-            <div class="volume-control">
-                <span>音量:</span>
-                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
-            </div>
         </div>
     </div>
 
@@ -5154,7 +5150,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
     </div>
     
     <!-- 音乐可视化器 -->
-    <div class="visualizer-container">
+    <div class="visualizer-container" style="opacity: 0.6;">
         <canvas id="visualizer"></canvas>
     </div>
     
