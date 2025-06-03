@@ -1688,7 +1688,7 @@ window.addEventListener('load', initCraftsmanshipVis);
                 
                 <div class="info-vis" id="erhu-structure">
                     <h3 class="vis-title">二胡构造解析</h3>
-                    <svg width="100%" height="350"></svg>
+                    <img src="static/img/erhucg.svg" alt="琵琶" style="width: 100%; height: 350px; object-fit: contain;">
                 </div>
             </div>
             
@@ -2101,7 +2101,7 @@ window.addEventListener('load', initCraftsmanshipVis);
                     .scroll-gradient-left, .scroll-gradient-right {
                         position: absolute;
                         top: 0;
-                        width: 60px;
+                        width: 80px;
                         height: 100%;
                         z-index: 2;
                         pointer-events: none;
@@ -2473,6 +2473,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 <p>中国传统弦乐作为中华文化的重要载体，在新时代焕发出新的生命力，既坚守传统精髓，又拥抱创新发展。</p>
                 
                 <div class="main-visual" >
+                    <div class="scroll-gradient-left"></div>
                     <div class="flourish-embed flourish-webgl" data-src="visualisation/23569810" style="width: 100% !important;">
                         <script src="https://public.flourish.studio/resources/embed.js"></script>
                         <noscript>
@@ -2481,7 +2482,8 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                                 alt="webgl visualization" 
                                 style="border-radius: 50px;" />
                         </noscript>
-                    </div>                
+                    </div>        
+                    <div class="scroll-gradient-right"></div>        
                 </div>
                 
                 <div class="epilogue-content">
@@ -5095,11 +5097,12 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
     <style>
         .audio-player-container {
             position: fixed;
-            bottom: -30px;
+            bottom: -10px;
             left: 20px;
-            width: auto;
+            width: 100%;
             z-index: 1000;
             pointer-events: none;
+            opacity: 0.6; /* 设置透明度为 60% */
         }
         
         .audio-controls {
@@ -5111,7 +5114,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
         
         .control-btn {
             background: rgba(212, 175, 55, 0.3);
-            left：10px
+            left：-50px
             color: #000;
             border: none;
             padding: 5px 15px;
