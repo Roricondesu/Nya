@@ -5013,15 +5013,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             const audioPlayer = document.getElementById('pipaMusicPlayer');
             const playPauseBtn = document.getElementById('playPauseBtn');
             const volumeSlider = document.getElementById('volumeSlider');
-            const nowPlaying = document.createElement('div');
-            nowPlaying.id = 'now-playing';
-            nowPlaying.textContent = '正在播放: 琵琶语';
-            nowPlaying.style.color = '#fff';
-            nowPlaying.style.fontFamily = '"KingHwa_OldSong", serif';
-            nowPlaying.style.position = 'absolute';
-            nowPlaying.style.bottom = '100%';
-            nowPlaying.style.left = '0';
-            nowPlaying.style.marginBottom = '10px';
+
             document.querySelector('.audio-player-container').appendChild(nowPlaying);
             
             let isPlaying = false;
@@ -5150,7 +5142,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
     </div>
     
     <!-- 音乐可视化器 -->
-    <div class="visualizer-container" style="opacity: 0.6;">
+    <div class="visualizer-container" style="opacity: 0.4;">
         <canvas id="visualizer"></canvas>
     </div>
     
@@ -5162,7 +5154,7 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
         let audioContext, analyser, dataArray;
         const canvas = document.getElementById('visualizer');
         const ctx = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth;
+        canvas.width = canvas.offsetWidth * 1.5; // 使画布变宽一点
         canvas.height = canvas.offsetHeight;
         
         function initAudioContext() {
@@ -5190,7 +5182,8 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             for (let i = 0; i < analyser.frequencyBinCount; i++) {
                 const barHeight = (dataArray[i] / 255) * canvas.height;
                 
-                ctx.fillStyle = `hsl(${200 + (i * 2)}, 100%, 50%)`;
+                // 修改颜色以适配界面，使用界面主色调相关的颜色范围
+                ctx.fillStyle = `hsl(${30 + (i * 1)}, 80%, ${30 + (dataArray[i] / 255) * 30}%)`; 
                 ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
                 
                 x += barWidth + 1;
@@ -5204,7 +5197,6 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 visualize();
             }
         });
-        
         // 返回顶部
         document.getElementById('backToTop').addEventListener('click', () => {
             window.scrollTo({
