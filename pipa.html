@@ -1503,7 +1503,7 @@ window.addEventListener('load', initCraftsmanshipVis);
                 <p>琵琶与二胡作为中国传统弦乐器的两大代表，各具特色又相互补充，共同构成了中国器乐艺术的重要支柱。</p>
                 
                 <div class="main-visual">
-                    <img src="static/img/pipa02.svg" alt="琵琶" class="instrument-img">
+                    <img src="static/img/pipa02.svg" alt="琵琶" class="instrument-img" style="height: 600px;">
                 </div>
                 
                 <div class="comparison-content">
@@ -1556,6 +1556,160 @@ window.addEventListener('load', initCraftsmanshipVis);
                 <div class="main-visual">
                     <img src="static/img/pipa031.svg" alt="演奏" class="instrument-img" style="height: 500px; opacity: 0.7;">
                 </div>
+                
+                <!-- 名曲滚动列表容器 -->
+                <div class="masterpiece-scroll-container">
+                    <div class="scroll-gradient-left"></div>
+                    <div class="masterpiece-list">
+                        <div class="masterpiece-item">
+                            <h4>十面埋伏</h4>
+                            <p class="meta">琵琶 | 清代 | 佚名</p>
+                            <p class="desc">描绘楚汉相争的宏大场面，以丰富的演奏技法展现战场气氛。</p>
+                        </div>
+                        <div class="masterpiece-item">
+                            <h4>阳春白雪</h4>
+                            <p class="meta">琵琶 | 唐代 | 佚名</p>
+                            <p class="desc">展现冬去春来的自然景象，琵琶音色清丽典雅。</p>
+                        </div>
+                        <div class="masterpiece-item">
+                            <h4>二泉映月</h4>
+                            <p class="meta">二胡 | 1950年 | 华彦钧</p>
+                            <p class="desc">借泉水月影抒发人生感慨，二胡音色凄婉动人。</p>
+                        </div>
+                        <div class="masterpiece-item">
+                            <h4>梁祝</h4>
+                            <p class="meta">二胡 | 1959年 | 何占豪</p>
+                            <p class="desc">改编自小提琴协奏曲，展现凄美的爱情故事。</p>
+                        </div>
+                        <div class="masterpiece-item">
+                            <h4>春江花月夜</h4>
+                            <p class="meta">琵琶 | 唐代 | 佚名</p>
+                            <p class="desc">描绘春夜江边美景，琵琶音色优美动人。</p>
+                        </div>
+                    </div>
+                    <div class="scroll-gradient-right"></div>
+                </div>
+
+                <style>
+                    /* 名曲列表容器样式 */
+                    .masterpiece-scroll-container {
+                        position: relative;
+                        width: 100%;
+                        height: 150px;
+                        margin: 20px 0;
+                        overflow: hidden;
+                    }
+
+                    /* 渐变遮罩 */
+                    .scroll-gradient-left, .scroll-gradient-right {
+                        position: absolute;
+                        top: 0;
+                        width: 100px;
+                        height: 100%;
+                        z-index: 2;
+                        pointer-events: none;
+                    }
+
+                    .scroll-gradient-left {
+                        left: 0;
+                        background: linear-gradient(to right, #3b0471, transparent);
+                    }
+
+                    .scroll-gradient-right {
+                        right: 0;
+                        background: linear-gradient(to left, #3b0471, transparent);
+                    }
+
+                    /* 名曲列表样式 */
+                    .masterpiece-list {
+                        display: flex;
+                        gap: 20px;
+                        padding: 10px;
+                        animation: scrollList 30s linear infinite;
+                        cursor: grab;
+                    }
+
+                    .masterpiece-list:hover {
+                        animation-play-state: paused;
+                    }
+
+                    /* 名曲项目样式 */
+                    .masterpiece-item {
+                        min-width: 250px;
+                        padding: 15px;
+                        background: rgba(212, 175, 55, 0.1);
+                        border: 1px solid rgba(212, 175, 55, 0.3);
+                        border-radius: 8px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .masterpiece-item:hover {
+                        transform: translateY(-5px);
+                        background: rgba(212, 175, 55, 0.2);
+                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    }
+
+                    .masterpiece-item h4 {
+                        color: #d4af37;
+                        margin-bottom: 5px;
+                        font-size: 1.2em;
+                    }
+
+                    .masterpiece-item .meta {
+                        color: #a08a3c;
+                        font-size: 0.9em;
+                        margin-bottom: 8px;
+                    }
+
+                    .masterpiece-item .desc {
+                        color: #d4af37;
+                        font-size: 0.9em;
+                        line-height: 1.4;
+                    }
+
+                    /* 滚动动画 */
+                    @keyframes scrollList {
+                        0% {
+                            transform: translateX(0);
+                        }
+                        100% {
+                            transform: translateX(-100%);
+                        }
+                    }
+                </style>
+
+                <script>
+                    // 实现拖拽滚动
+                    const list = document.querySelector('.masterpiece-list');
+                    let isDown = false;
+                    let startX;
+                    let scrollLeft;
+
+                    list.addEventListener('mousedown', (e) => {
+                        isDown = true;
+                        list.style.cursor = 'grabbing';
+                        startX = e.pageX - list.offsetLeft;
+                        scrollLeft = list.scrollLeft;
+                    });
+
+                    list.addEventListener('mouseleave', () => {
+                        isDown = false;
+                        list.style.cursor = 'grab';
+                    });
+
+                    list.addEventListener('mouseup', () => {
+                        isDown = false;
+                        list.style.cursor = 'grab';
+                    });
+
+                    list.addEventListener('mousemove', (e) => {
+                        if(!isDown) return;
+                        e.preventDefault();
+                        const x = e.pageX - list.offsetLeft;
+                        const walk = (x - startX) * 2;
+                        list.scrollLeft = scrollLeft - walk;
+                    });
+                </script>
                 
                 <div class="masterpieces-content">
                     <p>琵琶名曲《十面埋伏》以丰富的技法描绘楚汉相争的激烈战场，《阳春白雪》则表现了冬去春来的自然景象。二胡名曲《二泉映月》借无锡惠山泉水月影抒发人生感慨，《赛马》则生动表现了草原赛马的欢快场景。</p>
