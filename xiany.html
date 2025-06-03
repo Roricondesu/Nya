@@ -18,6 +18,37 @@
             box-sizing: border-box;
         }
         
+        /* 底部按钮样式 */
+        .bottom-buttons {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .bottom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.7);
+            color: #1a0b4d;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .bottom-btn:hover {
+            background: #d4af37;
+            transform: scale(1.1);
+        }
+        
         body {
             font-family: "Microsoft YaHei", sans-serif;
             background: linear-gradient(to bottom, #1a0b4d, #4b0082);
@@ -5061,7 +5092,8 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
         }
         
         .control-btn {
-            background: rgba(212, 175, 55, 0.5);
+            background: rgba(212, 175, 55, 0.3);
+            left：10px
             color: #000;
             border: none;
             padding: 5px 15px;
@@ -5094,5 +5126,26 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             accent-color: rgba(245, 215, 110, 0.5);
         }
     </style>
+    <!-- 底部按钮 -->
+    <div class="bottom-buttons" style="flex-direction: row;">
+        <button class="bottom-btn" id="playMusic" style="font-family: 'KingHwa_OldSong', serif; font-size: 0.8em; color: white;">播放<br>音乐</button>
+        <button class="bottom-btn" id="backToTop" style="font-family: 'KingHwa_OldSong', serif; font-size: 0.8em; color: white;">回到<br>顶部</button>
+    </div>
+    
+    <script>
+        // 播放音乐
+        const audio = new Audio('static/img/pipa.mp3');
+        document.getElementById('playMusic').addEventListener('click', () => {
+            audio.play();
+        });
+        
+        // 返回顶部
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
 </body>
 </html>
