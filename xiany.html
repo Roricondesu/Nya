@@ -528,21 +528,24 @@
                 
                 <div class="info-vis" id="dynasty-distribution">
                     <h3 class="vis-title">中国弦乐器分类</h3>
-                    <div class="flourish-embed flourish-hierarchy" data-src="visualisation/23568474"><script src="https://public.flourish.studio/resources/embed.js"></script><noscript><img src="https://public.flourish.studio/visualisation/23568474/thumbnail" width="100%" alt="hierarchy visualization" /></noscript></div>
+                    <div class="flourish-embed flourish-hierarchy" data-src="visualisation/23568474" style="background-image: url('xiany01.svg'); background-size: cover; background-position: center;">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                        <noscript><img src="https://public.flourish.studio/visualisation/23568474/thumbnail" width="100%" alt="hierarchy visualization" /></noscript>
+                    </div>
                     <svg width="100%" height="1"></svg>
                 </div>
                 
                 <div class="info-vis" id="initInstrumentOrigins">
-                    <h3 class="vis-title">弦乐传播路线</h3>
+                    <h3 class="vis-title">部分弦乐器传播路线</h3>
                     <svg width="100%" height="250"></svg>
                 </div>
                 
 
             </div>
             
-            <div class="center-column">
+            <div class="center-column" style="width: 200% !important;">
                 <h2>弦歌不辍</h2>
-                <p>中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。</p>
+                <p style="text-align: center;">中国弦乐器的历史可追溯至三千多年前的商周时期，是中国传统音乐文化的重要组成部分。<br><br> <br>点击中间的图形查看详细时间轴</p>
                 
                 <div class="main-visual">
 <img src="static/img/pipa032.svg" alt="演奏" class="instrument-img" onclick="openTimelineModal()">
@@ -854,14 +857,14 @@ document.addEventListener('DOMContentLoaded', initHistoryGraph);
         <section id="overview" class="page-section">
             <div class="left-column">
 <div class="info-vis" id="instfam">
-    <h3 class="vis-title">弦乐器家族分类</h3>
+    <h3 class="vis-title">中国弦乐器家族分类</h3>
     <svg width="100%" height="350"></svg>
 </div>
 
 <script>
 // 弦乐器家族分类数据
 const familyData = {
-    name: "-",
+    name: "中国弦乐器",
     children: [
         {
             name: "弹拨乐器",
