@@ -276,6 +276,20 @@
             gap: 30px;
             margin: 40px 0;
             opacity: 0; /* 初始状态为不可见 */
+            animation: float 3s ease-in-out infinite; /* 添加上下浮动动画 */
+        }
+
+        /* 定义上下浮动动画 */
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px); /* 向上移动10px */
+            }
+            100% {
+                transform: translateY(0);
+            }
         }
         
         .instrument-img {
