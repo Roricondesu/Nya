@@ -277,6 +277,11 @@
             margin: 40px 0;
             opacity: 0; /* 初始状态为不可见 */
             animation: float 3s ease-in-out infinite; /* 添加上下浮动动画 */
+            transition: transform 0.3s ease; /* 添加过渡效果 */
+        }
+
+        .main-visual:hover {
+            transform: scale(1.1); /* 鼠标悬停时放大10% */
         }
 
         /* 定义上下浮动动画 */
@@ -2540,6 +2545,14 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             const notes = ['宫', '商', '角', '徵', '羽'];
             const container = document.getElementById('music-notes-container');
             
+            // 监听鼠标移动事件
+            let mouseX = 0;
+            let mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
             for (let i = 0; i < 20; i++) {
                 const note = document.createElement('div');
                 note.className = 'music-note';
@@ -2556,7 +2569,34 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 note.style.animationDuration = `${duration}s`;
                 note.style.fontSize = `${size}rem`;
                 note.style.opacity = 0.1 + Math.random() * 0.2;
-                
+                // 使元素可定位，以便后续通过 JavaScript 改变位置
+                note.style.position = 'fixed'; 
+
+                // 每帧更新音符位置以实现排斥效果
+                function updateNotePosition() {
+                    const rect = note.getBoundingClientRect();
+                    const noteX = rect.left + rect.width / 2;
+                    const noteY = rect.top + rect.height / 2;
+
+                    const dx = noteX - mouseX;
+                    const dy = noteY - mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // 定义排斥力范围和强度
+                    const repelRange = 200;
+                    const repelStrength = 1;
+
+                    if (distance < repelRange) {
+                        const force = (repelRange - distance) / repelRange * repelStrength;
+                        const newLeft = parseFloat(note.style.left.replace('%', '')) + (dx / distance) * force;
+                        note.style.left = `${Math.min(Math.max(newLeft, 0), 100)}%`;
+                    }
+
+                    requestAnimationFrame(updateNotePosition);
+                }
+
+                updateNotePosition();
+
                 container.appendChild(note);
             }
         }
@@ -5236,6 +5276,44 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 behavior: 'smooth'
             });
         });
+    // 鼠标位置创意效果
+    const particles = [];
+// 将颜色数组中的颜色转换为带30%透明度的RGBA格式
+const colors = ['rgba(212, 175, 55, 0.3)', 'rgba(230, 199, 125, 0.3)', 'rgba(255, 107, 107, 0.3)', 'rgba(75, 0, 130, 0.3)', 'rgba(26, 11, 77, 0.3)'];
+
+    function createParticle(x, y) {
+        const particle = document.createElement('div');
+        particle.style.position = 'fixed';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.width = '10px';
+        particle.style.height = '10px';
+        particle.style.borderRadius = '50%';
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.pointerEvents = 'none';
+        particle.style.zIndex = '9999';
+        document.body.appendChild(particle);
+        
+        anime({
+            targets: particle,
+            translateX: () => anime.random(-50, 50),
+            translateY: () => anime.random(-50, 50),
+            scale: () => anime.random(1, 3),
+            opacity: [1, 0],
+            duration: () => anime.random(1000, 2000),
+            easing: 'easeOutExpo',
+            complete: () => {
+                document.body.removeChild(particle);
+            }
+        });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        createParticle(e.clientX, e.clientY);
+        if(Math.random() > 0.7) {
+            setTimeout(() => createParticle(e.clientX + anime.random(-20,20), e.clientY + anime.random(-20,20)), 100);
+        }
+    });
     </script>
 </body>
 </html>
