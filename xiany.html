@@ -487,7 +487,9 @@
     <div id="intro-animation" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #1a0b4d, #4b0082); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div style="position: absolute; width: 100%; height: 100%; background-image: url('static/img/pipa032.svg'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.3;"></div>
         <h1 id="intro-title" style="font-size: 5rem; color: #d4af37; text-shadow: 0 0 20px rgba(212, 175, 55, 0.7); opacity: 0; transform: translateY(50px); font-family: 'KingHwa_OldSong', serif;">织谱·天弦</h1>
-        <h2 id="intro-subtitle" style="font-size: 2rem; color: #e6c77d; text-shadow: 0 0 10px rgba(230, 199, 125, 0.5); opacity: 0; transform: translateY(30px); font-family: 'KingHwa_OldSong', serif;"> <br>中国传统弦乐器信息图形设计</h2>
+        <h2 id="intro-subtitle" style="font-size: 2rem; color: #e6c77d; text-shadow: 0 0 10px rgba(230, 199, 125, 0.5); opacity: 0; transform: translateY(30px); font-family: 'KingHwa_OldSong', serif;"> <br>中国传统弦乐器信息图形设计<br></h2>
+        <!-- 添加正在加载文字 -->
+        <p id="loading-text" style="position: absolute; bottom: 10%; font-size: 1rem; color: rgba(212, 175, 55, 0.5); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); opacity: 0; font-family: 'KingHwa_OldSong', serif;">正在加载....</p>
     </div>
 
     <!-- 标题 -->
@@ -508,6 +510,7 @@
             const intro = document.getElementById('intro-animation');
             const title = document.getElementById('intro-title');
             const subtitle = document.getElementById('intro-subtitle');
+            const loadingText = document.getElementById('loading-text'); // 获取加载文字元素
             
             // 标题动画
             anime({
@@ -528,14 +531,23 @@
                 easing: 'easeOutExpo',
                 delay: 1200
             });
+
+            // 加载文字动画
+            anime({
+                targets: loadingText,
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutExpo',
+                delay: 1500
+            });
             
             // 整体淡出
             anime({
-                targets: intro,
+                targets: [intro, loadingText], // 同时淡出加载文字
                 opacity: [1, 0],
                 duration: 1000,
                 easing: 'easeInOutExpo',
-                delay: 3500,
+                delay: 5000,
                 complete: function() {
                     intro.style.display = 'none';
                     // 显示主内容
