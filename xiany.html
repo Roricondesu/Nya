@@ -16,6 +16,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* 将默认字体改为 oldsong */
+            font-family: "KingHwa_OldSong", serif;
         }
         
         /* 音乐可视化器样式 */
@@ -481,6 +483,13 @@
     </style>
 </head>
 <body>
+    <!-- 开场动画 -->
+    <div id="intro-animation" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #1a0b4d, #4b0082); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="position: absolute; width: 100%; height: 100%; background-image: url('static/img/pipa032.svg'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.3;"></div>
+        <h1 id="intro-title" style="font-size: 5rem; color: #d4af37; text-shadow: 0 0 20px rgba(212, 175, 55, 0.7); opacity: 0; transform: translateY(50px); font-family: 'KingHwa_OldSong', serif;">织谱·天弦</h1>
+        <h2 id="intro-subtitle" style="font-size: 2rem; color: #e6c77d; text-shadow: 0 0 10px rgba(230, 199, 125, 0.5); opacity: 0; transform: translateY(30px); font-family: 'KingHwa_OldSong', serif;"> <br>中国传统弦乐器信息图形设计</h2>
+    </div>
+
     <!-- 标题 -->
     <div class="main-title">
         <span>织谱·天弦</span>
@@ -494,6 +503,78 @@
 
     </svg>
     <script>
+        // 开场动画
+        function playIntroAnimation() {
+            const intro = document.getElementById('intro-animation');
+            const title = document.getElementById('intro-title');
+            const subtitle = document.getElementById('intro-subtitle');
+            
+            // 标题动画
+            anime({
+                targets: title,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 1500,
+                easing: 'easeOutExpo',
+                delay: 500
+            });
+            
+            // 副标题动画
+            anime({
+                targets: subtitle,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 1200,
+                easing: 'easeOutExpo',
+                delay: 1200
+            });
+            
+            // 整体淡出
+            anime({
+                targets: intro,
+                opacity: [1, 0],
+                duration: 1000,
+                easing: 'easeInOutExpo',
+                delay: 3500,
+                complete: function() {
+                    intro.style.display = 'none';
+                    // 显示主内容
+                    document.querySelector('.main-title').style.opacity = '1';
+                    document.querySelector('.main-title').style.transform = 'translateY(0)';
+                }
+            });
+            
+            // 添加音乐粒子效果
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const note = document.createElement('div');
+                    note.textContent = ['宫', '商', '角', '徵', '羽'][Math.floor(Math.random() * 5)];
+                    note.style.position = 'absolute';
+                    note.style.fontSize = `${Math.random() * 2 + 1}rem`;
+                    note.style.color = `hsl(${Math.random() * 30 + 30}, 80%, 60%)`;
+                    note.style.left = `${Math.random() * 100}%`;
+                    note.style.top = `${Math.random() * 100}%`;
+                    note.style.opacity = '0';
+                    intro.appendChild(note);
+                    
+                    anime({
+                        targets: note,
+                        opacity: [0, 0.6, 0],
+                        translateY: [0, -100],
+                        translateX: [0, anime.random(-50, 50)],
+                        rotate: [0, anime.random(-180, 180)],
+                        duration: 3000,
+                        easing: 'easeOutExpo'
+                    });
+                }, i * 100);
+            }
+        }
+        
+        // 页面加载后播放开场动画
+        window.addEventListener('DOMContentLoaded', () => {
+            playIntroAnimation();
+        });
+        
         // 定义正弦波动画函数
         function animateSineWave() {
             const svg = document.getElementById('sine-wave');
@@ -1714,6 +1795,10 @@ window.addEventListener('load', initCraftsmanshipVis);
                     <h3 class="vis-title">二胡构造解析</h3>
                     <img src="static/img/erhucg1.svg" alt="琵琶" style="width: 100%; height: 350px; object-fit: contain;">
                 </div>
+
+                <div class="info-vis" id="main-string-instrument-emotion-range">
+                    <h3 class="vis-title">主要弦乐器情感范围</h3>
+                    <div class="flourish-embed flourish-scatter" data-src="visualisation/23704635"><script src="https://public.flourish.studio/resources/embed.js"></script><noscript><img src="https://public.flourish.studio/visualisation/23704635/thumbnail" width="100%" alt="scatter visualization" /></noscript></div>                </div>
             </div>
             
             <div class="center-column"style="width: 200% !important;">
