@@ -2635,32 +2635,43 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
     
     <!-- 五音特效 -->
     <div id="music-notes-container"></div>
-    
     <script>
         // 五音特效生成
         function createMusicNotes() {
             const notes = ['宫', '商', '角', '徵', '羽'];
             const container = document.getElementById('music-notes-container');
-            
-            // 监听鼠标移动事件
-            let mouseX = 0;
-            let mouseY = 0;
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-            
+
+            // 创建音频上下文
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let source;
+            let analyser;
+
+            // 初始化音频分析器
+            function initAudioAnalysis(audioElement) {
+                source = audioContext.createMediaElementSource(audioElement);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+            }
+
+            // 假设页面上有一个音频元素，可根据实际情况修改选择器
+            const audioElement = document.querySelector('audio');
+            if (audioElement) {
+                initAudioAnalysis(audioElement);
+            }
+
             for (let i = 0; i < 20; i++) {
                 const note = document.createElement('div');
                 note.className = 'music-note';
                 note.textContent = notes[Math.floor(Math.random() * notes.length)];
-                
+
                 // 随机位置和动画延迟
                 const left = Math.random() * 100;
                 const delay = Math.random() * 15;
                 const duration = 10 + Math.random() * 10;
                 const size = 1 + Math.random() * 2;
-                
+
                 note.style.left = `${left}%`;
                 note.style.animationDelay = `${delay}s`;
                 note.style.animationDuration = `${duration}s`;
@@ -2669,24 +2680,18 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 // 使元素可定位，以便后续通过 JavaScript 改变位置
                 note.style.position = 'fixed'; 
 
-                // 每帧更新音符位置以实现排斥效果
+                // 每帧更新音符位置以根据音乐进行运动
                 function updateNotePosition() {
-                    const rect = note.getBoundingClientRect();
-                    const noteX = rect.left + rect.width / 2;
-                    const noteY = rect.top + rect.height / 2;
+                    if (analyser) {
+                        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(dataArray);
+                        const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
 
-                    const dx = noteX - mouseX;
-                    const dy = noteY - mouseY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    // 定义排斥力范围和强度
-                    const repelRange = 200;
-                    const repelStrength = 1;
-
-                    if (distance < repelRange) {
-                        const force = (repelRange - distance) / repelRange * repelStrength;
-                        const newLeft = parseFloat(note.style.left.replace('%', '')) + (dx / distance) * force;
+                        // 根据音频数据调整音符位置和透明度
+                        const movement = average / 255 * 10; // 最大移动 10%
+                        const newLeft = parseFloat(note.style.left.replace('%', '')) + (Math.random() - 0.5) * movement;
                         note.style.left = `${Math.min(Math.max(newLeft, 0), 100)}%`;
+                        note.style.opacity = 0.1 + (average / 255) * 0.8;
                     }
 
                     requestAnimationFrame(updateNotePosition);
@@ -2697,7 +2702,6 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
                 container.appendChild(note);
             }
         }
-        
         // 初始化进入动画
         function initEntranceAnimations() {
             // 标题动画
