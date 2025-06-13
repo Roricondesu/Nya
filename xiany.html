@@ -2174,8 +2174,8 @@ window.addEventListener('load', initCraftsmanshipVis);
                 <p>中国传统弦乐名曲凝聚了千百年来的艺术智慧，既有描绘自然风光的写景之作，也有抒发人生感悟的抒情之篇。</p>
                 
                 <div class="main-visual">
-                    <img src="static/img/pipa01.svg" alt="演奏" height="1200" style="transform: scale(0.6) translate(650px, -450px);">
-                    <img src="static/img/erhu01.svg" alt="演奏" height="1200" style="transform: scale(0.6) translate(-400px, 590px);">
+                    <img src="static/img/pipa01.svg" alt="演奏" height="1000" style="transform: scale(0.6) translate(450px, -250px);">
+                    <img src="static/img/erhu01.svg" alt="演奏" height="1000" style="transform: scale(0.6) translate(-400px, 260px);">
                 </div>
                 
                 <!-- 名曲滚动列表容器 -->
@@ -2642,8 +2642,15 @@ document.addEventListener("DOMContentLoaded", initModernAdaptations);
             const notes = ['宫', '商', '角', '徵', '羽'];
             const container = document.getElementById('music-notes-container');
             
-            // 减少特效数量，将生成数量从 20 减少到 10
-            for (let i = 0; i < 10; i++) {
+            // 监听鼠标移动事件
+            let mouseX = 0;
+            let mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            for (let i = 0; i < 20; i++) {
                 const note = document.createElement('div');
                 note.className = 'music-note';
                 note.textContent = notes[Math.floor(Math.random() * notes.length)];
