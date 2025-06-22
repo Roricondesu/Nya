@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OC 角色管理器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        @import url("https://fontsapi.zeoseven.com/181/main/result.css");
+        @font-face {
+            font-family: "Source Han Sans CN";
+            src: local("Source Han Sans CN"), local("SourceHanSansCN"), url("font/fzkt.ttf") format("truetype");
+        }
+        @font-face {
+            font-family: "Alibaba PuHuiTi";
+            src: local("Alibaba PuHuiTi"), local("AlibabaPuHuiTi"), url("font/HL.otf") format("opentype");
+        }
+        @font-face {
+            font-family: "ZCOOL KuaiLe";
+            src: local("ZCOOL KuaiLe"), local("ZCOOLKuaiLe"), url("font/shufa.ttf") format("truetype");
+        }
+    </style>
+    <style>
+        :root {
+            --primary: #ff9eb7;
+            --secondary: #a2e1f6;
+            --accent: #ffd166;
+            --dark: #4a4e69;
+            --light: #f8f9fa;
+            --success: #06d6a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, body * {
+            font-family: "Source Han Sans CN", "Alibaba PuHuiTi", "ZCOOL KuaiLe", "未来圆SC", sans-serif;
+            font-weight: normal;
+        }
+        
+        body {
+            background-color: #fef6f9;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        /* 主容器 */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary);
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(0);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10;
+            position: relative;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-90%);
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: bounceIn 1s;
+        }
+        
+        .logo {
+            font-family: "未来圆SC", sans-serif;
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            font-weight: normal;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-sidebar:hover {
+            transform: rotate(90deg);
+        }
+        
+        .oc-list {
+            list-style: none;
+            margin-bottom: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .oc-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .oc-list::-webkit-scrollbar-thumb {
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 4px;
+        }
+        
+        .oc-item {
+            background-color: rgba(255,255,255,0.3);
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .oc-item:hover {
+            background-color: rgba(255,255,255,0.5);
+            transform: translateX(5px);
+        }
+        
+        .oc-item.active {
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(10px);
+        }
+        
+        .oc-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--accent);
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.3s;
+        }
+        
+        .oc-item.active::after {
+            transform: scaleY(1);
+        }
+        
+        .oc-name {
+            font-weight: normal;
+            margin-bottom: 5px;
+            font-family: "未来圆SC", sans-serif;
+        }
+        
+        .oc-date {
+            font-size: 12px;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .add-oc-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            border: none;
+            border-radius: 10px;
+            font-family: "未来圆SC", sans-serif;
+            font-weight: normal;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        
+        .add-oc-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 rgba(0,0,0,0.1);
+        }
+        
+        .add-oc-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-family: "未来圆SC", sans-serif;
+            font-weight: normal;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: var(--light);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .oc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s;
+        }
+        
+        .oc-title {
+            font-family: "未来圆SC", sans-serif;
+            font-size: 32px;
+            color: var(--dark);
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+            font-weight: normal;
+        }
+        
+        .oc-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .oc-action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--secondary);
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: "未来圆SC", sans-serif;
+            font-size: 16px;
+            font-weight: normal;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        .oc-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+        }
+        
+        .oc-action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        }
+        
+        .oc-action-btn.delete {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        /* 选项卡 */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--secondary);
+            margin-bottom: 20px;
+            animation: slideInDown 0.5s;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            position: relative;
+            font-family: "未来圆SC", sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: var(--primary);
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 2px 2px 0 0;
+            animation: stretch 0.3s forwards;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 编辑器区域 */
+        .editor-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .file-explorer {
+            width: 200px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+        
+        .file-explorer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .file-explorer-title {
+            font-size: 18px;
+            color: var(--dark);
+        }
+        
+        .add-file-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-file-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        .file-tree {
+            list-style: none;
+        }
+        
+        .file-item {
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-item:hover {
+            background-color: rgba(162, 225, 246, 0.3);
+        }
+        
+        .file-item.active {
+            background-color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .file-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            display: flex;
+            padding: 10px 15px;
+            background-color: var(--light);
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            padding-right: 15px;
+            border-right: 1px solid #ddd;
+        }
+        
+        .tool-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tool-btn:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .tool-btn.active {
+            background-color: var(--secondary);
+        }
+        
+        .font-selector {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+        
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+        
+        .editor {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .editor:focus {
+            outline: none;
+        }
+        
+        /* 时间轴样式 */
+        .timeline-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            width: 4px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .timeline-event {
+            position: relative;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .timeline-event:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            border: 4px solid var(--primary);
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content {
+            font-size: 14px;
+        }
+        
+        .add-timeline-event {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .timeline-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .add-timeline-btn {
+            padding: 10px 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-timeline-btn:hover {
+            background-color: #ff7aa1;
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .chart-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .chart-type {
+            padding: 8px 15px;
+            background-color: var(--light);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chart-type.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideInUp 0.3s;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: var(--dark);
+            transform: rotate(90deg);
+        }
+        
+        .modal-title {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Patrick Hand', cursive;
+        }
+        
+        .modal-btn.cancel {
+            background-color: #eee;
+        }
+        
+        .modal-btn.confirm {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        /* 文件上传样式 */
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+            background-color: rgba(255, 158, 183, 0.05);
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% { 
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            100% { 
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes stretch {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        /* 浮动元素 */
+        .floating-elements {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 5;
+        }
+        
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .floating-btn.secondary {
+            background-color: var(--secondary);
+        }
+        
+        .floating-btn.accent {
+            background-color: var(--accent);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                transform: translateX(0);
+                padding: 15px;
+            }
+            
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .editor-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .file-explorer {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .oc-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .oc-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        /* 特殊效果 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+            z-index: 999;
+            animation: confettiFall 5s linear forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loader.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loader-text {
+            font-family: 'Patrick Hand', cursive;
+            color: var(--dark);
+            font-size: 18px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">OC 管理器</div>
+                <button class="toggle-sidebar">≡</button>
+            </div>
+            
+            <button class="add-oc-btn" id="addOcBtn">+ 新建 OC</button>
+            
+            <ul class="oc-list" id="ocList">
+                <!-- OC 列表将通过 JavaScript 动态生成 -->
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="action-btns">
+                    <button class="action-btn" id="exportAllBtn">
+                        <span>导出全部</span>
+                    </button>
+                    <button class="action-btn" id="importBtn">
+                        <span>导入</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="oc-header">
+                <h1 class="oc-title" id="ocTitle">选择或创建 OC</h1>
+                <div class="oc-actions">
+                    <button class="oc-action-btn" id="saveOcBtn">保存</button>
+                    <button class="oc-action-btn" id="exportOcBtn">导出</button>
+                    <button class="oc-action-btn delete" id="deleteOcBtn">删除</button>
+                </div>
+            </div>
+            
+            <!-- 选项卡 -->
+            <div class="tabs">
+                <div class="tab active" data-tab="editor">编辑器</div>
+                <div class="tab" data-tab="timeline">时间轴</div>
+                <div class="tab" data-tab="charts">图表</div>
+                <div class="tab" data-tab="files">文件</div>
+            </div>
+            
+            <!-- 编辑器内容 -->
+            <div class="tab-content active" id="editorTab">
+                <div class="editor-container">
+                    <div class="file-explorer">
+                        <div class="file-explorer-header">
+                            <h3 class="file-explorer-title">文件</h3>
+                            <button class="add-file-btn" id="addFileBtn">+</button>
+                        </div>
+                        <ul class="file-tree" id="fileTree">
+                            <!-- 文件树将通过 JavaScript 动态生成 -->
+                        </ul>
+                    </div>
+                    
+                    <div class="editor-area">
+                        <div class="toolbar">
+                            <div class="tool-group">
+                                <select class="font-selector" id="fontSelector">
+                                    <option value="'Comic Neue', cursive" style="font-family: 'Comic Neue', cursive;">Comic Neue</option>
+                                    <option value="'Patrick Hand', cursive" style="font-family: 'Patrick Hand', cursive;">Patrick Hand</option>
+                                    <option value="'Fredoka One', cursive" style="font-family: 'Fredoka One', cursive;">Fredoka One</option>
+                                    <option value="'Source Han Sans CN', sans-serif" style="font-family: 'Source Han Sans CN', sans-serif;">思源黑体</option>
+                                    <option value="'Alibaba PuHuiTi', sans-serif" style="font-family: 'Alibaba PuHuiTi', sans-serif;">阿里巴巴普惠体</option>
+                                    <option value="Arial, sans-serif" style="font-family: Arial, sans-serif;">Arial</option>
+                                    <option value="'Times New Roman', serif" style="font-family: 'Times New Roman', serif;">Times New Roman</option>
+                                    <option value="'未来圆SC', sans-serif" style="font-family: '未来圆SC', sans-serif;">未来圆SC</option>
+                                    <option value="'Noto Sans JP', sans-serif" style="font-family: 'Noto Sans JP', sans-serif;">Noto Sans JP</option>
+                                </select>
+                            </div>
+                            <div class="tool-group">
+                                <button class="tool-btn" data-command="bold" title="加粗"><b>B</b></button>
+                                <button class="tool-btn" data-command="italic" title="斜体"><i>I</i></button>
+                                <button class="tool-btn" data-command="underline" title="下划线"><u>U</u></button>
+                            </div>
+                            <div class="tool-group">
+                                <button class="tool-btn" data-command="insertUnorderedList" title="无序列表">•</button>
+                                <button class="tool-btn" data-command="insertOrderedList" title="有序列表">1.</button>
+                            </div>
+                            <div class="tool-group">
+                                <input type="color" class="color-picker" id="textColorPicker" value="#000000" title="文字颜色">
+                            </div>
+                            <div class="tool-group">
+                                <button class="tool-btn" data-command="undo" title="撤销">↩</button>
+                                <button class="tool-btn" data-command="redo" title="重做">↪</button>
+                            </div>
+                        </div>
+                        
+                        <div class="editor" id="editor" contenteditable="true">
+                            <!-- 编辑器内容将在这里动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 时间轴内容 -->
+            <div class="tab-content" id="timelineTab">
+                <div class="timeline-container">
+                    <div class="timeline" id="timeline">
+                        <!-- 时间轴内容将通过 JavaScript 动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="add-timeline-event">
+                    <input type="date" class="timeline-input" id="timelineDate">
+                    <input type="text" class="timeline-input" id="timelineEvent" placeholder="事件描述">
+                    <button class="add-timeline-btn" id="addTimelineBtn">添加</button>
+                </div>
+            </div>
+            
+            <!-- 图表内容 -->
+            <div class="tab-content" id="chartsTab">
+                <div class="chart-container">
+                    <div class="chart-options">
+                        <button class="chart-type active" data-chart-type="bar">柱状图</button>
+                        <button class="chart-type" data-chart-type="pie">饼图</button>
+                        <button class="chart-type" data-chart-type="line">折线图</button>
+                    </div>
+                    <canvas class="chart-canvas" id="chartCanvas"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>图表数据编辑器</h3>
+                    <div id="chartDataEditor">
+                        <!-- 图表数据编辑器将通过 JavaScript 动态生成 -->
+                    </div>
+                    <button class="oc-action-btn" id="updateChartBtn" style="margin-top: 15px;">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 文件内容 -->
+            <div class="tab-content" id="filesTab">
+                <div class="file-upload" id="fileUpload">
+                    <div class="file-upload-icon">📁</div>
+                    <div>拖放文件到这里或点击上传</div>
+                    <input type="file" id="fileInput" style="display: none;" multiple>
+                </div>
+                
+                <div id="uploadedFiles">
+                    <!-- 上传的文件列表将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 浮动按钮 -->
+    <div class="floating-elements">
+        <button class="floating-btn secondary" id="quickSaveBtn" title="快速保存">💾</button>
+        <button class="floating-btn accent" id="themeToggleBtn" title="切换主题">🎨</button>
+        <button class="floating-btn" id="helpBtn" title="帮助">❓</button>
+    </div>
+    
+    <!-- 模态框 - 新建 OC -->
+    <div class="modal" id="newOcModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">创建新 OC</h2>
+            <div class="form-group">
+                <label class="form-label" for="ocName">OC 名称</label>
+                <input type="text" class="form-input" id="ocName" placeholder="输入 OC 名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="ocDescription">描述</label>
+                <textarea class="form-input form-textarea" id="ocDescription" placeholder="输入 OC 描述"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="ocColor">主题颜色</label>
+                <input type="color" class="form-input" id="ocColor" value="#ff9eb7">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel">取消</button>
+                <button class="modal-btn confirm" id="confirmNewOc">创建</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态框 - 新建文件 -->
+    <div class="modal" id="newFileModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">新建文件</h2>
+            <div class="form-group">
+                <label class="form-label" for="fileName">文件名称</label>
+                <input type="text" class="form-input" id="fileName" placeholder="输入文件名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="fileType">文件类型</label>
+                <select class="form-input" id="fileType">
+                    <option value="text">文本文件</option>
+                    <option value="image">图片</option>
+                    <option value="note">笔记</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel">取消</button>
+                <button class="modal-btn confirm" id="confirmNewFile">创建</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态框 - 导入 -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">导入 OC</h2>
+            <div class="form-group">
+                <label class="form-label" for="importFile">选择 OC 文件 (.ocpkg)</label>
+                <input type="file" class="form-input" id="importFile" accept=".ocpkg">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel">取消</button>
+                <button class="modal-btn confirm" id="confirmImport">导入</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态框 - 帮助 -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">OC 管理器帮助</h2>
+            <div class="form-group">
+                <h3>基本操作</h3>
+                <p>1. 点击"新建 OC"按钮创建新的OC角色</p>
+                <p>2. 在侧边栏选择OC角色进行编辑</p>
+                <p>3. 使用顶部的选项卡切换不同功能区域</p>
+                <p>4. 点击"保存"按钮保存您的更改</p>
+                
+                <h3>编辑器功能</h3>
+                <p>- 使用工具栏格式化文本</p>
+                <p>- 在文件资源管理器中创建和管理多个文件</p>
+                <p>- 时间轴功能可以记录OC的重要事件</p>
+                <p>- 图表功能可以可视化OC的数据</p>
+                <p>- 文件功能可以上传和管理相关资源</p>
+                
+                <h3>导入导出</h3>
+                <p>- 可以导出单个OC或全部OC</p>
+                <p>- 导入功能可以恢复之前导出的OC</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn confirm" id="closeHelpModal">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">加载中...</div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script>
+        // 全局变量
+        let ocs = [];
+        let currentOcId = null;
+        let currentFileId = null;
+        let chart = null;
+        
+        // DOM 元素
+        const elements = {
+            // 侧边栏
+            sidebar: document.querySelector('.sidebar'),
+            toggleSidebar: document.querySelector('.toggle-sidebar'),
+            ocList: document.getElementById('ocList'),
+            addOcBtn: document.getElementById('addOcBtn'),
+            exportAllBtn: document.getElementById('exportAllBtn'),
+            importBtn: document.getElementById('importBtn'),
+            
+            // 主内容区
+            ocTitle: document.getElementById('ocTitle'),
+            saveOcBtn: document.getElementById('saveOcBtn'),
+            exportOcBtn: document.getElementById('exportOcBtn'),
+            deleteOcBtn: document.getElementById('deleteOcBtn'),
+            
+            // 选项卡
+            tabs: document.querySelectorAll('.tab'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            
+            // 编辑器
+            fileTree: document.getElementById('fileTree'),
+            addFileBtn: document.getElementById('addFileBtn'),
+            editor: document.getElementById('editor'),
+            fontSelector: document.getElementById('fontSelector'),
+            textColorPicker: document.getElementById('textColorPicker'),
+            toolBtns: document.querySelectorAll('.tool-btn'),
+            
+            // 时间轴
+            timeline: document.getElementById('timeline'),
+            timelineDate: document.getElementById('timelineDate'),
+            timelineEvent: document.getElementById('timelineEvent'),
+            addTimelineBtn: document.getElementById('addTimelineBtn'),
+            
+            // 图表
+            chartCanvas: document.getElementById('chartCanvas'),
+            chartTypes: document.querySelectorAll('.chart-type'),
+            chartDataEditor: document.getElementById('chartDataEditor'),
+            updateChartBtn: document.getElementById('updateChartBtn'),
+            
+            // 文件
+            fileUpload: document.getElementById('fileUpload'),
+            fileInput: document.getElementById('fileInput'),
+            uploadedFiles: document.getElementById('uploadedFiles'),
+            
+            // 模态框
+            modals: document.querySelectorAll('.modal'),
+            newOcModal: document.getElementById('newOcModal'),
+            newFileModal: document.getElementById('newFileModal'),
+            importModal: document.getElementById('importModal'),
+            helpModal: document.getElementById('helpModal'),
+            confirmNewOc: document.getElementById('confirmNewOc'),
+            confirmNewFile: document.getElementById('confirmNewFile'),
+            confirmImport: document.getElementById('confirmImport'),
+            closeHelpModal: document.getElementById('closeHelpModal'),
+            
+            // 浮动按钮
+            quickSaveBtn: document.getElementById('quickSaveBtn'),
+            themeToggleBtn: document.getElementById('themeToggleBtn'),
+            helpBtn: document.getElementById('helpBtn'),
+            
+            // 加载动画
+            loader: document.getElementById('loader')
+        };
+        
+        // 初始化应用
+        function initApp() {
+            loadOcs();
+            setupEventListeners();
+            updateCurrentDate();
+            
+            // 检查是否有OC，如果没有显示创建模态框
+            if (ocs.length === 0) {
+                setTimeout(() => {
+                    showModal(elements.newOcModal);
+                }, 500);
+            } else {
+                loadOc(ocs[0].id);
+            }
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 侧边栏切换
+            elements.toggleSidebar.addEventListener('click', toggleSidebar);
+            
+            // 新建OC按钮
+            elements.addOcBtn.addEventListener('click', () => showModal(elements.newOcModal));
+            
+            // 导出导入按钮
+            elements.exportAllBtn.addEventListener('click', exportAllOcs);
+            elements.importBtn.addEventListener('click', () => showModal(elements.importModal));
+            
+            // OC操作按钮
+            elements.saveOcBtn.addEventListener('click', saveCurrentOc);
+            elements.exportOcBtn.addEventListener('click', exportCurrentOc);
+            elements.deleteOcBtn.addEventListener('click', deleteCurrentOc);
+            
+            // 选项卡切换
+            elements.tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // 编辑器工具栏
+            elements.toolBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const command = btn.getAttribute('data-command');
+                    if (command === 'undo' || command === 'redo') {
+                        document.execCommand(command, false, null);
+                    } else {
+                        document.execCommand(command, false, null);
+                        btn.classList.toggle('active');
+                    }
+                });
+            });
+            
+            // 字体选择器
+            elements.fontSelector.addEventListener('change', () => {
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('fontName', false, elements.fontSelector.value);
+            });
+            
+            // 颜色选择器
+            elements.textColorPicker.addEventListener('input', () => {
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('foreColor', false, elements.textColorPicker.value);
+            });
+            
+            // 新建文件按钮
+            elements.addFileBtn.addEventListener('click', () => showModal(elements.newFileModal));
+            
+            // 时间轴添加事件
+            elements.addTimelineBtn.addEventListener('click', addTimelineEvent);
+            
+            // 图表类型切换
+            elements.chartTypes.forEach(type => {
+                type.addEventListener('click', () => {
+                    elements.chartTypes.forEach(t => t.classList.remove('active'));
+                    type.classList.add('active');
+                    updateChart();
+                });
+            });
+            
+            // 更新图表按钮
+            elements.updateChartBtn.addEventListener('click', updateChart);
+            
+            // 文件上传
+            elements.fileUpload.addEventListener('click', () => elements.fileInput.click());
+            elements.fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                elements.fileUpload.style.borderColor = 'var(--primary)';
+                elements.fileUpload.style.backgroundColor = 'rgba(255, 158, 183, 0.1)';
+            });
+            elements.fileUpload.addEventListener('dragleave', () => {
+                elements.fileUpload.style.borderColor = '#ddd';
+                elements.fileUpload.style.backgroundColor = 'transparent';
+            });
+            elements.fileUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                elements.fileUpload.style.borderColor = '#ddd';
+                elements.fileUpload.style.backgroundColor = 'transparent';
+                handleFileUpload(e.dataTransfer.files);
+            });
+            elements.fileInput.addEventListener('change', () => {
+                if (elements.fileInput.files.length > 0) {
+                    handleFileUpload(elements.fileInput.files);
+                }
+            });
+            
+            // 模态框关闭按钮
+            document.querySelectorAll('.close-modal, .modal-btn.cancel').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    hideAllModals();
+                });
+            });
+            
+            // 新建OC确认按钮
+            elements.confirmNewOc.addEventListener('click', createNewOc);
+            
+            // 新建文件确认按钮
+            elements.confirmNewFile.addEventListener('click', createNewFile);
+            
+            // 导入确认按钮
+            elements.confirmImport.addEventListener('click', importOc);
+            
+            // 帮助按钮
+            elements.helpBtn.addEventListener('click', () => showModal(elements.helpModal));
+            elements.closeHelpModal.addEventListener('click', () => hideModal(elements.helpModal));
+            
+            // 浮动按钮
+            elements.quickSaveBtn.addEventListener('click', saveCurrentOc);
+            elements.themeToggleBtn.addEventListener('click', toggleTheme);
+            
+            // 编辑器内容变化时自动保存
+            elements.editor.addEventListener('input', debounce(() => {
+                if (currentOcId && currentFileId) {
+                    const oc = getOcById(currentOcId);
+                    const file = oc.files.find(f => f.id === currentFileId);
+                    if (file) {
+                        file.content = elements.editor.innerHTML;
+                        saveOcsToLocalStorage();
+                    }
+                }
+            }, 1000));
+        }
+        
+        // 切换侧边栏
+        function toggleSidebar() {
+            elements.sidebar.classList.toggle('collapsed');
+        }
+        
+        // 切换选项卡
+        function switchTab(tabId) {
+            // 更新活动选项卡
+            elements.tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // 更新活动内容
+            elements.tabContents.forEach(content => {
+                if (content.id === `${tabId}Tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+            
+            // 如果是图表选项卡，初始化图表
+            if (tabId === 'charts') {
+                initChart();
+            }
+        }
+        
+        // 加载所有OC
+        function loadOcs() {
+            const savedOcs = localStorage.getItem('ocs');
+            if (savedOcs) {
+                ocs = JSON.parse(savedOcs);
+                renderOcList();
+            }
+        }
+        
+        // 保存所有OC到本地存储
+        function saveOcsToLocalStorage() {
+            localStorage.setItem('ocs', JSON.stringify(ocs));
+        }
+        
+        // 渲染OC列表
+        function renderOcList() {
+            elements.ocList.innerHTML = '';
+            
+            ocs.forEach(oc => {
+                const li = document.createElement('li');
+                li.className = 'oc-item';
+                if (oc.id === currentOcId) {
+                    li.classList.add('active');
+                }
+                li.setAttribute('data-oc-id', oc.id);
+                
+                li.innerHTML = `
+                    <div class="oc-name">${oc.name}</div>
+                    <div class="oc-date">创建于: ${formatDate(oc.createdAt)}</div>
+                `;
+                
+                li.addEventListener('click', () => loadOc(oc.id));
+                elements.ocList.appendChild(li);
+            });
+        }
+        
+        // 加载特定OC
+        function loadOc(ocId) {
+            const oc = getOcById(ocId);
+            if (!oc) return;
+            
+            currentOcId = ocId;
+            elements.ocTitle.textContent = oc.name;
+            
+            // 更新活动OC样式
+            document.querySelectorAll('.oc-item').forEach(item => {
+                if (item.getAttribute('data-oc-id') === ocId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 渲染文件树
+            renderFileTree(oc.files);
+            
+            // 加载第一个文件内容
+            if (oc.files.length > 0) {
+                loadFile(oc.files[0].id);
+            } else {
+                elements.editor.innerHTML = '';
+                currentFileId = null;
+            }
+            
+            // 渲染时间轴
+            renderTimeline(oc.timeline);
+            
+            // 初始化图表数据
+            initChartDataEditor(oc.chartData || getDefaultChartData());
+        }
+        
+        // 获取特定OC
+        function getOcById(ocId) {
+            return ocs.find(oc => oc.id === ocId);
+        }
+        
+        // 渲染文件树
+        function renderFileTree(files) {
+            elements.fileTree.innerHTML = '';
+            
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                if (file.id === currentFileId) {
+                    li.classList.add('active');
+                }
+                li.setAttribute('data-file-id', file.id);
+                
+                // 根据文件类型设置图标
+                let icon = '📄';
+                if (file.type === 'image') icon = '🖼️';
+                if (file.type === 'note') icon = '📝';
+                
+                li.innerHTML = `
+                    <span class="file-icon">${icon}</span>
+                    <span>${file.name}</span>
+                `;
+                
+                li.addEventListener('click', () => loadFile(file.id));
+                elements.fileTree.appendChild(li);
+            });
+        }
+        
+        // 加载文件内容
+        function loadFile(fileId) {
+            if (!currentOcId) return;
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            const file = oc.files.find(f => f.id === fileId);
+            if (!file) return;
+            
+            currentFileId = fileId;
+            
+            // 更新活动文件样式
+            document.querySelectorAll('.file-item').forEach(item => {
+                if (item.getAttribute('data-file-id') === fileId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 加载文件内容到编辑器
+            if (file.type === 'text' || file.type === 'note') {
+                elements.editor.innerHTML = file.content || '';
+                elements.editor.contentEditable = 'true';
+            } else if (file.type === 'image') {
+                elements.editor.innerHTML = `<img src="${file.content}" style="max-width: 100%;">`;
+                elements.editor.contentEditable = 'false';
+            } else {
+                elements.editor.innerHTML = file.content || '';
+                elements.editor.contentEditable = 'false';
+            }
+        }
+        
+        // 渲染时间轴
+        function renderTimeline(timeline) {
+            elements.timeline.innerHTML = '';
+            
+            timeline.forEach(event => {
+                const eventEl = document.createElement('div');
+                eventEl.className = 'timeline-event';
+                eventEl.innerHTML = `
+                    <div class="timeline-date">${formatDate(event.date)}</div>
+                    <div class="timeline-content">${event.text}</div>
+                `;
+                elements.timeline.appendChild(eventEl);
+            });
+        }
+        
+        // 添加时间轴事件
+        function addTimelineEvent() {
+            if (!currentOcId) return;
+            
+            const date = elements.timelineDate.value;
+            const text = elements.timelineEvent.value.trim();
+            
+            if (!date || !text) {
+                alert('请填写日期和事件描述');
+                return;
+            }
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            oc.timeline.push({
+                id: generateId(),
+                date,
+                text
+            });
+            
+            // 按日期排序
+            oc.timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            saveOcsToLocalStorage();
+            renderTimeline(oc.timeline);
+            
+            // 清空输入
+            elements.timelineEvent.value = '';
+            updateCurrentDate();
+            
+            // 显示动画效果
+            showConfetti();
+        }
+        
+        // 初始化图表
+        function initChart() {
+            if (!currentOcId) return;
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            const ctx = elements.chartCanvas.getContext('2d');
+            const chartType = document.querySelector('.chart-type.active').getAttribute('data-chart-type');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: chartType,
+                data: oc.chartData || getDefaultChartData(),
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'OC 数据图表'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 获取默认图表数据
+        function getDefaultChartData() {
+            return {
+                labels: ['力量', '敏捷', '智力', '魅力', '幸运'],
+                datasets: [{
+                    label: '属性值',
+                    data: [5, 5, 5, 5, 5],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+        }
+        
+        // 初始化图表数据编辑器
+        function initChartDataEditor(chartData) {
+            elements.chartDataEditor.innerHTML = '';
+            
+            // 创建标签编辑器
+            const labelsGroup = document.createElement('div');
+            labelsGroup.className = 'form-group';
+            labelsGroup.innerHTML = '<h3>标签</h3>';
+            
+            const labelsContainer = document.createElement('div');
+            labelsContainer.style.display = 'flex';
+            labelsContainer.style.flexWrap = 'wrap';
+            labelsContainer.style.gap = '10px';
+            labelsContainer.style.marginBottom = '15px';
+            
+            chartData.labels.forEach((label, index) => {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = label;
+                input.className = 'form-input';
+                input.style.flex = '1';
+                input.style.minWidth = '100px';
+                input.addEventListener('input', () => {
+                    chartData.labels[index] = input.value;
+                });
+                
+                labelsContainer.appendChild(input);
+            });
+            
+            // 添加新标签按钮
+            const addLabelBtn = document.createElement('button');
+            addLabelBtn.className = 'oc-action-btn';
+            addLabelBtn.textContent = '+ 添加标签';
+            addLabelBtn.style.marginBottom = '15px';
+            addLabelBtn.addEventListener('click', () => {
+                chartData.labels.push(`属性 ${chartData.labels.length + 1}`);
+                chartData.datasets[0].data.push(5);
+                initChartDataEditor(chartData);
+            });
+            
+            labelsGroup.appendChild(labelsContainer);
+            labelsGroup.appendChild(addLabelBtn);
+            elements.chartDataEditor.appendChild(labelsGroup);
+            
+            // 创建数据编辑器
+            const dataGroup = document.createElement('div');
+            dataGroup.className = 'form-group';
+            dataGroup.innerHTML = '<h3>数据值</h3>';
+            
+            const dataContainer = document.createElement('div');
+            dataContainer.style.display = 'flex';
+            dataContainer.style.flexWrap = 'wrap';
+            dataContainer.style.gap = '10px';
+            
+            chartData.datasets[0].data.forEach((value, index) => {
+                const inputGroup = document.createElement('div');
+                inputGroup.style.display = 'flex';
+                inputGroup.style.flexDirection = 'column';
+                inputGroup.style.minWidth = '100px';
+                
+                const label = document.createElement('label');
+                label.textContent = chartData.labels[index] || `数据 ${index + 1}`;
+                label.style.marginBottom = '5px';
+                label.style.fontSize = '14px';
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.max = '10';
+                input.value = value;
+                input.className = 'form-input';
+                input.addEventListener('input', () => {
+                    chartData.datasets[0].data[index] = parseInt(input.value) || 0;
+                });
+                
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+                dataContainer.appendChild(inputGroup);
+            });
+            
+            dataGroup.appendChild(dataContainer);
+            elements.chartDataEditor.appendChild(dataGroup);
+        }
+        
+        // 更新图表
+        function updateChart() {
+            if (!currentOcId) return;
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            const chartType = document.querySelector('.chart-type.active').getAttribute('data-chart-type');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = elements.chartCanvas.getContext('2d');
+            chart = new Chart(ctx, {
+                type: chartType,
+                data: oc.chartData || getDefaultChartData(),
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'OC 数据图表'
+                        }
+                    }
+                }
+            });
+            
+            // 保存图表数据
+            oc.chartData = chart.data;
+            saveOcsToLocalStorage();
+        }
+        
+        // 处理文件上传
+        function handleFileUpload(files) {
+            if (!currentOcId) return;
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            showLoader();
+            
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const fileType = file.type.startsWith('image/') ? 'image' : 'other';
+                    
+                    oc.files.push({
+                        id: generateId(),
+                        name: file.name,
+                        type: fileType,
+                        content: e.target.result
+                    });
+                    
+                    saveOcsToLocalStorage();
+                    renderFileTree(oc.files);
+                    hideLoader();
+                };
+                
+                if (file.type.startsWith('image/')) {
+                    reader.readAsDataURL(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+            
+            elements.fileInput.value = '';
+        }
+        
+        // 显示模态框
+        function showModal(modal) {
+            hideAllModals();
+            modal.classList.add('active');
+        }
+        
+        // 隐藏模态框
+        function hideModal(modal) {
+            modal.classList.remove('active');
+        }
+        
+        // 隐藏所有模态框
+        function hideAllModals() {
+            elements.modals.forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+        
+        // 创建新OC
+        function createNewOc() {
+            const name = document.getElementById('ocName').value.trim();
+            const description = document.getElementById('ocDescription').value.trim();
+            const color = document.getElementById('ocColor').value;
+            
+            if (!name) {
+                alert('请填写OC名称');
+                return;
+            }
+            
+            const newOc = {
+                id: generateId(),
+                name,
+                description,
+                color,
+                createdAt: new Date().toISOString(),
+                files: [],
+                timeline: [],
+                chartData: getDefaultChartData()
+            };
+            
+            // 添加默认文件
+            newOc.files.push({
+                id: generateId(),
+                name: '主文档',
+                type: 'text',
+                content: `<h1>${name}</h1><p>${description || '暂无描述'}</p>`
+            });
+            
+            ocs.push(newOc);
+            saveOcsToLocalStorage();
+            renderOcList();
+            loadOc(newOc.id);
+            
+            // 重置表单
+            document.getElementById('ocName').value = '';
+            document.getElementById('ocDescription').value = '';
+            
+            hideModal(elements.newOcModal);
+            
+            // 显示庆祝效果
+            showConfetti();
+        }
+        
+        // 创建新文件
+        function createNewFile() {
+            if (!currentOcId) return;
+            
+            const name = document.getElementById('fileName').value.trim();
+            const type = document.getElementById('fileType').value;
+            
+            if (!name) {
+                alert('请填写文件名称');
+                return;
+            }
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            let content = '';
+            if (type === 'text') content = `<h2>${name}</h2><p>开始编辑你的文档...</p>`;
+            if (type === 'note') content = `<h2>${name}</h2><p>记录你的笔记...</p>`;
+            
+            oc.files.push({
+                id: generateId(),
+                name,
+                type,
+                content
+            });
+            
+            saveOcsToLocalStorage();
+            renderFileTree(oc.files);
+            loadFile(oc.files[oc.files.length - 1].id);
+            
+            // 重置表单
+            document.getElementById('fileName').value = '';
+            
+            hideModal(elements.newFileModal);
+        }
+        
+        // 保存当前OC
+        function saveCurrentOc() {
+            if (!currentOcId || !currentFileId) return;
+            
+            const oc = getOcById(currentOcId);
+            const file = oc.files.find(f => f.id === currentFileId);
+            
+            if (file && (file.type === 'text' || file.type === 'note')) {
+                file.content = elements.editor.innerHTML;
+            }
+            
+            saveOcsToLocalStorage();
+            
+            // 显示保存成功动画
+            const saveBtn = elements.quickSaveBtn;
+            saveBtn.textContent = '✓';
+            saveBtn.style.backgroundColor = 'var(--success)';
+            
+            setTimeout(() => {
+                saveBtn.textContent = '💾';
+                saveBtn.style.backgroundColor = 'var(--secondary)';
+            }, 1000);
+        }
+        
+        // 导出当前OC
+        function exportCurrentOc() {
+            if (!currentOcId) return;
+            
+            const oc = getOcById(currentOcId);
+            if (!oc) return;
+            
+            showLoader();
+            
+            // 创建一个zip文件
+            const zip = new JSZip();
+            
+            // 添加OC基本信息
+            zip.file('oc-info.json', JSON.stringify({
+                name: oc.name,
+                description: oc.description,
+                createdAt: oc.createdAt
+            }));
+            
+            // 添加文件
+            const filesFolder = zip.folder('files');
+            oc.files.forEach(file => {
+                if (file.type === 'image') {
+                    // 对于图片，需要将base64转换为blob
+                    const base64Data = file.content.split(',')[1];
+                    const blob = b64toBlob(base64Data, file.content.match(/^data:(.*);base64,/)[1]);
+                    filesFolder.file(file.name, blob);
+                } else {
+                    filesFolder.file(`${file.name}.${file.type}`, file.content);
+                }
+            });
+            
+            // 添加时间轴
+            zip.file('timeline.json', JSON.stringify(oc.timeline));
+            
+            // 添加图表数据
+            zip.file('chart-data.json', JSON.stringify(oc.chartData));
+            
+            // 生成zip文件
+            zip.generateAsync({ type: 'blob' }).then(content => {
+                saveAs(content, `${oc.name}.ocpkg`);
+                hideLoader();
+            });
+        }
+        
+        // 导出所有OC
+        function exportAllOcs() {
+            if (ocs.length === 0) return;
+            
+            showLoader();
+            
+            const zip = new JSZip();
+            
+            ocs.forEach(oc => {
+                const ocFolder = zip.folder(oc.name);
+                
+                // 添加OC基本信息
+                ocFolder.file('oc-info.json', JSON.stringify({
+                    name: oc.name,
+                    description: oc.description,
+                    createdAt: oc.createdAt
+                }));
+                
+                // 添加文件
+                const filesFolder = ocFolder.folder('files');
+                oc.files.forEach(file => {
+                    if (file.type === 'image') {
+                        const base64Data = file.content.split(',')[1];
+                        const blob = b64toBlob(base64Data, file.content.match(/^data:(.*);base64,/)[1]);
+                        filesFolder.file(file.name, blob);
+                    } else {
+                        filesFolder.file(`${file.name}.${file.type}`, file.content);
+                    }
+                });
+                
+                // 添加时间轴
+                ocFolder.file('timeline.json', JSON.stringify(oc.timeline));
+                
+                // 添加图表数据
+                ocFolder.file('chart-data.json', JSON.stringify(oc.chartData));
+            });
+            
+            zip.generateAsync({ type: 'blob' }).then(content => {
+                saveAs(content, `所有OC备份_${formatDate(new Date())}.ocpkg`);
+                hideLoader();
+            });
+        }
+        
+        // 导入OC
+        function importOc() {
+            const fileInput = document.getElementById('importFile');
+            if (!fileInput.files.length) {
+                alert('请选择要导入的文件');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.ocpkg')) {
+                alert('请选择.ocpkg文件');
+                return;
+            }
+            
+            showLoader();
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                JSZip.loadAsync(e.target.result).then(zip => {
+                    // 读取OC基本信息
+                    return zip.file('oc-info.json').async('text').then(infoStr => {
+                        const info = JSON.parse(infoStr);
+                        const newOc = {
+                            id: generateId(),
+                            name: info.name,
+                            description: info.description,
+                            createdAt: info.createdAt || new Date().toISOString(),
+                            files: [],
+                            timeline: [],
+                            chartData: getDefaultChartData()
+                        };
+                        
+                        // 读取文件
+                        const filesFolder = zip.folder('files');
+                        if (filesFolder) {
+                            return Promise.all(
+                                Object.keys(filesFolder.files).map(filename => {
+                                    if (!filesFolder.files[filename].dir) {
+                                        return filesFolder.file(filename).async('base64').then(content => {
+                                            let fileType = 'text';
+                                            if (filename.match(/\.(png|jpg|jpeg|gif|bmp)$/i)) {
+                                                fileType = 'image';
+                                                content = `data:image/${filename.split('.').pop()};base64,${content}`;
+                                            }
+                                            
+                                            newOc.files.push({
+                                                id: generateId(),
+                                                name: filename.split('.')[0],
+                                                type: fileType,
+                                                content: fileType === 'image' ? content : atob(content)
+                                            });
+                                        });
+                                    }
+                                })
+                            ).then(() => {
+                                // 读取时间轴
+                                const timelineFile = zip.file('timeline.json');
+                                if (timelineFile) {
+                                    return timelineFile.async('text').then(timelineStr => {
+                                        newOc.timeline = JSON.parse(timelineStr);
+                                        return newOc;
+                                    });
+                                }
+                                return newOc;
+                            }).then(newOc => {
+                                // 读取图表数据
+                                const chartDataFile = zip.file('chart-data.json');
+                                if (chartDataFile) {
+                                    return chartDataFile.async('text').then(chartDataStr => {
+                                        newOc.chartData = JSON.parse(chartDataStr);
+                                        return newOc;
+                                    });
+                                }
+                                return newOc;
+                            });
+                        }
+                        return newOc;
+                    });
+                }).then(newOc => {
+                    ocs.push(newOc);
+                    saveOcsToLocalStorage();
+                    renderOcList();
+                    loadOc(newOc.id);
+                    hideLoader();
+                    hideModal(elements.importModal);
+                    fileInput.value = '';
+                    
+                    // 显示成功消息
+                    alert(`成功导入OC: ${newOc.name}`);
+                }).catch(error => {
+                    console.error('导入失败:', error);
+                    hideLoader();
+                    alert('导入失败，文件可能已损坏');
+                });
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // 删除当前OC
+        function deleteCurrentOc() {
+            if (!currentOcId) return;
+            
+            if (!confirm('确定要删除这个OC吗？此操作不可撤销！')) {
+                return;
+            }
+            
+            const index = ocs.findIndex(oc => oc.id === currentOcId);
+            if (index !== -1) {
+                ocs.splice(index, 1);
+                saveOcsToLocalStorage();
+                
+                if (ocs.length > 0) {
+                    loadOc(ocs[0].id);
+                } else {
+                    currentOcId = null;
+                    elements.ocTitle.textContent = '选择或创建 OC';
+                    elements.fileTree.innerHTML = '';
+                    elements.editor.innerHTML = '';
+                    elements.timeline.innerHTML = '';
+                }
+                
+                renderOcList();
+            }
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            
+            // 这里可以添加更复杂的主题切换逻辑
+            const btn = elements.themeToggleBtn;
+            btn.textContent = btn.textContent === '🌙' ? '☀️' : '🌙';
+        }
+        
+        // 显示加载动画
+        function showLoader() {
+            elements.loader.classList.add('active');
+        }
+        
+        // 隐藏加载动画
+        function hideLoader() {
+            elements.loader.classList.remove('active');
+        }
+        
+        // 显示彩色纸屑效果
+        function showConfetti() {
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+        }
+        
+        // 创建单个彩色纸屑
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // 随机颜色
+            const colors = ['#ff9eb7', '#a2e1f6', '#ffd166', '#06d6a0', '#ff6b6b'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.backgroundColor = randomColor;
+            
+            // 随机位置
+            const startX = Math.random() * window.innerWidth;
+            confetti.style.left = `${startX}px`;
+            
+            // 随机大小
+            const size = Math.random() * 10 + 5;
+            confetti.style.width = `${size}px`;
+            confetti.style.height = `${size}px`;
+            
+            // 随机动画持续时间
+            const duration = Math.random() * 3 + 2;
+            confetti.style.animationDuration = `${duration}s`;
+            
+            document.body.appendChild(confetti);
+            
+            // 动画结束后移除
+            setTimeout(() => {
+                confetti.remove();
+            }, duration * 1000);
+        }
+        
+        // 更新当前日期到时间轴日期输入
+        function updateCurrentDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            elements.timelineDate.value = `${year}-${month}-${day}`;
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+        
+        // 生成唯一ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+        
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+        
+        // Base64转Blob
+        function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+            const byteCharacters = atob(b64Data);
+            const byteArrays = [];
+            
+            for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                const slice = byteCharacters.slice(offset, offset + sliceSize);
+                
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                
+                const byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            
+            return new Blob(byteArrays, { type: contentType });
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
